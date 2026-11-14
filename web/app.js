@@ -498,11 +498,14 @@ function statusHtml(model, r, age, example) {
   }
   if (blockA || blockB) kind = 'muted';
   const tick = Math.min(Math.max(thr, 0), 1);
+  const side = tick > 0.8 ? ' is-right' : tick < 0.2 ? ' is-left' : '';   // keeps the needle's label inside the gauge
   const verdict = `<div class="ps-verdict ps-verdict--${kind}">`
+    + '<div class="ps-verdict__tag">Triage result</div>'
     + `<div class="ps-verdict__title">${title}</div>`
     + `<div class="ps-verdict__sub">Pneumonia score: <b>${pText}</b> <span>(${detail})</span></div>`
     + `<div class="ps-bar" aria-hidden="true"><div class="ps-bar__fill" style="width:${(100 * p).toFixed(1)}%"></div>`
-    + `<div class="ps-bar__tick" style="left:${(100 * tick).toFixed(1)}%"></div></div></div>`;
+    + `<div class="ps-bar__tick${side}" style="left:${(100 * tick).toFixed(1)}%"></div></div>`
+    + '<div class="ps-bar__scale" aria-hidden="true"><span>0</span><span>50</span><span>100</span></div></div>';
   const both = [familiarity, patient];
   const alerts = both.filter((h) => h.includes('ps-alert')).join('');
   const checks = both.filter((h) => !h.includes('ps-alert')).join('');
@@ -566,11 +569,13 @@ function exampleNotice(example) {
 function buildCards() {
   $('cards').innerHTML = MODELS.map((m, i) => `
     <article class="ps-panel ps-card" id="card-${i}">
-      <div class="ps-model"><h2 id="name-${i}">${esc(m.displayName)}</h2><p id="trained-${i}"></p></div>
+      <div class="ps-model"><span class="ps-model__tag">Model ${'ABCD'[i] || i + 1}</span><h2 id="name-${i}">${esc(m.displayName)}</h2><p id="trained-${i}"></p></div>
+      <div id="spec-${i}"></div>
       <div class="ps-status" id="status-${i}"></div>
       <div class="ps-pictures" id="pictures-${i}" hidden>
-        <figure><canvas id="saw-${i}" width="${IMG_SIZE}" height="${IMG_SIZE}"></canvas><figcaption>What the model saw</figcaption></figure>
-        <figure><canvas id="heat-${i}" width="${IMG_SIZE}" height="${IMG_SIZE}"></canvas><figcaption id="heatcap-${i}">Where the model looked</figcaption></figure>
+        <figure data-tag="Input ${IMG_SIZE} px"><canvas id="saw-${i}" width="${IMG_SIZE}" height="${IMG_SIZE}"></canvas><figcaption>What the model saw</figcaption></figure>
+        <figure data-tag="Heatmap 7 x 7"><canvas id="heat-${i}" width="${IMG_SIZE}" height="${IMG_SIZE}"></canvas><figcaption id="heatcap-${i}">Where the model looked</figcaption>
+          <div class="ps-scale" aria-hidden="true"><span>less</span><i></i><span>more influence</span></div></figure>
       </div>
       <div id="tested-${i}"></div>
     </article>`).join('');
@@ -582,6 +587,17 @@ function renderCardFrame(i) {
   $(`name-${i}`).textContent = String(cfg.display_name || m.displayName);
   $(`trained-${i}`).textContent = m.meta ? trainedOnText(cfg) : '';
   $(`tested-${i}`).innerHTML = m.meta ? testedHtml(cfg) : '';
+  $(`spec-${i}`).innerHTML = m.meta ? specHtml(cfg) : '';
+}
+
+function specHtml(cfg) {
+  /* A strip of facts read from the model's own config file. What is not recorded there is left out. */
+  const rows = [];
+  if (cfg.arch) rows.push(['Network', String(cfg.arch).split('.')[0].replace(/^resnet(\d+)$/i, 'ResNet-$1')]);
+  if (Number.isFinite(cfg.n_train)) rows.push(['Training set', `${Number(cfg.n_train).toLocaleString('en-US')} X-rays`]);
+  if (Number.isFinite(cfg.threshold)) rows.push(['Flag cut-off', pct(cfg.threshold, cfg.threshold > 0.9 ? 1 : undefined)]);
+  if (Number.isFinite(cfg.temperature)) rows.push(['Score scaling', `T = ${Number(cfg.temperature).toFixed(2)}`]);
+  return rows.length ? `<dl class="ps-spec">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>` : '';
 }
 
 function megabytes(bytes) { return (bytes / 1e6).toFixed(0); }
@@ -613,7 +629,7 @@ function renderCard(i) {
     return;
   }
   if (m.status !== 'ready') {
-    status.innerHTML = '<div class="ps-empty">Loading this model … <span id="progress-text-' + i + '"></span>'
+    status.innerHTML = '<div class="ps-empty ps-empty--busy">Loading this model … <span id="progress-text-' + i + '"></span>'
       + `<div class="ps-progress"><div id="progress-bar-${i}"></div></div>`
       + '<div class="ps-note">A one-time download of about 45 MB. After that it is kept on this device.'
       + (pic ? ' Your picture is analysed as soon as the model is ready.' : '') + '</div></div>';
@@ -622,7 +638,7 @@ function renderCard(i) {
   }
   if (!pic) { status.innerHTML = EMPTY_STATUS; return; }
   const r = pic.results[i];
-  if (r === undefined || r === 'running') { status.innerHTML = '<div class="ps-empty">Analysing the picture …</div>'; return; }
+  if (r === undefined || r === 'running') { status.innerHTML = '<div class="ps-empty ps-empty--busy">Analysing the picture …</div>'; return; }
   status.innerHTML = statusHtml(m, r, state.age, pic.example);
   if (r) {
     drawGray($(`saw-${i}`), pic.gray);

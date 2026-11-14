@@ -11,12 +11,25 @@
 <div class="ps-page">
 
 <header class="ps-header">
-  <div>
+  <div class="ps-brand">
+    <svg class="ps-mark" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <rect x="1" y="1" width="34" height="34" rx="2" opacity=".35"/>
+      <circle cx="18" cy="18" r="8.5"/>
+      <path d="M18 3.5v8M18 24.5v8M3.5 18h8M24.5 18h8"/>
+      <circle cx="18" cy="18" r="1.6" fill="currentColor" stroke="none"/>
+    </svg>
     <h1>PneumoShift <span>a second look at a chest X-ray for pneumonia</span></h1>
-    <p>For a clinic without a radiologist. Choose a chest X-ray to see whether a doctor should review it first.
-    Each AI model shows where it looked, and warns you when the X-ray or the patient is unlike what it learned from.</p>
   </div>
   <div class="ps-badge">Research demo. Not a medical device. Not for diagnosis.</div>
+  <p>For a clinic without a radiologist. Choose a chest X-ray to see whether a doctor should review it first.
+  Each AI model shows where it looked, and warns you when the X-ray or the patient is unlike what it learned from.</p>
+  <dl class="ps-strip" aria-label="How this page works">
+    <div><dt>Runs</dt><dd>on this device</dd></div>
+    <div><dt>Upload</dt><dd>none</dd></div>
+    <div><dt>Models</dt><dd>2 &times; ResNet-18</dd></div>
+    <div><dt>Model input</dt><dd>224 &times; 224 px, grey</dd></div>
+    <div><dt>Checks</dt><dd>X-ray familiarity, patient group</dd></div>
+  </dl>
 </header>
 
 <noscript><div class="ps-notice ps-notice--error"><b>This demo needs JavaScript.</b>
@@ -89,8 +102,11 @@
     the Python code of the project: the test in the code repository compares the two on every example picture.
     The models are published on the Hugging Face Hub:
     <a href="https://huggingface.co/RL8596/pneumoshift-kids-only" rel="noopener">children-only model</a>,
-    <a href="https://huggingface.co/RL8596/pneumoshift-kids-plus-adults" rel="noopener">children + adults model</a>.</p>
+    <a href="https://huggingface.co/RL8596/pneumoshift-kids-plus-adults" rel="noopener">children + adults model</a>.
+    Typeface: IBM Plex (SIL Open Font License), served from this page.</p>
 </section>
+
+<footer class="ps-foot"><span>PneumoShift &middot; research build</span><span>Not a medical device &middot; not for diagnosis</span></footer>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.1/dist/ort.wasm.min.js" crossorigin="anonymous"></script>
