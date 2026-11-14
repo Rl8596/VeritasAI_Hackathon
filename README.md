@@ -46,6 +46,7 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 |---|---|---|
 | Children-only model (the tutorial) | **0.975** | 0.824 |
 | Children + 6,000 adults | 0.962 | **0.874** |
+| Children + all 15,142 adults (second generation, section 6) | 0.973 | 0.880 (not a shown improvement, see point 4) |
 | *Baseline:* raw pixels + logistic regression, trained on children | 0.847 | 0.727 |
 | *Baseline:* untrained-for-X-rays ImageNet network + logistic regression, trained on children | 0.953 | 0.752 |
 | *Baseline:* the same ImageNet network + logistic regression, trained on adults | | 0.848 |
@@ -62,10 +63,12 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
    only 28% on standing X-rays, which are the ones a small clinic takes.
 3. **The warning notices the wrong hospital, not the wrong answer.** It fires for 7% of the children's test X-rays
    and 81% of the adults'. But it cannot tell which adult answers are wrong.
-4. **Adult data repairs part of it, and a simple baseline gets most of the way.** 6,000 adult X-rays lift the adult
-   score from 0.824 to 0.874. A network that was never fine-tuned, plus a simple classifier trained on all 15,142
-   adult training X-rays (our model saw 6,000 of them), reaches 0.848. So the gain of our fine-tuning over that
-   baseline is 0.025 (95% interval 0.019 to 0.032).
+4. **Adult data repairs part of it, then more of it stops helping.** 6,000 adult X-rays lift the adult score from
+   0.824 to 0.874. We then trained 22 more models under a plan written down in advance (section 6). With all 15,142
+   adult X-rays the score is 0.880: a difference of +0.006 (95% interval -0.000 to +0.011), which by our own rule
+   is not a shown improvement. A simple baseline gets most of the way: a network that was never fine-tuned, plus a
+   simple classifier trained on the adult X-rays, reaches 0.848. Our fine-tuning adds 0.025 to that
+   (95% interval 0.019 to 0.033).
 5. **The heatmaps do not show where the disease is.** We tested them against radiologists' boxes: the hottest point
    lies inside a box for 25% (children-only) and 52% (children + adults) of X-rays. Always pointing at the most
    common spot, without looking at the picture, scores 57%.
@@ -78,15 +81,18 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 - Retraining only the last layer with adult X-rays barely helps (0.821 to 0.839 with all 15,142).
 - The repaired model pays for adults with children: at its threshold it clears only 46% of healthy children
   (the children-only model: 87%).
-- Neither model beats "always no" in accuracy at the 95%-sensitivity screening threshold.
+- No model, old or new, beats "always no" in accuracy at the 95%-sensitivity screening threshold.
+- Two and a half times more adult X-rays (15,142 instead of 6,000) did not give a clearly better model (section 6).
+- A network pretrained on another hospital's chest X-rays, used without fine-tuning, was no better than the
+  ImageNet one (an extra check, section 6).
 - A Gradio demo on Hugging Face was refused, so we rebuilt the demo to run in the browser.
 
 ### Limits
 
 Two hospitals, public data, one training run per published model. "Lung opacity" on the adult X-rays is a
 radiologist's finding on the picture, not a confirmed pneumonia [5]. No authority has checked this tool.
-A second generation of models with more adult data, three random seeds and a comparison plan fixed in advance
-([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)) is described in section 6.
+The second generation of models (section 6) adds more adult data, three random seeds and a comparison plan fixed
+in advance ([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)). The demo still runs the two published models.
 
 ---
 
@@ -177,7 +183,7 @@ On 1,500 adult test X-rays with boxes drawn by radiologists, we asked: does the 
 The heatmap has a 7 by 7 grid, so it is coarse. The demo says that it shows what influenced the model and is not a
 map of the disease.
 
-### 6. Second generation of models (in progress)
+### 6. Second generation of models: does more adult data help?
 
 The team asked for a stronger repaired model. Before training anything we wrote down what would be trained, which
 model would be the headline, how it would be compared, and what "good" means:
@@ -189,7 +195,63 @@ model would be the headline, how it would be compared, and what "good" means:
 - Test results are computed once, by `scripts/10_v2_report.py`, with intervals that resample patients.
 - We wrote in advance that we do not expect it to beat "always no" at the screening threshold.
 
-*Results: to be added when the runs are complete.*
+All 22 runs finished on 14 Nov. The test results were computed once. Full tables:
+[results/v2_report.md](results/v2_report.md).
+
+**The one comparison we committed to in advance.** Adult test X-rays, lung opacity against everyone else: the
+headline model (children + all 15,142 adult X-rays) scores 0.880, the published model (children + 6,000) scores
+0.874. The difference is +0.006 (95% interval -0.000 to +0.011). The interval touches zero, so by our own rule
+**no improvement is shown**. Two and a half times more adult X-rays did not give a clearly better model.
+
+Adults, test X-rays (n = 7,694). In this table both thresholds are chosen on adult validation X-rays for every
+row, also for the published models, so the rows can be compared. (Section 3 shows the published models at the
+thresholds they were built with.) "Screening" aims at catching 95% of the cases. "Strict" aims at clearing 95% of
+the non-cases; we added it on 14 Nov, after the test results of the first two models were known.
+
+| Model | AUROC (95% interval) | Standing X-rays | Bedside X-rays | Screening: caught / cleared | Strict: caught / cleared |
+|---|---|---|---|---|---|
+| *Baseline:* ImageNet network, not fine-tuned, + logistic regression on the adult X-rays | 0.848 (0.834 to 0.863) | 0.819 | 0.776 | 97% / 41% | 39% / 94% |
+| Children only (published) | 0.824 (0.809 to 0.839) | 0.795 | 0.727 | 95% / 44% | 29% / 94% |
+| Children + 6,000 adults (published) | 0.874 (0.861 to 0.886) | 0.865 | 0.811 | 96% / 50% | 46% / 94% |
+| New recipe, children + 6,000 adults | 0.872 (0.859 to 0.885) | 0.874 | 0.805 | 96% / 52% | 48% / 94% |
+| **New recipe, children + all 15,142 adults (headline)** | 0.880 (0.867 to 0.892) | 0.876 | 0.823 | 96% / 51% | 49% / 95% |
+| New recipe, adults only (15,142) | 0.878 (0.865 to 0.890) | 0.876 | 0.818 | 95% / 56% | 49% / 94% |
+
+What else the runs show. These points describe the results; only the comparison above was a test fixed in advance.
+
+- **The repair curve flattens.** Adult score by number of adult X-rays added, mean of three random seeds (lowest
+  to highest run): 0 → 0.831 (0.820 to 0.841), 300 → 0.834 (0.829 to 0.837), 1,000 → 0.853 (0.850 to 0.856),
+  3,000 → 0.857 (0.846 to 0.863), 6,000 → 0.871 (0.870 to 0.872), 15,142 → 0.881 (0.880 to 0.882). Inside the new
+  recipe the last step is worth +0.008 (95% interval +0.002 to +0.013). It comes from bedside X-rays (+0.017), not
+  from standing ones (+0.002, interval -0.008 to +0.013). On the validation X-rays the two had looked almost the
+  same (0.870 and 0.875).
+- **Still below "always no" in accuracy at the screening threshold, as we wrote in advance.** The headline model
+  catches 96% of the cases (interval 93% to 98%) and clears 51% of the others (41% to 60%). That makes it right
+  for 60.9% of adults; "always no" is right for 77.6% and catches no one.
+- **Standing X-rays, the small clinic's case** (4,214 X-rays, 9.3% with lung opacity). At the screening threshold
+  the headline model catches 90% (84% to 96%) and clears 65% (54% to 74%). The published model: 85% (76% to 91%)
+  and 70% (62% to 80%). The intervals overlap, so this is not a shown difference either.
+- **Children's X-rays neither help nor hurt on adults.** With them 0.880, without them 0.878 (difference +0.002,
+  interval -0.002 to +0.006). On children the adults-only model is clearly worse: 0.905 (three runs: 0.879 to
+  0.930) against 0.973.
+- **The children still pay.** With its threshold chosen on adults, the headline model catches every child with
+  pneumonia in the test set but clears only 32% of the healthy children.
+- **The scores became more honest, and the view shortcut weaker.** Calibration error on adults: 0.398 for the
+  children-only model, 0.029 for the published repaired model, 0.018 for the headline model. We also measured how
+  well a model's score tells a bedside X-ray from a standing one among *normal* adults (0.5 means the score ignores
+  the view): children-only 0.92, published children + adults 0.87, new recipe with the same 6,000 X-rays 0.69,
+  headline 0.64. We did not predict this, and single runs cannot tell us which change in the recipe caused it.
+- **A bigger network did not change the picture.** One ResNet-50 run on the same data: 0.884.
+- **An extra check that was not part of the plan: a network pretrained on chest X-rays.** After the first
+  validation result we tried the other obvious lever, a better starting point: a public DenseNet-121 trained on
+  chest X-rays from Stanford Hospital [21, 22], used without fine-tuning. Networks trained on the NIH collection
+  were excluded because they have already seen our test X-rays. As published it scores 0.801. With logistic
+  regression on its features, trained on our adult X-rays, it scores 0.848: the same as the ImageNet baseline
+  (difference -0.001, interval -0.008 to +0.006). We did not fine-tune it, so this says nothing about fine-tuning
+  such a network.
+
+**What this means for the clinic.** About 6,000 labelled local X-rays bring nearly all of the gain. Beyond that,
+more X-rays of the same kind add about 0.01. The gap that remains is not closed by more data of the same kind.
 
 ### 7. Checks on the data
 
@@ -275,3 +337,5 @@ Methods and software
 18. He K, Zhang X, Ren S, Sun J. Deep Residual Learning for Image Recognition. IEEE CVPR. 2016. Weights: `timm/resnet18.tv_in1k` (Wightman R. PyTorch Image Models).
 19. Guo C, Pleiss G, Sun Y, Weinberger KQ. On Calibration of Modern Neural Networks. ICML 2017.
 20. ONNX Runtime Web (Microsoft, MIT licence); PyTorch; scikit-learn; Hugging Face Hub.
+21. Cohen JP, Viviano JD, Bertin P, et al. TorchXRayVision: A library of chest X-ray datasets and models. MIDL 2022. Weights used: `densenet121-res224-chex`.
+22. Irvin J, Rajpurkar P, Ko M, et al. CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison. AAAI 2019.
