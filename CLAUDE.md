@@ -120,6 +120,28 @@ The "unlike my training data" warning (Mahalanobis distance on the 512 embedding
 Repair with adult X-rays, last layer only (AUROC adults vs everything else): 0 → 0.821, 100 → 0.781, 1,000 → 0.806, 15,142 → 0.839.
 Retraining only the last layer barely helps. Whole-network results come from step 07.
 
+Second model, children + 6,000 adult X-rays, whole network retrained (arrived after the lines above were written; threshold 0.157):
+
+| Test group | AUROC | Sensitivity | Specificity | Accuracy | "Always the majority class" |
+|---|---|---|---|---|---|
+| Children 1 to 5 | 0.962 | 1.000 | 0.457 | 0.796 | 0.625 |
+| Adults, lung opacity vs normal | 0.979 | 0.911 | 0.948 | 0.933 | 0.594 |
+| Adults, lung opacity vs everything else | 0.874 | 0.911 | 0.650 | **0.708** | **0.776** |
+
+- Adult data helps ranking (0.824 to 0.874) and sensitivity (0.781 to 0.911), but the children pay: their specificity falls from 0.867 to 0.457.
+- Still below the constant answer in the realistic mix. Say honestly that a 95%-sensitivity screening threshold trades accuracy for caught cases, so also report sensitivity and specificity, not accuracy alone.
+- It flags 56.8% of adults who are sick with something else (normal 5.2%, lung opacity 91.1%). This confusion is the hard part and adult data did not fix it.
+- The view problem stays: PA sensitivity 0.715, specificity 0.842; AP sensitivity 0.969, specificity 0.307.
+
+Heatmap pointing test (`results/heatmap_check.json`, 1,500 adult test X-rays with radiologist boxes; hottest Grad-CAM point inside a box):
+
+| Random point | Image centre | Always the most common spot | Children-only model | Children + adults model |
+|---|---|---|---|---|
+| 15% | 10% | 57% | 25% | 52% |
+
+- The children-only model rarely looks where the radiologists marked. Adult data doubles the hit rate, yet a fixed spot chosen without looking at the image still does better.
+- Caveat to state: Grad-CAM on ResNet-18 has a 7x7 grid, so it is coarse. Do not sell the heatmaps as localisation.
+
 Audit (`results/audit.json`):
 
 - No image is shared between train and test or between the datasets. 32 exact duplicate copies inside single Kermany splits.
