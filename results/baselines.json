@@ -1,0 +1,430 @@
+{
+  "protocol": {
+    "learned_on": "Kermany split == 'train' only (weights and scalers)",
+    "chosen_on": "Kermany split == 'val' (regularisation strength C and the decision threshold)",
+    "threshold_rule": "metrics.threshold_for_sensitivity(y_val, p_val, 0.95), fixed for all test groups",
+    "test_groups": {
+      "children_test (Kermany, pneumonia vs normal)": "mk.split == 'test'",
+      "adults_test (RSNA, lung opacity vs normal)": "(mr.split == 'test') & mr.is_adult & (mr.cls != 'No Lung Opacity / Not Normal')",
+      "adults_test (RSNA, lung opacity vs everything else)": "(mr.split == 'test') & mr.is_adult"
+    },
+    "note": "No baseline ever sees an RSNA image during fitting or tuning. Confidence intervals are the image-level bootstrap from metrics.summarize."
+  },
+  "data": {
+    "kermany_train": 4578,
+    "kermany_val": 654,
+    "kermany_test": 624,
+    "rsna_adult_test_total": 7694,
+    "rsna_adult_test_used": 7694,
+    "rsna_subsampled": false
+  },
+  "baselines": {
+    "majority_class": {
+      "model": "majority_class",
+      "description": "Always answers 'pneumonia', the most common class in Kermany train. The constant score is the share of pneumonia images in Kermany train.",
+      "threshold": 0.7420270860637833,
+      "threshold_rule": "95% sensitivity on Kermany val, then fixed",
+      "train_prevalence": 0.7420270860637833,
+      "results": {
+        "children_test (Kermany, pneumonia vs normal)": {
+          "n": 624,
+          "n_pos": 390,
+          "prevalence": 0.625,
+          "majority_baseline_accuracy": 0.625,
+          "auroc": 0.5,
+          "auprc": 0.625,
+          "threshold": 0.7420270860637833,
+          "ece": 0.1170270860637832,
+          "tp": 390,
+          "fp": 234,
+          "tn": 0,
+          "fn": 0,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "ppv": 0.625,
+          "npv": null,
+          "accuracy": 0.625,
+          "flagged_rate": 1.0,
+          "balanced_accuracy": 0.5,
+          "auroc_ci": [
+            0.5,
+            0.5
+          ],
+          "sensitivity_ci": [
+            1.0,
+            1.0
+          ],
+          "specificity_ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "adults_test (RSNA, lung opacity vs normal)": {
+          "n": 4242,
+          "n_pos": 1723,
+          "prevalence": 0.4061763319189062,
+          "majority_baseline_accuracy": 0.5938236680810938,
+          "auroc": 0.5,
+          "auprc": 0.4061763319189062,
+          "threshold": 0.7420270860637833,
+          "ece": 0.33585075414487714,
+          "tp": 1723,
+          "fp": 2519,
+          "tn": 0,
+          "fn": 0,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "ppv": 0.4061763319189062,
+          "npv": null,
+          "accuracy": 0.4061763319189062,
+          "flagged_rate": 1.0,
+          "balanced_accuracy": 0.5,
+          "auroc_ci": [
+            0.5,
+            0.5
+          ],
+          "sensitivity_ci": [
+            1.0,
+            1.0
+          ],
+          "specificity_ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "adults_test (RSNA, lung opacity vs everything else)": {
+          "n": 7694,
+          "n_pos": 1723,
+          "prevalence": 0.22394073303873147,
+          "majority_baseline_accuracy": 0.7760592669612685,
+          "auroc": 0.5,
+          "auprc": 0.22394073303873147,
+          "threshold": 0.7420270860637833,
+          "ece": 0.5180863530250521,
+          "tp": 1723,
+          "fp": 5971,
+          "tn": 0,
+          "fn": 0,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "ppv": 0.22394073303873147,
+          "npv": null,
+          "accuracy": 0.22394073303873147,
+          "flagged_rate": 1.0,
+          "balanced_accuracy": 0.5,
+          "auroc_ci": [
+            0.5,
+            0.5
+          ],
+          "sensitivity_ci": [
+            1.0,
+            1.0
+          ],
+          "specificity_ci": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "validation (Kermany val, used for choosing C and the threshold, not a result)": {
+        "n": 654,
+        "n_pos": 486,
+        "prevalence": 0.7431192660550459,
+        "majority_baseline_accuracy": 0.7431192660550459,
+        "auroc": 0.5,
+        "auprc": 0.7431192660550459,
+        "threshold": 0.7420270860637833,
+        "ece": 0.001092179991262654,
+        "tp": 486,
+        "fp": 168,
+        "tn": 0,
+        "fn": 0,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "ppv": 0.7431192660550459,
+        "npv": null,
+        "accuracy": 0.7431192660550459,
+        "flagged_rate": 1.0,
+        "balanced_accuracy": 0.5
+      }
+    },
+    "pixels_32x32_logreg": {
+      "model": "pixels_32x32_logreg",
+      "description": "Logistic regression on the 224 px centre crop shrunk to 32x32 pixels (standardised with Kermany train statistics, C chosen by AUROC on Kermany val).",
+      "threshold": 0.7960230708122253,
+      "threshold_rule": "95% sensitivity on Kermany val, then fixed",
+      "n_features": 1024,
+      "chosen_C": 0.01,
+      "val_auroc_by_C": {
+        "0.0001": 0.9836615716245346,
+        "0.001": 0.9896629433666471,
+        "0.01": 0.9913653733098177,
+        "0.1": 0.9891240446796001,
+        "1.0": 0.9841943464628651
+      },
+      "results": {
+        "children_test (Kermany, pneumonia vs normal)": {
+          "n": 624,
+          "n_pos": 390,
+          "prevalence": 0.625,
+          "majority_baseline_accuracy": 0.625,
+          "auroc": 0.8474139820293667,
+          "auprc": 0.8582378927393425,
+          "threshold": 0.7960230708122253,
+          "ece": 0.20758853166765995,
+          "tp": 373,
+          "fp": 105,
+          "tn": 129,
+          "fn": 17,
+          "sensitivity": 0.9564102564102565,
+          "specificity": 0.5512820512820513,
+          "ppv": 0.7803347280334728,
+          "npv": 0.8835616438356164,
+          "accuracy": 0.8044871794871795,
+          "flagged_rate": 0.7660256410256411,
+          "balanced_accuracy": 0.7538461538461538,
+          "auroc_ci": [
+            0.8112033698343085,
+            0.8773304013030289
+          ],
+          "sensitivity_ci": [
+            0.9357133153593747,
+            0.9753724765768377
+          ],
+          "specificity_ci": [
+            0.4890829694323144,
+            0.6096733814625058
+          ]
+        },
+        "adults_test (RSNA, lung opacity vs normal)": {
+          "n": 4242,
+          "n_pos": 1723,
+          "prevalence": 0.4061763319189062,
+          "majority_baseline_accuracy": 0.5938236680810938,
+          "auroc": 0.8348130528355939,
+          "auprc": 0.737236332590272,
+          "threshold": 0.7960230708122253,
+          "ece": 0.15272289004820772,
+          "tp": 1190,
+          "fp": 461,
+          "tn": 2058,
+          "fn": 533,
+          "sensitivity": 0.6906558328496808,
+          "specificity": 0.8169908693926161,
+          "ppv": 0.7207752877044216,
+          "npv": 0.794287919722115,
+          "accuracy": 0.7656765676567657,
+          "flagged_rate": 0.3892032060348892,
+          "balanced_accuracy": 0.7538233511211485,
+          "auroc_ci": [
+            0.8226338446867397,
+            0.8465840498205857
+          ],
+          "sensitivity_ci": [
+            0.6696482979463827,
+            0.7127790375511629
+          ],
+          "specificity_ci": [
+            0.8017815332708048,
+            0.831060403833099
+          ]
+        },
+        "adults_test (RSNA, lung opacity vs everything else)": {
+          "n": 7694,
+          "n_pos": 1723,
+          "prevalence": 0.22394073303873147,
+          "majority_baseline_accuracy": 0.7760592669612685,
+          "auroc": 0.7269674387708515,
+          "auprc": 0.3785907205911559,
+          "threshold": 0.7960230708122253,
+          "ece": 0.3350615206059378,
+          "tp": 1190,
+          "fp": 2088,
+          "tn": 3883,
+          "fn": 533,
+          "sensitivity": 0.6906558328496808,
+          "specificity": 0.650309830849104,
+          "ppv": 0.363026235509457,
+          "npv": 0.879302536231884,
+          "accuracy": 0.6593449441122953,
+          "flagged_rate": 0.4260462698206395,
+          "balanced_accuracy": 0.6704828318493924,
+          "auroc_ci": [
+            0.7146413613132591,
+            0.7393812665465271
+          ],
+          "sensitivity_ci": [
+            0.6699874096610027,
+            0.71223555611537
+          ],
+          "specificity_ci": [
+            0.6377663090824295,
+            0.6624716777971228
+          ]
+        }
+      },
+      "validation (Kermany val, used for choosing C and the threshold, not a result)": {
+        "n": 654,
+        "n_pos": 486,
+        "prevalence": 0.7431192660550459,
+        "majority_baseline_accuracy": 0.7431192660550459,
+        "auroc": 0.9913653733098177,
+        "auprc": 0.9969320887123148,
+        "threshold": 0.7960230708122253,
+        "ece": 0.02377124999554749,
+        "tp": 462,
+        "fp": 4,
+        "tn": 164,
+        "fn": 24,
+        "sensitivity": 0.9506172839506173,
+        "specificity": 0.9761904761904762,
+        "ppv": 0.9914163090128756,
+        "npv": 0.8723404255319149,
+        "accuracy": 0.9571865443425076,
+        "flagged_rate": 0.7125382262996942,
+        "balanced_accuracy": 0.9634038800705467
+      }
+    },
+    "frozen_imagenet_resnet18_logreg": {
+      "model": "frozen_imagenet_resnet18_logreg",
+      "description": "Logistic regression on the 512 pooled features of an ImageNet-pretrained resnet18.tv_in1k that was never trained on X-rays (standardised with Kermany train statistics, C chosen by AUROC on Kermany val).",
+      "threshold": 0.8961096405982971,
+      "threshold_rule": "95% sensitivity on Kermany val, then fixed",
+      "n_features": 512,
+      "chosen_C": 0.01,
+      "val_auroc_by_C": {
+        "0.001": 0.9952968841857731,
+        "0.01": 0.9958970213599843,
+        "0.1": 0.9942068391142465,
+        "1.0": 0.9922717029198511,
+        "10.0": 0.9848985890652557
+      },
+      "results": {
+        "children_test (Kermany, pneumonia vs normal)": {
+          "n": 624,
+          "n_pos": 390,
+          "prevalence": 0.625,
+          "majority_baseline_accuracy": 0.625,
+          "auroc": 0.9526736795967564,
+          "auprc": 0.9653452430465574,
+          "threshold": 0.8961096405982971,
+          "ece": 0.17873500123040198,
+          "tp": 380,
+          "fp": 64,
+          "tn": 170,
+          "fn": 10,
+          "sensitivity": 0.9743589743589743,
+          "specificity": 0.7264957264957265,
+          "ppv": 0.8558558558558559,
+          "npv": 0.9444444444444444,
+          "accuracy": 0.8814102564102564,
+          "flagged_rate": 0.7115384615384616,
+          "balanced_accuracy": 0.8504273504273504,
+          "auroc_ci": [
+            0.9347220907882673,
+            0.9694304699051534
+          ],
+          "sensitivity_ci": [
+            0.9583333333333334,
+            0.9895033628608924
+          ],
+          "specificity_ci": [
+            0.6680496453900708,
+            0.7834136293813714
+          ]
+        },
+        "adults_test (RSNA, lung opacity vs normal)": {
+          "n": 4242,
+          "n_pos": 1723,
+          "prevalence": 0.4061763319189062,
+          "majority_baseline_accuracy": 0.5938236680810938,
+          "auroc": 0.8760179455638022,
+          "auprc": 0.8365244807366803,
+          "threshold": 0.8961096405982971,
+          "ece": 0.3533446575631579,
+          "tp": 1508,
+          "fp": 821,
+          "tn": 1698,
+          "fn": 215,
+          "sensitivity": 0.8752176436448056,
+          "specificity": 0.6740770146883684,
+          "ppv": 0.6474881923572349,
+          "npv": 0.887611082070047,
+          "accuracy": 0.7557755775577558,
+          "flagged_rate": 0.549033474776049,
+          "balanced_accuracy": 0.774647329166587,
+          "auroc_ci": [
+            0.8649544642081689,
+            0.886375627347663
+          ],
+          "sensitivity_ci": [
+            0.859399211706401,
+            0.890822416502615
+          ],
+          "specificity_ci": [
+            0.6572764827890863,
+            0.692982807064564
+          ]
+        },
+        "adults_test (RSNA, lung opacity vs everything else)": {
+          "n": 7694,
+          "n_pos": 1723,
+          "prevalence": 0.22394073303873147,
+          "majority_baseline_accuracy": 0.7760592669612685,
+          "auroc": 0.7521627312043031,
+          "auprc": 0.4464664451946212,
+          "threshold": 0.8961096405982971,
+          "ece": 0.5849550808384076,
+          "tp": 1508,
+          "fp": 3258,
+          "tn": 2713,
+          "fn": 215,
+          "sensitivity": 0.8752176436448056,
+          "specificity": 0.45436275330765363,
+          "ppv": 0.31640788921527485,
+          "npv": 0.9265710382513661,
+          "accuracy": 0.5486093059526904,
+          "flagged_rate": 0.6194437223810761,
+          "balanced_accuracy": 0.6647901984762297,
+          "auroc_ci": [
+            0.7399274798948464,
+            0.7650265839894811
+          ],
+          "sensitivity_ci": [
+            0.8607963899841891,
+            0.8928166452169963
+          ],
+          "specificity_ci": [
+            0.44206569654092526,
+            0.466626986633319
+          ]
+        }
+      },
+      "validation (Kermany val, used for choosing C and the threshold, not a result)": {
+        "n": 654,
+        "n_pos": 486,
+        "prevalence": 0.7431192660550459,
+        "majority_baseline_accuracy": 0.7431192660550459,
+        "auroc": 0.9958970213599843,
+        "auprc": 0.99858181044189,
+        "threshold": 0.8961096405982971,
+        "ece": 0.020335572466805285,
+        "tp": 462,
+        "fp": 4,
+        "tn": 164,
+        "fn": 24,
+        "sensitivity": 0.9506172839506173,
+        "specificity": 0.9761904761904762,
+        "ppv": 0.9914163090128756,
+        "npv": 0.8723404255319149,
+        "accuracy": 0.9571865443425076,
+        "flagged_rate": 0.7125382262996942,
+        "balanced_accuracy": 0.9634038800705467
+      }
+    }
+  },
+  "per_image_probability_files": {
+    "pixels_32x32_logreg": "/tmp/claude-0/-home-user-VeritasAI-Hackathon/a4d4d2ec-895b-5837-86ac-23d157bf009f/scratchpad/audit/baseline_probs_pixels_32x32_logreg.npz",
+    "frozen_imagenet_resnet18_logreg": "/tmp/claude-0/-home-user-VeritasAI-Hackathon/a4d4d2ec-895b-5837-86ac-23d157bf009f/scratchpad/audit/baseline_probs_frozen_imagenet_resnet18_logreg.npz"
+  }
+}

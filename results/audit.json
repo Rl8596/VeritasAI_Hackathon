@@ -1,0 +1,1613 @@
+{
+  "A1_who_is_in_the_data": {
+    "kermany_children": {
+      "n_images": 5856,
+      "age": "1-5 years for every patient according to Kermany et al. 2018; the files carry no per-image age, sex or view",
+      "by_split_and_class": {
+        "train": {
+          "normal": 1181,
+          "pneumonia": 3397,
+          "total": 4578,
+          "pneumonia_share": 0.742027
+        },
+        "val": {
+          "normal": 168,
+          "pneumonia": 486,
+          "total": 654,
+          "pneumonia_share": 0.743119
+        },
+        "test": {
+          "normal": 234,
+          "pneumonia": 390,
+          "total": 624,
+          "pneumonia_share": 0.625
+        }
+      },
+      "by_split_and_subtype": {
+        "train": {
+          "bacteria": 2228,
+          "normal": 1181,
+          "virus": 1169,
+          "total": 4578
+        },
+        "val": {
+          "bacteria": 310,
+          "normal": 168,
+          "virus": 176,
+          "total": 654
+        },
+        "test": {
+          "bacteria": 242,
+          "normal": 234,
+          "virus": 148,
+          "total": 624
+        }
+      },
+      "patient_groups_per_split": {
+        "train": 2320,
+        "val": 330,
+        "test": 404
+      },
+      "official_split_sizes": {
+        "train": 5216,
+        "test": 624,
+        "val": 16
+      },
+      "median_original_image_size_in_train": {
+        "normal": {
+          "orig_w": 1638.0,
+          "orig_h": 1329.0,
+          "aspect_w_over_h": 1.22
+        },
+        "pneumonia": {
+          "orig_w": 1168.0,
+          "orig_h": 778.0,
+          "aspect_w_over_h": 1.483607
+        }
+      }
+    },
+    "rsna_mostly_adults": {
+      "n_images": 26684,
+      "by_split_and_class": {
+        "adapt": {
+          "Lung Opacity": 3608,
+          "No Lung Opacity / Not Normal": 7091,
+          "Normal": 5311,
+          "total": 16010
+        },
+        "val": {
+          "Lung Opacity": 600,
+          "No Lung Opacity / Not Normal": 1182,
+          "Normal": 885,
+          "total": 2667
+        },
+        "test": {
+          "Lung Opacity": 1804,
+          "No Lung Opacity / Not Normal": 3548,
+          "Normal": 2655,
+          "total": 8007
+        }
+      },
+      "adults_by_split_and_class": {
+        "adapt": {
+          "Lung Opacity": 3328,
+          "No Lung Opacity / Not Normal": 6793,
+          "Normal": 5021,
+          "total": 15142
+        },
+        "val": {
+          "Lung Opacity": 576,
+          "No Lung Opacity / Not Normal": 1145,
+          "Normal": 846,
+          "total": 2567
+        },
+        "test": {
+          "Lung Opacity": 1723,
+          "No Lung Opacity / Not Normal": 3452,
+          "Normal": 2519,
+          "total": 7694
+        }
+      },
+      "age": {
+        "n_valid": 26679,
+        "invalid_values_removed": [
+          148,
+          150,
+          151,
+          153,
+          155
+        ],
+        "min": 1,
+        "p25": 34.0,
+        "median": 49.0,
+        "mean": 47.010458,
+        "p75": 59.0,
+        "max": 92,
+        "n_adults_18_plus": 25403,
+        "n_under_18": 1276,
+        "n_age_1_to_5": 90,
+        "share_age_1_to_5": 0.003373,
+        "counts_by_age_band": {
+          "1-5": 90,
+          "6-17": 1186,
+          "18-29": 3453,
+          "30-39": 3795,
+          "40-49": 5036,
+          "50-59": 6576,
+          "60-69": 4608,
+          "70+": 1935,
+          "invalid": 5
+        }
+      },
+      "sex": {
+        "M": 15166,
+        "F": 11518
+      },
+      "view": {
+        "PA": 14511,
+        "AP": 12173
+      },
+      "view_by_sex_adults": {
+        "AP_F": 4862,
+        "AP_M": 6597,
+        "PA_F": 6157,
+        "PA_M": 7787
+      },
+      "lung_opacity_rate": {
+        "all_images_with_valid_age": {
+          "n": 26679,
+          "by_view": {
+            "AP": {
+              "n": 12173,
+              "n_lung_opacity": 4664,
+              "n_normal": 1637,
+              "n_not_normal_no_opacity": 5872,
+              "opacity_rate": 0.383143,
+              "opacity_rate_vs_normal_only": 0.7402
+            },
+            "PA": {
+              "n": 14506,
+              "n_lung_opacity": 1348,
+              "n_normal": 7211,
+              "n_not_normal_no_opacity": 5947,
+              "opacity_rate": 0.092927,
+              "opacity_rate_vs_normal_only": 0.157495
+            }
+          },
+          "by_sex": {
+            "F": {
+              "n": 11516,
+              "n_lung_opacity": 2502,
+              "n_normal": 3904,
+              "n_not_normal_no_opacity": 5110,
+              "opacity_rate": 0.217263,
+              "opacity_rate_vs_normal_only": 0.390571
+            },
+            "M": {
+              "n": 15163,
+              "n_lung_opacity": 3510,
+              "n_normal": 4944,
+              "n_not_normal_no_opacity": 6709,
+              "opacity_rate": 0.231485,
+              "opacity_rate_vs_normal_only": 0.415188
+            }
+          },
+          "by_age_band": {
+            "1-5": {
+              "n": 90,
+              "n_lung_opacity": 20,
+              "n_normal": 45,
+              "n_not_normal_no_opacity": 25,
+              "opacity_rate": 0.222222,
+              "opacity_rate_vs_normal_only": 0.307692
+            },
+            "6-17": {
+              "n": 1186,
+              "n_lung_opacity": 365,
+              "n_normal": 417,
+              "n_not_normal_no_opacity": 404,
+              "opacity_rate": 0.307757,
+              "opacity_rate_vs_normal_only": 0.466752
+            },
+            "18-29": {
+              "n": 3453,
+              "n_lung_opacity": 853,
+              "n_normal": 1311,
+              "n_not_normal_no_opacity": 1289,
+              "opacity_rate": 0.247032,
+              "opacity_rate_vs_normal_only": 0.394177
+            },
+            "30-39": {
+              "n": 3795,
+              "n_lung_opacity": 904,
+              "n_normal": 1435,
+              "n_not_normal_no_opacity": 1456,
+              "opacity_rate": 0.238208,
+              "opacity_rate_vs_normal_only": 0.38649
+            },
+            "40-49": {
+              "n": 5036,
+              "n_lung_opacity": 1119,
+              "n_normal": 1814,
+              "n_not_normal_no_opacity": 2103,
+              "opacity_rate": 0.2222,
+              "opacity_rate_vs_normal_only": 0.381521
+            },
+            "50-59": {
+              "n": 6576,
+              "n_lung_opacity": 1403,
+              "n_normal": 2085,
+              "n_not_normal_no_opacity": 3088,
+              "opacity_rate": 0.213352,
+              "opacity_rate_vs_normal_only": 0.402236
+            },
+            "60-69": {
+              "n": 4608,
+              "n_lung_opacity": 909,
+              "n_normal": 1310,
+              "n_not_normal_no_opacity": 2389,
+              "opacity_rate": 0.197266,
+              "opacity_rate_vs_normal_only": 0.409644
+            },
+            "70+": {
+              "n": 1935,
+              "n_lung_opacity": 439,
+              "n_normal": 431,
+              "n_not_normal_no_opacity": 1065,
+              "opacity_rate": 0.226873,
+              "opacity_rate_vs_normal_only": 0.504598
+            }
+          }
+        },
+        "adults": {
+          "n": 25403,
+          "by_view": {
+            "AP": {
+              "n": 11459,
+              "n_lung_opacity": 4339,
+              "n_normal": 1508,
+              "n_not_normal_no_opacity": 5612,
+              "opacity_rate": 0.378654,
+              "opacity_rate_vs_normal_only": 0.74209
+            },
+            "PA": {
+              "n": 13944,
+              "n_lung_opacity": 1288,
+              "n_normal": 6878,
+              "n_not_normal_no_opacity": 5778,
+              "opacity_rate": 0.092369,
+              "opacity_rate_vs_normal_only": 0.157727
+            }
+          },
+          "by_sex": {
+            "F": {
+              "n": 11019,
+              "n_lung_opacity": 2350,
+              "n_normal": 3717,
+              "n_not_normal_no_opacity": 4952,
+              "opacity_rate": 0.213268,
+              "opacity_rate_vs_normal_only": 0.387341
+            },
+            "M": {
+              "n": 14384,
+              "n_lung_opacity": 3277,
+              "n_normal": 4669,
+              "n_not_normal_no_opacity": 6438,
+              "opacity_rate": 0.227823,
+              "opacity_rate_vs_normal_only": 0.412409
+            }
+          },
+          "by_age_band": {
+            "18-29": {
+              "n": 3453,
+              "n_lung_opacity": 853,
+              "n_normal": 1311,
+              "n_not_normal_no_opacity": 1289,
+              "opacity_rate": 0.247032,
+              "opacity_rate_vs_normal_only": 0.394177
+            },
+            "30-39": {
+              "n": 3795,
+              "n_lung_opacity": 904,
+              "n_normal": 1435,
+              "n_not_normal_no_opacity": 1456,
+              "opacity_rate": 0.238208,
+              "opacity_rate_vs_normal_only": 0.38649
+            },
+            "40-49": {
+              "n": 5036,
+              "n_lung_opacity": 1119,
+              "n_normal": 1814,
+              "n_not_normal_no_opacity": 2103,
+              "opacity_rate": 0.2222,
+              "opacity_rate_vs_normal_only": 0.381521
+            },
+            "50-59": {
+              "n": 6576,
+              "n_lung_opacity": 1403,
+              "n_normal": 2085,
+              "n_not_normal_no_opacity": 3088,
+              "opacity_rate": 0.213352,
+              "opacity_rate_vs_normal_only": 0.402236
+            },
+            "60-69": {
+              "n": 4608,
+              "n_lung_opacity": 909,
+              "n_normal": 1310,
+              "n_not_normal_no_opacity": 2389,
+              "opacity_rate": 0.197266,
+              "opacity_rate_vs_normal_only": 0.409644
+            },
+            "70+": {
+              "n": 1935,
+              "n_lung_opacity": 439,
+              "n_normal": 431,
+              "n_not_normal_no_opacity": 1065,
+              "opacity_rate": 0.226873,
+              "opacity_rate_vs_normal_only": 0.504598
+            }
+          }
+        },
+        "adult_test_set": {
+          "n": 7694,
+          "by_view": {
+            "AP": {
+              "n": 3480,
+              "n_lung_opacity": 1330,
+              "n_normal": 447,
+              "n_not_normal_no_opacity": 1703,
+              "opacity_rate": 0.382184,
+              "opacity_rate_vs_normal_only": 0.748452
+            },
+            "PA": {
+              "n": 4214,
+              "n_lung_opacity": 393,
+              "n_normal": 2072,
+              "n_not_normal_no_opacity": 1749,
+              "opacity_rate": 0.093261,
+              "opacity_rate_vs_normal_only": 0.159432
+            }
+          },
+          "by_sex": {
+            "F": {
+              "n": 3356,
+              "n_lung_opacity": 740,
+              "n_normal": 1080,
+              "n_not_normal_no_opacity": 1536,
+              "opacity_rate": 0.220501,
+              "opacity_rate_vs_normal_only": 0.406593
+            },
+            "M": {
+              "n": 4338,
+              "n_lung_opacity": 983,
+              "n_normal": 1439,
+              "n_not_normal_no_opacity": 1916,
+              "opacity_rate": 0.226602,
+              "opacity_rate_vs_normal_only": 0.405863
+            }
+          },
+          "by_age_band": {
+            "18-29": {
+              "n": 1063,
+              "n_lung_opacity": 243,
+              "n_normal": 408,
+              "n_not_normal_no_opacity": 412,
+              "opacity_rate": 0.228598,
+              "opacity_rate_vs_normal_only": 0.373272
+            },
+            "30-39": {
+              "n": 1124,
+              "n_lung_opacity": 261,
+              "n_normal": 420,
+              "n_not_normal_no_opacity": 443,
+              "opacity_rate": 0.232206,
+              "opacity_rate_vs_normal_only": 0.38326
+            },
+            "40-49": {
+              "n": 1677,
+              "n_lung_opacity": 362,
+              "n_normal": 615,
+              "n_not_normal_no_opacity": 700,
+              "opacity_rate": 0.215862,
+              "opacity_rate_vs_normal_only": 0.370522
+            },
+            "50-59": {
+              "n": 1911,
+              "n_lung_opacity": 416,
+              "n_normal": 604,
+              "n_not_normal_no_opacity": 891,
+              "opacity_rate": 0.217687,
+              "opacity_rate_vs_normal_only": 0.407843
+            },
+            "60-69": {
+              "n": 1274,
+              "n_lung_opacity": 271,
+              "n_normal": 345,
+              "n_not_normal_no_opacity": 658,
+              "opacity_rate": 0.212716,
+              "opacity_rate_vs_normal_only": 0.439935
+            },
+            "70+": {
+              "n": 645,
+              "n_lung_opacity": 170,
+              "n_normal": 127,
+              "n_not_normal_no_opacity": 348,
+              "opacity_rate": 0.263566,
+              "opacity_rate_vs_normal_only": 0.572391
+            }
+          }
+        }
+      }
+    }
+  },
+  "A2_leakage": {
+    "identical_images": {
+      "how": "SHA-1 of the stored 256x256 array",
+      "kermany": {
+        "groups": 30,
+        "images_in_groups": 62,
+        "redundant_images": 32,
+        "redundant_images_by_split": {
+          "train": 22,
+          "val": 4,
+          "test": 6
+        },
+        "groups_spanning_two_splits": 0,
+        "groups_with_conflicting_labels": 0,
+        "groups_with_two_different_patient_ids": 1,
+        "groups_list": [
+          {
+            "files": [
+              "person1312_bacteria_3317.jpeg",
+              "person1312_bacteria_3318.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1312"
+            ]
+          },
+          {
+            "files": [
+              "person688_virus_1281.jpeg",
+              "person688_virus_1282.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P688"
+            ]
+          },
+          {
+            "files": [
+              "person258_bacteria_1207.jpeg",
+              "person258_bacteria_1208.jpeg",
+              "person258_bacteria_1209.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P258"
+            ]
+          },
+          {
+            "files": [
+              "person30_bacteria_156.jpeg",
+              "person30_bacteria_157.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P30"
+            ]
+          },
+          {
+            "files": [
+              "person264_bacteria_1230.jpeg",
+              "person264_bacteria_1231.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P264"
+            ]
+          },
+          {
+            "files": [
+              "person1343_bacteria_3413.jpeg",
+              "person1343_bacteria_3414.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1343"
+            ]
+          },
+          {
+            "files": [
+              "person1430_bacteria_3695.jpeg",
+              "person1430_bacteria_3696.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1430"
+            ]
+          },
+          {
+            "files": [
+              "person134_bacteria_643.jpeg",
+              "person134_bacteria_644.jpeg"
+            ],
+            "splits": [
+              "test"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "test_P134"
+            ]
+          },
+          {
+            "files": [
+              "NORMAL2-IM-0095-0001.jpeg",
+              "NORMAL2-IM-0096-0001.jpeg"
+            ],
+            "splits": [
+              "test"
+            ],
+            "labels": [
+              0
+            ],
+            "patient_ids": [
+              "test_N95",
+              "test_N96"
+            ]
+          },
+          {
+            "files": [
+              "person1619_bacteria_4267.jpeg",
+              "person1619_bacteria_4268.jpeg"
+            ],
+            "splits": [
+              "val"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1619"
+            ]
+          },
+          {
+            "files": [
+              "person1159_virus_1944.jpeg",
+              "person1159_virus_1945.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1159"
+            ]
+          },
+          {
+            "files": [
+              "person1481_bacteria_3862.jpeg",
+              "person1481_bacteria_3863.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1481"
+            ]
+          },
+          {
+            "files": [
+              "person1261_virus_2147.jpeg",
+              "person1261_virus_2148.jpeg"
+            ],
+            "splits": [
+              "val"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1261"
+            ]
+          },
+          {
+            "files": [
+              "person124_virus_246.jpeg",
+              "person124_virus_247.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P124"
+            ]
+          },
+          {
+            "files": [
+              "person266_bacteria_1237.jpeg",
+              "person266_bacteria_1238.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P266"
+            ]
+          },
+          {
+            "files": [
+              "NORMAL2-IM-0246-0001-0001.jpeg",
+              "NORMAL2-IM-0246-0001-0002.jpeg"
+            ],
+            "splits": [
+              "test"
+            ],
+            "labels": [
+              0
+            ],
+            "patient_ids": [
+              "test_N246"
+            ]
+          },
+          {
+            "files": [
+              "person1496_bacteria_3909.jpeg",
+              "person1496_bacteria_3910.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1496"
+            ]
+          },
+          {
+            "files": [
+              "person401_virus_797.jpeg",
+              "person401_virus_798.jpeg"
+            ],
+            "splits": [
+              "val"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P401"
+            ]
+          },
+          {
+            "files": [
+              "NORMAL2-IM-0587-0001-0001.jpeg",
+              "NORMAL2-IM-0587-0001-0002.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              0
+            ],
+            "patient_ids": [
+              "trainval_N587"
+            ]
+          },
+          {
+            "files": [
+              "person1481_bacteria_3864.jpeg",
+              "person1481_bacteria_3865.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1481"
+            ]
+          },
+          {
+            "files": [
+              "person1628_bacteria_4297.jpeg",
+              "person1628_bacteria_4298.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1628"
+            ]
+          },
+          {
+            "files": [
+              "person1661_virus_2872.jpeg",
+              "person1661_virus_2873.jpeg"
+            ],
+            "splits": [
+              "test"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "test_P1661"
+            ]
+          },
+          {
+            "files": [
+              "person834_bacteria_2747.jpeg",
+              "person834_bacteria_2748.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P834"
+            ]
+          },
+          {
+            "files": [
+              "person128_bacteria_606.jpeg",
+              "person128_bacteria_607.jpeg"
+            ],
+            "splits": [
+              "test"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "test_P128"
+            ]
+          },
+          {
+            "files": [
+              "person1481_bacteria_3866.jpeg",
+              "person1481_bacteria_3867.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1481"
+            ]
+          },
+          {
+            "files": [
+              "person1349_bacteria_3436.jpeg",
+              "person1349_bacteria_3437.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1349"
+            ]
+          },
+          {
+            "files": [
+              "person1372_bacteria_3501.jpeg",
+              "person1372_bacteria_3502.jpeg",
+              "person1372_bacteria_3503.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P1372"
+            ]
+          },
+          {
+            "files": [
+              "NORMAL2-IM-0173-0001-0001.jpeg",
+              "NORMAL2-IM-0173-0001-0002.jpeg"
+            ],
+            "splits": [
+              "test"
+            ],
+            "labels": [
+              0
+            ],
+            "patient_ids": [
+              "test_N173"
+            ]
+          },
+          {
+            "files": [
+              "person162_virus_321.jpeg",
+              "person162_virus_322.jpeg"
+            ],
+            "splits": [
+              "train"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P162"
+            ]
+          },
+          {
+            "files": [
+              "person357_virus_734.jpeg",
+              "person357_virus_735.jpeg"
+            ],
+            "splits": [
+              "val"
+            ],
+            "labels": [
+              1
+            ],
+            "patient_ids": [
+              "trainval_P357"
+            ]
+          }
+        ]
+      },
+      "rsna": {
+        "groups": 1,
+        "images_in_groups": 2,
+        "groups_spanning_two_splits": 0,
+        "groups_list": [
+          {
+            "image_ids": [
+              "08d88a60-146c-49a7-9450-45293024cf46",
+              "8f96ca8e-ff76-41bc-bf03-da5b031cabee"
+            ],
+            "splits": [
+              "test"
+            ],
+            "classes": [
+              "No Lung Opacity / Not Normal"
+            ],
+            "age_sex_view": [
+              "62M AP",
+              "62M AP"
+            ]
+          }
+        ]
+      },
+      "kermany_vs_rsna": {
+        "groups": 0
+      }
+    },
+    "near_duplicates": {
+      "how": "Every pair of the 32,540 images was compared with the correlation of 32x32 thumbnails. Pairs at or above 0.9 (562,819) were re-checked with the pixel correlation of the full 256 px images. At or above 0.98 counts as the same image. The threshold was set by viewing the pairs: all pairs above it are pixel-identical; the most similar non-identical pairs are different exposures or different people.",
+      "limits": "Finds copies that were re-saved, rescaled or changed in brightness/contrast. Does not find copies that were cropped or shifted a lot, and cannot recognise a different X-ray of the same patient.",
+      "candidate_pairs": 562819,
+      "by_category": {
+        "kermany train+val vs kermany test": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 0,
+          "highest_correlation_of_a_non_identical_pair": 0.910755
+        },
+        "kermany train vs kermany val": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 0,
+          "highest_correlation_of_a_non_identical_pair": 0.915498
+        },
+        "within kermany train": {
+          "identical_pairs": 24,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 0,
+          "highest_correlation_of_a_non_identical_pair": 0.944738
+        },
+        "within kermany val": {
+          "identical_pairs": 4,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 0,
+          "highest_correlation_of_a_non_identical_pair": 0.884021
+        },
+        "within kermany test": {
+          "identical_pairs": 6,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 0,
+          "highest_correlation_of_a_non_identical_pair": 0.901384
+        },
+        "kermany vs rsna": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 0,
+          "highest_correlation_of_a_non_identical_pair": 0.918202
+        },
+        "rsna adapt vs rsna test": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 156,
+          "highest_correlation_of_a_non_identical_pair": 0.968541
+        },
+        "rsna adapt vs rsna val": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 90,
+          "highest_correlation_of_a_non_identical_pair": 0.97132
+        },
+        "rsna val vs rsna test": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 36,
+          "highest_correlation_of_a_non_identical_pair": 0.967083
+        },
+        "within rsna adapt": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 296,
+          "highest_correlation_of_a_non_identical_pair": 0.977527
+        },
+        "within rsna val": {
+          "identical_pairs": 0,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 57,
+          "highest_correlation_of_a_non_identical_pair": 0.976749
+        },
+        "within rsna test": {
+          "identical_pairs": 1,
+          "near_duplicate_pairs_not_identical": 0,
+          "very_similar_pairs_0p95_to_0p98": 75,
+          "highest_correlation_of_a_non_identical_pair": 0.977305
+        }
+      }
+    },
+    "dhash_alone_is_not_enough": {
+      "note": "64-bit dHash (8x8 gradient hash). 'pairs_flagged' is what dHash alone would have reported; 'of_which_confirmed_same_image' passed the pixel check.",
+      "hamming_distance_le_0": {
+        "kermany-kermany": {
+          "pairs_flagged": 89,
+          "of_which_confirmed_same_image": 34
+        },
+        "kermany-rsna": {
+          "pairs_flagged": 30,
+          "of_which_confirmed_same_image": 0
+        },
+        "rsna-rsna": {
+          "pairs_flagged": 4921,
+          "of_which_confirmed_same_image": 1
+        }
+      },
+      "hamming_distance_le_2": {
+        "kermany-kermany": {
+          "pairs_flagged": 4972,
+          "of_which_confirmed_same_image": 34
+        },
+        "kermany-rsna": {
+          "pairs_flagged": 1844,
+          "of_which_confirmed_same_image": 0
+        },
+        "rsna-rsna": {
+          "pairs_flagged": 192558,
+          "of_which_confirmed_same_image": 1
+        }
+      },
+      "hamming_distance_le_5": {
+        "kermany-kermany": {
+          "pairs_flagged": 142444,
+          "of_which_confirmed_same_image": 34
+        },
+        "kermany-rsna": {
+          "pairs_flagged": 78723,
+          "of_which_confirmed_same_image": 0
+        },
+        "rsna-rsna": {
+          "pairs_flagged": 3731427,
+          "of_which_confirmed_same_image": 1
+        }
+      },
+      "hamming_distance_le_10": {
+        "kermany-kermany": {
+          "pairs_flagged": 2188692,
+          "of_which_confirmed_same_image": 34
+        },
+        "kermany-rsna": {
+          "pairs_flagged": 3646610,
+          "of_which_confirmed_same_image": 0
+        },
+        "rsna-rsna": {
+          "pairs_flagged": 46311682,
+          "of_which_confirmed_same_image": 1
+        }
+      },
+      "confirmed_same_image_pairs_total": {
+        "kermany-kermany": 34,
+        "kermany-rsna": 0,
+        "rsna-rsna": 1
+      },
+      "largest_hamming_distance_among_confirmed_pairs": 0
+    },
+    "kermany_patient_ids": {
+      "patient_groups_used_for_the_split": 3054,
+      "distinct_series_and_number_combinations": 4097,
+      "groups_that_merge_two_numbering_series": 1043,
+      "numbering_per_series": {
+        "bacteria": {
+          "patient_numbers_in_official_train_val": 1360,
+          "patient_numbers_in_official_test": 77,
+          "numbers_in_both": 0
+        },
+        "virus": {
+          "patient_numbers_in_official_train_val": 1090,
+          "patient_numbers_in_official_test": 126,
+          "numbers_in_both": 0
+        },
+        "IM": {
+          "patient_numbers_in_official_train_val": 518,
+          "patient_numbers_in_official_test": 65,
+          "numbers_in_both": 0
+        },
+        "NORMAL2-IM": {
+          "patient_numbers_in_official_train_val": 701,
+          "patient_numbers_in_official_test": 160,
+          "numbers_in_both": 0
+        }
+      },
+      "mean_thumbnail_correlation": {
+        "same series, same number (same patient)": 0.642484,
+        "same number, other series (bacteria N vs virus N, or IM-N vs NORMAL2-IM-N)": 0.54276,
+        "different number, same class": 0.542685
+      },
+      "reading": "Within each series (bacteria, virus, IM, NORMAL2-IM) no patient number occurs in both the official train/val folders and the official test folder, so the official test set is a separate block of patients. data.py groups by the number alone, which merges e.g. 'person12_bacteria' and 'person12_virus'. Their images are no more alike than images of unrelated children, so these are different patients: the grouping is stricter than needed (safe for the split), but it under-counts patients."
+    },
+    "rsna_same_patient_in_several_splits": {
+      "checked": true,
+      "source": "column nih_patient of rsna_meta.csv (RSNA's mapping of every exam to its NIH ChestX-ray14 patient)",
+      "n_images": 26684,
+      "n_distinct_patients": 11452,
+      "patients_with_more_than_one_image": 4355,
+      "images_of_patients_with_more_than_one_image": 19587,
+      "max_images_of_one_patient": 65,
+      "patients_in_two_splits": {
+        "adapt and test": 0,
+        "adapt and val": 0,
+        "val and test": 0
+      },
+      "adult_test_set": {
+        "n_images": 7694,
+        "n_distinct_patients": 3307
+      },
+      "consequence": "The split is by patient, so no person is on both sides. Several test images still come from the same person, so image-level bootstrap intervals on RSNA are somewhat too narrow.",
+      "similar_looking_rsna_pairs_vs_true_patient": {
+        "pixel correlation 0.90-0.95": {
+          "pairs": 158385,
+          "share_same_patient": 0.01305
+        },
+        "pixel correlation 0.95-0.97": {
+          "pairs": 690,
+          "share_same_patient": 0.295652
+        },
+        "pixel correlation 0.97-0.98": {
+          "pairs": 20,
+          "share_same_patient": 0.85
+        },
+        "pixel correlation 0.98-1.00": {
+          "pairs": 0,
+          "share_same_patient": null
+        }
+      }
+    }
+  },
+  "A3_shortcuts_children": {
+    "protocol": "Fitted on Kermany train, model type and C chosen on Kermany val, AUROC on Kermany test. For brightness and border the same children-trained model is also scored on RSNA test adults.",
+    "chance_level": 0.5,
+    "image_size": {
+      "what": "Width, height and aspect ratio of the original JPEG file. No pixel is used.",
+      "features": [
+        "orig_w",
+        "orig_h",
+        "orig_w / orig_h"
+      ],
+      "n_features": 3,
+      "n_train": 4578,
+      "model_chosen_on_validation": "logistic regression",
+      "validation_auroc": {
+        "logistic regression": 0.926575,
+        "gradient-boosted trees": 0.920274
+      },
+      "logistic_regression_C": 1.0,
+      "children_test (Kermany, pneumonia vs normal)": {
+        "auroc": 0.879252,
+        "auroc_ci": [
+          0.8479,
+          0.904171
+        ],
+        "n": 624,
+        "n_pos": 390,
+        "auroc_of_the_other_model": 0.890697
+      }
+    },
+    "brightness": {
+      "what": "Mean, standard deviation and 7 percentiles of the grey values of the 224 px centre crop. No shapes, no positions.",
+      "features": [
+        "mean",
+        "std",
+        "p1",
+        "p5",
+        "p25",
+        "p50",
+        "p75",
+        "p95",
+        "p99"
+      ],
+      "n_features": 9,
+      "n_train": 4578,
+      "model_chosen_on_validation": "logistic regression",
+      "validation_auroc": {
+        "logistic regression": 0.92851,
+        "gradient-boosted trees": 0.924695
+      },
+      "logistic_regression_C": 10.0,
+      "children_test (Kermany, pneumonia vs normal)": {
+        "auroc": 0.87071,
+        "auroc_ci": [
+          0.839026,
+          0.900758
+        ],
+        "n": 624,
+        "n_pos": 390,
+        "auroc_of_the_other_model": 0.875981
+      },
+      "adults_test (RSNA, lung opacity vs normal)": {
+        "auroc": 0.580041,
+        "auroc_ci": [
+          0.563729,
+          0.598198
+        ],
+        "n": 4242,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.581223
+      },
+      "adults_test (RSNA, lung opacity vs everything else)": {
+        "auroc": 0.544836,
+        "auroc_ci": [
+          0.53034,
+          0.559028
+        ],
+        "n": 7694,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.552229
+      }
+    },
+    "border_cut_off_at_test_time": {
+      "what": "Outer 16-pixel frame of the stored 256 px image (60 blocks of 16x16 px). The network never sees this frame at test time (224 px centre crop), only partly during training augmentation.",
+      "features": [
+        "60 block means"
+      ],
+      "n_features": 60,
+      "n_train": 4578,
+      "model_chosen_on_validation": "gradient-boosted trees",
+      "validation_auroc": {
+        "logistic regression": 0.961481,
+        "gradient-boosted trees": 0.96867
+      },
+      "logistic_regression_C": 0.1,
+      "children_test (Kermany, pneumonia vs normal)": {
+        "auroc": 0.758416,
+        "auroc_ci": [
+          0.71844,
+          0.796092
+        ],
+        "n": 624,
+        "n_pos": 390,
+        "auroc_of_the_other_model": 0.693842
+      },
+      "adults_test (RSNA, lung opacity vs normal)": {
+        "auroc": 0.627389,
+        "auroc_ci": [
+          0.610124,
+          0.643803
+        ],
+        "n": 4242,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.608182
+      },
+      "adults_test (RSNA, lung opacity vs everything else)": {
+        "auroc": 0.582608,
+        "auroc_ci": [
+          0.568747,
+          0.59744
+        ],
+        "n": 7694,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.574569
+      }
+    },
+    "border_the_network_sees": {
+      "what": "Outer 16-pixel frame of the 224 px centre crop, i.e. the rim of what the network sees (52 blocks): shoulders, arms, neck, belly, letters and collimator edges, hardly any lung.",
+      "features": [
+        "52 block means"
+      ],
+      "n_features": 52,
+      "n_train": 4578,
+      "model_chosen_on_validation": "gradient-boosted trees",
+      "validation_auroc": {
+        "logistic regression": 0.962424,
+        "gradient-boosted trees": 0.978775
+      },
+      "logistic_regression_C": 10.0,
+      "children_test (Kermany, pneumonia vs normal)": {
+        "auroc": 0.826441,
+        "auroc_ci": [
+          0.792128,
+          0.857355
+        ],
+        "n": 624,
+        "n_pos": 390,
+        "auroc_of_the_other_model": 0.771532
+      },
+      "adults_test (RSNA, lung opacity vs normal)": {
+        "auroc": 0.699965,
+        "auroc_ci": [
+          0.684318,
+          0.717067
+        ],
+        "n": 4242,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.601481
+      },
+      "adults_test (RSNA, lung opacity vs everything else)": {
+        "auroc": 0.631279,
+        "auroc_ci": [
+          0.617507,
+          0.644667
+        ],
+        "n": 7694,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.556262
+      }
+    }
+  },
+  "A4_shortcuts_adults": {
+    "protocol": "Fitted on RSNA adapt adults, model type chosen on RSNA val adults, AUROC on RSNA test adults. No pixel is used.",
+    "chance_level": 0.5,
+    "view_only": {
+      "features": [
+        "view is AP"
+      ],
+      "adults_test (RSNA, lung opacity vs normal)": {
+        "model_chosen_on_validation": "logistic regression",
+        "n_train": 8349,
+        "auroc": 0.797229,
+        "auroc_ci": [
+          0.784587,
+          0.809966
+        ],
+        "n": 4242,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.797229
+      },
+      "adults_test (RSNA, lung opacity vs everything else)": {
+        "model_chosen_on_validation": "logistic regression",
+        "n_train": 15142,
+        "auroc": 0.705918,
+        "auroc_ci": [
+          0.694509,
+          0.717316
+        ],
+        "n": 7694,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.705918
+      }
+    },
+    "age_only": {
+      "features": [
+        "age"
+      ],
+      "adults_test (RSNA, lung opacity vs normal)": {
+        "model_chosen_on_validation": "gradient-boosted trees",
+        "n_train": 8349,
+        "auroc": 0.509337,
+        "auroc_ci": [
+          0.491908,
+          0.526734
+        ],
+        "n": 4242,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.545807
+      },
+      "adults_test (RSNA, lung opacity vs everything else)": {
+        "model_chosen_on_validation": "logistic regression",
+        "n_train": 15142,
+        "auroc": 0.499569,
+        "auroc_ci": [
+          0.48292,
+          0.514535
+        ],
+        "n": 7694,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.498276
+      }
+    },
+    "sex_only": {
+      "features": [
+        "sex is male"
+      ],
+      "adults_test (RSNA, lung opacity vs normal)": {
+        "model_chosen_on_validation": "logistic regression",
+        "n_train": 8349,
+        "auroc": 0.499629,
+        "auroc_ci": [
+          0.484387,
+          0.513614
+        ],
+        "n": 4242,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.499629
+      },
+      "adults_test (RSNA, lung opacity vs everything else)": {
+        "model_chosen_on_validation": "logistic regression",
+        "n_train": 15142,
+        "auroc": 0.504317,
+        "auroc_ci": [
+          0.490809,
+          0.517466
+        ],
+        "n": 7694,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.504317
+      }
+    },
+    "view_age_sex": {
+      "features": [
+        "view is AP",
+        "age",
+        "sex is male"
+      ],
+      "adults_test (RSNA, lung opacity vs normal)": {
+        "model_chosen_on_validation": "logistic regression",
+        "n_train": 8349,
+        "auroc": 0.817039,
+        "auroc_ci": [
+          0.80406,
+          0.830729
+        ],
+        "n": 4242,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.81445
+      },
+      "adults_test (RSNA, lung opacity vs everything else)": {
+        "model_chosen_on_validation": "logistic regression",
+        "n_train": 15142,
+        "auroc": 0.705926,
+        "auroc_ci": [
+          0.691442,
+          0.719937
+        ],
+        "n": 7694,
+        "n_pos": 1723,
+        "auroc_of_the_other_model": 0.708886
+      }
+    },
+    "lung_opacity_rate_by_view_in_adult_test_set": {
+      "AP": {
+        "n": 3480,
+        "n_lung_opacity": 1330,
+        "n_normal": 447,
+        "n_not_normal_no_opacity": 1703,
+        "opacity_rate": 0.382184,
+        "opacity_rate_vs_normal_only": 0.748452
+      },
+      "PA": {
+        "n": 4214,
+        "n_lung_opacity": 393,
+        "n_normal": 2072,
+        "n_not_normal_no_opacity": 1749,
+        "opacity_rate": 0.093261,
+        "opacity_rate_vs_normal_only": 0.159432
+      }
+    }
+  },
+  "A5_which_hospital": {
+    "method": "Logistic regression (C=0.01, fixed, not tuned) on the 224 px centre crop shrunk to 32x32 pixels, standardised. Group a = Kermany (or RSNA adults in the last comparison), group b = RSNA (children). AUROC 0.5 = cannot tell apart.",
+    "caveat": "'Hospital' here bundles everything that differs between the two sources: scanner, export and compression, positioning, country and patient mix. The RSNA children are few and are not a random sample of children.",
+    "children_vs_adults": {
+      "question": "Kermany children vs RSNA adults: both age and hospital differ",
+      "trained_on": "Kermany train (4578) vs a random 4578 RSNA adapt adults",
+      "tested_on": "Kermany test vs all RSNA test adults",
+      "auroc": 0.997514,
+      "auroc_ci": [
+        0.995932,
+        0.998674
+      ],
+      "n": 8318,
+      "n_a": 624,
+      "n_b": 7694,
+      "share_of_a_called_a": 0.977564,
+      "share_of_b_called_b": 0.986223
+    },
+    "children_vs_adults_from_brightness_only": {
+      "question": "the same, but from 9 brightness numbers instead of the picture",
+      "auroc": 0.897559,
+      "auroc_ci": [
+        0.888643,
+        0.906168
+      ],
+      "n": 8318,
+      "n_a": 624,
+      "n_b": 7694,
+      "share_of_a_called_a": 0.854167,
+      "share_of_b_called_b": 0.809592
+    },
+    "adult_trained_detector_on_rsna_children_age_1_to_5": {
+      "question": "classifier from (1), never shown an RSNA child: Kermany test vs RSNA children age 1 to 5 (all splits)",
+      "auroc": 0.774982,
+      "auroc_ci": [
+        0.693004,
+        0.852046
+      ],
+      "n": 714,
+      "n_a": 624,
+      "n_b": 90,
+      "share_of_a_called_a": 0.977564,
+      "share_of_b_called_b": 0.644444
+    },
+    "adult_trained_detector_on_rsna_children_under_18": {
+      "question": "classifier from (1), never shown an RSNA child: Kermany test vs RSNA children under 18 (all splits)",
+      "auroc": 0.951841,
+      "auroc_ci": [
+        0.941095,
+        0.962157
+      ],
+      "n": 1900,
+      "n_a": 624,
+      "n_b": 1276,
+      "share_of_a_called_a": 0.977564,
+      "share_of_b_called_b": 0.887931
+    },
+    "same_age_different_hospital_age_1_to_5": {
+      "question": "Kermany children (train+val, test set untouched) vs RSNA children age 1 to 5: only the hospital differs",
+      "how": "5-fold cross-validation, every patient entirely inside one fold",
+      "auroc": 0.951115,
+      "auroc_ci": [
+        0.910311,
+        0.986552
+      ],
+      "n": 5322,
+      "n_a": 5232,
+      "n_b": 90,
+      "share_of_a_called_a": 0.995795,
+      "share_of_b_called_b": 0.9
+    },
+    "same_age_different_hospital_under_18": {
+      "question": "Kermany children (train+val, test set untouched) vs RSNA children under 18: only the hospital differs (ages overlap only partly)",
+      "how": "5-fold cross-validation, every patient entirely inside one fold",
+      "auroc": 0.992683,
+      "auroc_ci": [
+        0.988939,
+        0.996131
+      ],
+      "n": 6508,
+      "n_a": 5232,
+      "n_b": 1276,
+      "share_of_a_called_a": 0.984901,
+      "share_of_b_called_b": 0.967085
+    },
+    "same_age_different_hospital_age_1_to_5_from_brightness_only": {
+      "question": "the same-age comparison from 9 brightness numbers only",
+      "how": "5-fold cross-validation",
+      "auroc": 0.988243,
+      "auroc_ci": [
+        0.972387,
+        0.99822
+      ],
+      "n": 5322,
+      "n_a": 5232,
+      "n_b": 90,
+      "share_of_a_called_a": 0.969419,
+      "share_of_b_called_b": 0.944444
+    },
+    "same_hospital_different_age": {
+      "question": "RSNA adults (random 5000) vs RSNA children aged 1-5: only the age differs",
+      "how": "5-fold cross-validation, every patient entirely inside one fold",
+      "auroc": 0.958504,
+      "auroc_ci": [
+        0.931493,
+        0.979717
+      ],
+      "n": 5090,
+      "n_a": 5000,
+      "n_b": 90,
+      "share_of_a_called_a": 0.9768,
+      "share_of_b_called_b": 0.733333
+    },
+    "how_small_the_rsna_child_groups_are": {
+      "age_1_to_5": {
+        "n_images": 90,
+        "n_patients": 69,
+        "by_class": {
+          "Normal": 45,
+          "No Lung Opacity / Not Normal": 25,
+          "Lung Opacity": 20
+        },
+        "by_view": {
+          "AP": 52,
+          "PA": 38
+        },
+        "by_split": {
+          "adapt": 60,
+          "test": 21,
+          "val": 9
+        }
+      },
+      "under_18": {
+        "n_images": 1276,
+        "n_patients": 561,
+        "by_class": {
+          "Normal": 462,
+          "No Lung Opacity / Not Normal": 429,
+          "Lung Opacity": 385
+        },
+        "by_view": {
+          "AP": 714,
+          "PA": 562
+        }
+      }
+    }
+  }
+}
