@@ -114,6 +114,37 @@ with ONNX Runtime Web. It exists because the Gradio Space was refused (see above
   set `HF_TOKEN=hf_proxyinjected` for the command, the proxy puts the real token in).
 - If `app/examples/` changes, rerun the export script: it copies the examples to `web/examples/`.
 
+### Second generation of models, "v2" (started Sat 14 Nov, 16:00 UTC)
+
+The team wants a stronger repaired model and has a Windows PC with an RTX 3080 at home. Read `docs/V2_PROTOCOL.md`
+first: it was committed before any v2 model was trained and fixes the recipe, the 22 runs, the headline model
+(`v2_kids_plus_all`, by name), the primary comparison and the three operating points. Do not change it.
+
+- **The PC is driven by a second Claude session on that machine** (`docs/PC_RUNBOOK.md`). It works on the branch
+  `pc/v2-runs` and commits only `results/v2/<name>/` (settings, scores for every X-ray, no weights) and
+  `results/val_v2_*.json`. It never computes test results. Follow its progress with
+  `git fetch origin pc/v2-runs` and `git show origin/pc/v2-runs:results/v2/STATUS.json`.
+  The team must approve anything that pushes or deletes on the PC in that session's own chat.
+- `scripts/00_preflight.py` (lock files in `data_splits/`) proved that the PC has the same split and the same
+  pictures. `scripts/09_gpu_batch.py` trains the fixed list (`list`, `smoke`, `run --stage N --commit`, `status`,
+  `upload`). On the PC: 158 images per second, about 3 hours for all 22 runs.
+- **When runs have arrived:** copy `results/v2` and `results/val_v2_*.json` from `origin/pc/v2-runs` into this
+  branch (`git checkout origin/pc/v2-runs -- results/v2` and the val files), run
+  `python scripts/10_v2_report.py val`, commit, then `python scripts/10_v2_report.py test` (once), then fill
+  README section 6 and the video script. `results/v1_rehearsal.*` is the same report for the two v1 models only.
+- **Weights of the headline model** reach the Hub only after a person logs in on the PC (`hf auth login`) and the PC
+  runs `python scripts/09_gpu_batch.py upload v2_kids_plus_all`. Then here: pull it, check that its scores equal
+  the PC's, run 05 for it, and decide with the team whether it replaces the second card of the demo
+  (only through a staging Space, never by editing the live one first).
+- **Guards:** `02_train.py`, `hub_models.py push`, `08_export_web.py push` and `deploy_space.py` refuse to touch the two
+  published models and the live Space. The Hub repos and the Space carry the tag `v1-before-retraining`.
+- New finding from the rehearsal, already in the README: a frozen ImageNet network + logistic regression trained on
+  the adult X-rays reaches 0.848 on adults. That is the fair baseline for any adult-trained model.
+- Multi-agent reviews are expensive: one plan review used most of a 5-hour usage allowance. Ask before starting one.
+- Open: the `06` heatmap figures still have small flaws (an empty row when a model has no misses; "pneumonia" in a
+  title where "lung opacity" is meant). One early commit in the git history carries a personal e-mail address:
+  tell the team before the repo is made public (blind judging).
+
 ## 4. Results so far (children-only model, held-out test patients)
 
 Threshold 0.985, temperature-scaled scores.
@@ -191,11 +222,11 @@ Phrase novelty as "to our knowledge". Never change the threshold rule after seei
 
 ## 6. To do, most important first
 
-1. Check section 3: what arrived, look at every figure, read the outputs of steps 05 (second model), 06 and 07.
-2. **`README.md` as the write-up.** One page first: problem and user, approach, results table with baseline, what did not work, limits. Then details, how to run, and all citations (ready to paste in `docs/RESEARCH_NOTES.md` section 8, impact numbers in section 4). Plain English, no jargon without explanation.
+1. Check section 3: what arrived, look at every figure, read the outputs of steps 05 (second model), 06 and 07. DONE except step 07 (its models come from the v2 runs) and small flaws in the 06 figures.
+2. **`README.md` as the write-up.** DRAFT DONE (v2 results still to be added in its section 6; every number should be checked once more against `results/`). One page first: problem and user, approach, results table with baseline, what did not work, limits. Then details, how to run, and all citations (ready to paste in `docs/RESEARCH_NOTES.md` section 8, impact numbers in section 4). Plain English, no jargon without explanation.
 3. **A demo link that judges can open.** DONE with option (c), see "Browser demo" in section 3. The options were: (a) the team buys Hugging Face PRO, then `python scripts/deploy_space.py space RL8596/pneumoshift`; (b) the public Gradio share link: already built as notebook section 9 (`PNEUMOSHIFT_SHARE=1 python app/app.py`), never tested, good enough for the video and the live final; (c) a static Space that runs the model in the browser with ONNX Runtime Web (free and permanent, most work).
 4. Run the notebook in Colab once, in quick mode, and fix what breaks. Ask the team to do the run if you cannot.
-5. `docs/VIDEO_SCRIPT.md`: problem 15 s, demo 60 s, how it works 30 s, limits and next steps 15 s. The demo moment: the same adult X-ray, the children-only model is confidently wrong, the warning fires, the second model disagrees.
+5. `docs/VIDEO_SCRIPT.md`: DRAFT DONE. Problem 15 s, demo 60 s, how it works 30 s, limits and next steps 15 s. The demo moment: the same adult X-ray, the children-only model is confidently wrong, the warning fires, the second model disagrees.
 6. App polish: model cards and the limits panel should state the numbers above. Explain that the score is not a calibrated probability.
 7. Ask the team whether to merge this branch into `main` (judges see `main`) and remind them to make the repo public.
 8. Update `docs/PLAN.md`.
