@@ -227,6 +227,25 @@ if __name__ == "__main__":
     # 4. subgroups
     res["subgroups_adult_hospital"] = subgroup_table(mr, pr, thr)
 
+    # 4b. is the skill real inside each kind of X-ray? AP (portable, sicker patients) vs PA (standing)
+    #     and both label definitions. A model that only spots "portable X-ray" would score 0.5 here.
+    res["adults_by_view"] = {}
+    for view in ("PA", "AP"):
+        for lab, extra in (("lung opacity vs normal", (mr.cls != "No Lung Opacity / Not Normal").values),
+                           ("lung opacity vs everything else", np.ones(len(mr), dtype=bool))):
+            m = ate & (mr["view"] == view).values & extra
+            res["adults_by_view"][f"{view}, {lab}"] = short(metrics.summarize(mr.label[m], pr[m], thr, n_boot=300))
+    # 4c. no single threshold works: sensitivity / specificity at several thresholds
+    res["threshold_sweep"] = {}
+    for t in (0.1, 0.3, 0.5, 0.7, 0.9, float(thr)):
+        row = {}
+        for gname, y_, p_ in (("children", mk.label.values[kte], pk[kte]),
+                              ("adults PA", mr.label.values[ate & (mr["view"] == "PA").values], pr[ate & (mr["view"] == "PA").values]),
+                              ("adults AP", mr.label.values[ate & (mr["view"] == "AP").values], pr[ate & (mr["view"] == "AP").values])):
+            c = metrics.confusion(y_, p_, t)
+            row[gname] = dict(sensitivity=c["sensitivity"], specificity=c["specificity"])
+        res["threshold_sweep"][f"{t:.3f}"] = row
+
     # 5. OOD warning: fitted on this model's own training images
     if "children" in " ".join(cfg.get("train_data", ["children"])):
         fit_e = [ek[(mk.split == "train").values]]; fit_y = [mk.label.values[(mk.split == "train").values]]
@@ -279,6 +298,10 @@ if __name__ == "__main__":
     print(json.dumps({k: res[k] for k in ("headline", "adults_flagged_rate_by_class", "ood")}, indent=1))
     for nme, s in res["subgroups_adult_hospital"].items():
         print(f"{nme:30s} n={s['n']:5d} pos={s['n_pos']:4d} AUROC {s['auroc']:.3f} sens {s['sensitivity']:.3f} spec {s['specificity']:.3f}")
+    for nme, s in res["adults_by_view"].items():
+        print(f"{nme:38s} n={s['n']:5d} pos={s['n_pos']:4d} AUROC {s['auroc']:.3f} sens {s['sensitivity']:.3f} spec {s['specificity']:.3f}")
+    for t, row in res["threshold_sweep"].items():
+        print("thr", t, "  ".join(f"{g}: sens {v['sensitivity']:.2f} spec {v['specificity']:.2f}" for g, v in row.items()))
     if "learning_curve" in res:
         import pandas as pd
         print(pd.DataFrame(res["learning_curve"]).groupby(["strategy", "n_adults"])[["auroc_adults", "auroc_adults_vs_normal", "auroc_children"]].mean().round(3).to_string())
