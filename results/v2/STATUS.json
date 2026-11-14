@@ -60,7 +60,16 @@
   {
    "name": "v2_kids_plus_1000",
    "stage": 1,
-   "status": "open"
+   "status": "done",
+   "minutes": 4.1,
+   "best_epoch": 6,
+   "device": "NVIDIA GeForce RTX 3080",
+   "val_auroc_children": 0.9996,
+   "val_auroc_adults": 0.8346,
+   "val_auroc_adults_PA": 0.787,
+   "val_auroc_adults_AP": 0.77,
+   "val_adult_specificity_at_threshold": 0.3978,
+   "val_adult_sensitivity_at_threshold": 0.9514
   },
   {
    "name": "v2_kids_plus_3000",
