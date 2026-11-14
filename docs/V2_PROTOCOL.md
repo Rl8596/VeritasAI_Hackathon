@@ -114,3 +114,31 @@ include the uncertainty of the threshold.
 - For a model trained on children and adults, the "unlike my training data" warning means "unlike this model's
   own training mix". It fires mostly on children (v1: 24% of children, 1% of adults).
 - No in-hospital ceiling is known: nobody in our sources reports a model trained and tested on these adults.
+
+## Dated notes (added after training had started; nothing above was changed)
+
+**Sat 14 Nov 2026, 16:45 UTC.** Written when 3 of 22 runs had arrived, after an independent review of the code
+and of this file. No test result of any v2 model had been computed.
+
+1. *The fallback was not used.* The PC delivered `v2_kids_plus_all` at 16:10 UTC.
+2. *What "no test result on the training machine" means exactly.* The training machine computes no test metric
+   of any v2 model. Its preflight recomputes one published v1 number (adult AUROC 0.874) to prove that labels and
+   split are identical there. Every run stores its scores for all X-rays, test X-rays included; metrics on them
+   are computed only by `scripts/10_v2_report.py`, in the cloud session.
+3. *Three things differ between runs, not two.* Besides the training X-rays and the seed: the children-only runs
+   (`v2_kids_plus_0`, and its two other seeds) fit their temperature and their stored threshold on children's
+   validation X-rays, all other runs on adult validation X-rays. The kept weights are not affected. The report
+   therefore gives results at thresholds A and B, which it computes the same way for every model, and gives the
+   calibration error both with each model's own temperature and with one fitted on adult validation X-rays.
+4. *The seed also decides which adult X-rays are drawn.* At 300 to 6,000 adult X-rays each seed draws its own
+   X-rays, and the draws are not subsets of one another. The range over seeds covers the draw and the training.
+   `v2_kids_plus_6000` (seed 2026) was trained on exactly the 6,000 adult X-rays of the published
+   `kids_plus_adults`, so those two differ in the recipe only (last epoch, validation on adults, GPU).
+5. *The main table has nine rows, not eight.* The list in "Tables fixed in advance" has nine entries;
+   "at most eight" was a miscount. No row was added or dropped after results.
+6. *The test results are computed once, after the last run has arrived.* `scripts/10_v2_report.py test` refuses to
+   run a second time without a written reason, and refuses runs that do not follow the recipe above.
+7. *An exploratory check was added* after the first v2 validation result showed that 15,142 adult X-rays give the
+   same adult validation score as 6,000 (0.874 and 0.875): a public network pretrained on chest X-rays of another
+   hospital (`scripts/11_xray_pretrained_check.py`). Its rows are labelled exploratory wherever they appear and are
+   not part of the comparison above.
