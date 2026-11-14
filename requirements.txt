@@ -1,0 +1,15 @@
+torch
+torchvision
+timm>=1.0
+safetensors
+huggingface_hub
+numpy
+pandas
+pyarrow
+scikit-learn
+pillow
+pydicom
+pylibjpeg
+pylibjpeg-libjpeg
+matplotlib
+gradio

@@ -1,0 +1,11 @@
+# data and model weights live outside git (weights go to the Hugging Face Hub)
+data_cache
+data_cache/
+artifacts/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.egg-info/
+.DS_Store
+.gradio/
+flagged/
