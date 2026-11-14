@@ -97,6 +97,7 @@ def pack(name: str) -> None:
     if (src / "rsna_train_idx.npy").exists():
         np.save(dst / "rsna_train_idx.npy", np.load(src / "rsna_train_idx.npy").astype(np.int32))
     shutil.copy2(src / "config.json", dst / "config.json")          # written last: its presence means "done"
+    (src / "PACKED").write_text("results/v2/" + name + "\n")
     # The per-image files in artifacts/ also hold 512 numbers per X-ray (55 MB per model). Only the headline
     # model needs them later (for its "unlike my training data" check), so the others give the disk space back.
     if name not in KEEP_PREDICTIONS:
@@ -124,7 +125,7 @@ def train(run: dict, extra: str = "") -> bool:
 
 def git(*args: str) -> bool:
     ident = ["-c", "user.name=PneumoShift GPU runs", "-c", "user.email=pneumoshift@users.noreply.github.com"]
-    r = subprocess.run(["git", *ident, *args], cwd=ROOT, capture_output=True, text=True)
+    r = subprocess.run(["git", *ident, *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600)
     if r.returncode != 0:
         print(f"    git {' '.join(args[:2])} failed: {(r.stderr or r.stdout).strip().splitlines()[-1:]}", flush=True)
     return r.returncode == 0
@@ -204,8 +205,8 @@ if __name__ == "__main__":
         if ok:
             try:
                 pack(name)
-                z = np.load(V2 / name / "logits.npz")
-                ok = len(z["kermany"]) == 5856 and len(z["rsna"]) == 26684 and bool(np.isfinite(z["rsna"]).all())
+                with np.load(V2 / name / "logits.npz") as z:        # closed before the cleanup: Windows cannot delete an open file
+                    ok = len(z["kermany"]) == 5856 and len(z["rsna"]) == 26684 and bool(np.isfinite(z["rsna"]).all())
             except Exception as e:
                 print(f"    packing failed: {type(e).__name__}: {e}")
                 ok = False
@@ -234,17 +235,39 @@ if __name__ == "__main__":
             if is_done(name):
                 print(f"=== {name}: already done, skipped", flush=True)
                 continue
-            trained = (C.ARTIFACTS_DIR / name / "model.safetensors").exists() and (C.ARTIFACTS_DIR / name / "preds_rsna.npz").exists()
-            if not trained:
-                shutil.rmtree(C.ARTIFACTS_DIR / name, ignore_errors=True)       # leftovers of an interrupted run
+            if shutil.disk_usage(ROOT).free < 1 * 2**30:
+                sys.exit(f"\nSTOPPED before {name}: less than 1 GB is free on the disk. Free space, then start the same command again.")
+            src = C.ARTIFACTS_DIR / name
+            trained = (src / "model.safetensors").exists() and (src / "preds_rsna.npz").exists()
+            if (src / "PACKED").exists() and not trained:
+                # this run was finished and packed before, but its result files are gone from results/v2/
+                sys.exit(f"\nSTOPPED: {name} was already trained, but results/v2/{name}/ is missing. Restore it with\n"
+                         f"    git checkout origin/pc/v2-runs -- results/v2/{name}\nand start the same command again. "
+                         "(To train it anew on purpose, delete artifacts/" + name + " first.)")
+            if trained:
+                print(f"=== {name}: weights of an earlier, unpacked attempt found: packing them without training", flush=True)
+            else:
+                shutil.rmtree(src, ignore_errors=True)                          # leftovers of an interrupted run
                 if not train(run, args.extra):
                     failed.append(name)
                     write_status(status_rows())
                     continue
-            pack(name)
+            try:
+                pack(name)
+            except Exception as e:                                              # for example a file cut off by a full disk
+                print(f"=== {name}: packing FAILED ({type(e).__name__}: {e}). The run is removed and counted as failed.", flush=True)
+                shutil.rmtree(src, ignore_errors=True)
+                shutil.rmtree(V2 / name, ignore_errors=True)
+                failed.append(name)
+                write_status(status_rows())
+                continue
             write_status(status_rows())
             if args.commit:
                 commit_and_push(f"v2 run {name}: settings, validation results and scores (no test results)")
+        if args.commit:                         # once more at the end: a commit or push that failed earlier is repeated here
+            commit_and_push("v2 runs: status")
+            if not git("push", "origin", "HEAD"):
+                print("\nRESULTS ARE NOT ON GITHUB: 'git push origin HEAD' failed. Push by hand and report it.", flush=True)
         show(status_rows())
         if failed:
             sys.exit(f"\nFAILED runs: {failed}. Their logs are in logs/gpu/. The other runs are complete.")

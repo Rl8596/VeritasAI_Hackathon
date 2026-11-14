@@ -18,11 +18,11 @@ with the virtual environment's Python (`.venv/Scripts/python`).
 
 ## Step 1: get the code onto your own branch
 
-First time:
+First time only (never repeat this once runs exist: use `git checkout pc/v2-runs` to get back onto the branch):
 
 ```bash
 git fetch origin
-git checkout -B pc/v2-runs origin/claude/friendly-wright-kfzg9j
+git checkout pc/v2-runs 2>/dev/null || git checkout -b pc/v2-runs origin/claude/friendly-wright-kfzg9j
 ```
 
 Later, when the cloud session says there is new code:
@@ -74,6 +74,8 @@ What to expect:
   `origin pc/v2-runs`. Weights stay on this machine in `artifacts/`.
 - A finished run is skipped when the script is started again, so an interrupted batch can simply be restarted
   with the same command.
+- Never delete `results/v2/` or `artifacts/v2_*` to "start clean". If runs ever have to be repeated, the cloud session says
+  exactly which folders to delete.
 - If a run fails, the script goes on with the next one and lists the failed runs at the end. Report them with the
   last 20 lines of `logs/gpu/<name>.log`. Do not retry with other settings.
 - The printed table shows **validation** results. Do not interpret them and do not pick a "best" model:

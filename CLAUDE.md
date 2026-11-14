@@ -128,8 +128,10 @@ first: it was committed before any v2 model was trained and fixes the recipe, th
 - `scripts/00_preflight.py` (lock files in `data_splits/`) proved that the PC has the same split and the same
   pictures. `scripts/09_gpu_batch.py` trains the fixed list (`list`, `smoke`, `run --stage N --commit`, `status`,
   `upload`). On the PC: 158 images per second, about 3 hours for all 22 runs.
-- **When runs have arrived:** copy `results/v2` and `results/val_v2_*.json` from `origin/pc/v2-runs` into this
-  branch (`git checkout origin/pc/v2-runs -- results/v2` and the val files), run
+- **When runs have arrived:** copy the result files from `origin/pc/v2-runs` into this branch, WITHOUT the status
+  file and the smoke-test leftover (otherwise the PC's next pull ends in a merge conflict):
+  `git checkout origin/pc/v2-runs -- results/v2 ':(exclude)results/v2/STATUS.json' ':(exclude)results/v2/v2_smoke'`
+  and the same for `results/val_v2_*.json`. Never push to `pc/v2-runs` from here. Then run
   `python scripts/10_v2_report.py val`, commit, then `python scripts/10_v2_report.py test` (once), then fill
   README section 6 and the video script. `results/v1_rehearsal.*` is the same report for the two v1 models only.
 - **Weights of the headline model** reach the Hub only after a person logs in on the PC (`hf auth login`) and the PC
