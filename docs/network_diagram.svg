@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 430" width="1150" height="430" role="img"
+     aria-label="Diagram of the ResNet-18 network inside PneumoShift">
+  <style>
+    text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #0f172a; }
+    .title { font-size: 19px; font-weight: 700; }
+    .sub { font-size: 12.5px; fill: #334155; }
+    .b { font-size: 12.5px; font-weight: 700; text-anchor: middle; }
+    .t { font-size: 12px; text-anchor: middle; }
+    .l { font-size: 12px; }
+    .old { fill: #dbeafe; stroke: #2563eb; }
+    .new { fill: #ffedd5; stroke: #ea580c; }
+    .ours { fill: #dcfce7; stroke: #16a34a; }
+    .inp { fill: #f1f5f9; stroke: #64748b; }
+    rect { stroke-width: 1.5; }
+    .a { stroke: #475569; stroke-width: 1.6; fill: none; marker-end: url(#h); }
+  </style>
+  <defs>
+    <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1150" height="430" fill="#ffffff" stroke="none"/>
+
+  <text x="20" y="32" class="title">The network inside PneumoShift: ResNet-18, 11,177,025 weights</text>
+  <text x="20" y="56" class="sub">One block = two layers of 3 × 3 filters plus a shortcut around them. 1 first layer + 16 in the blocks + 1 last layer = 18 layers.</text>
+
+  <!-- main row, centre line y = 240 -->
+  <rect class="inp" x="20" y="165" width="100" height="150" rx="6"/>
+  <text class="b" x="70" y="220">Chest X-ray</text>
+  <text class="t" x="70" y="236">224 × 224</text>
+  <text class="t" x="70" y="252">pixels, grey</text>
+  <text class="t" x="70" y="268">(copied 3×)</text>
+
+  <rect class="old" x="142" y="175" width="100" height="130" rx="6"/>
+  <text class="b" x="192" y="220">First layer</text>
+  <text class="t" x="192" y="236">7 × 7 filters</text>
+  <text class="t" x="192" y="252">64 maps</text>
+  <text class="t" x="192" y="268">then 56 × 56</text>
+
+  <rect class="old" x="264" y="175" width="100" height="130" rx="6"/>
+  <text class="b" x="314" y="220">Stage 1</text>
+  <text class="t" x="314" y="236">2 blocks</text>
+  <text class="t" x="314" y="252">64 maps</text>
+  <text class="t" x="314" y="268">56 × 56</text>
+
+  <rect class="old" x="386" y="183" width="100" height="114" rx="6"/>
+  <text class="b" x="436" y="220">Stage 2</text>
+  <text class="t" x="436" y="236">2 blocks</text>
+  <text class="t" x="436" y="252">128 maps</text>
+  <text class="t" x="436" y="268">28 × 28</text>
+
+  <rect class="old" x="508" y="191" width="100" height="98" rx="6"/>
+  <text class="b" x="558" y="220">Stage 3</text>
+  <text class="t" x="558" y="236">2 blocks</text>
+  <text class="t" x="558" y="252">256 maps</text>
+  <text class="t" x="558" y="268">14 × 14</text>
+
+  <rect class="old" x="630" y="199" width="100" height="82" rx="6"/>
+  <text class="b" x="680" y="220">Stage 4</text>
+  <text class="t" x="680" y="236">2 blocks</text>
+  <text class="t" x="680" y="252">512 maps</text>
+  <text class="t" x="680" y="268">7 × 7</text>
+
+  <rect class="old" x="752" y="199" width="100" height="82" rx="6"/>
+  <text class="b" x="802" y="228">Average</text>
+  <text class="t" x="802" y="244">of each map:</text>
+  <text class="t" x="802" y="260">512 numbers</text>
+
+  <rect class="new" x="874" y="199" width="100" height="82" rx="6"/>
+  <text class="b" x="924" y="228">Last layer</text>
+  <text class="t" x="924" y="244">513 weights</text>
+  <text class="t" x="924" y="260">gives 1 number</text>
+
+  <rect class="ours" x="996" y="199" width="134" height="82" rx="6"/>
+  <text class="b" x="1063" y="220">Result</text>
+  <text class="t" x="1063" y="236">score 0 to 100%</text>
+  <text class="t" x="1063" y="252">above the threshold:</text>
+  <text class="t" x="1063" y="268">flag for review</text>
+
+  <path class="a" d="M 120 240 H 141"/>
+  <path class="a" d="M 242 240 H 263"/>
+  <path class="a" d="M 364 240 H 385"/>
+  <path class="a" d="M 486 240 H 507"/>
+  <path class="a" d="M 608 240 H 629"/>
+  <path class="a" d="M 730 240 H 751"/>
+  <path class="a" d="M 852 240 H 873"/>
+  <path class="a" d="M 974 240 H 995"/>
+
+  <!-- the two extras -->
+  <rect class="ours" x="692" y="84" width="220" height="64" rx="6"/>
+  <text class="b" x="802" y="106">Warning</text>
+  <text class="t" x="802" y="122">are these 512 numbers unlike</text>
+  <text class="t" x="802" y="138">those of the training X-rays?</text>
+  <path class="a" d="M 802 199 V 149"/>
+
+  <rect class="ours" x="570" y="330" width="220" height="64" rx="6"/>
+  <text class="b" x="680" y="352">Heatmap</text>
+  <text class="t" x="680" y="368">which of the 7 × 7 squares</text>
+  <text class="t" x="680" y="384">pushed the score up?</text>
+  <path class="a" d="M 680 281 V 329"/>
+
+  <!-- legend -->
+  <rect class="old" x="20" y="335" width="14" height="14" rx="2"/>
+  <text class="l" x="42" y="346">Existing design (ResNet-18). Starting weights learned from everyday photos</text>
+  <text class="l" x="42" y="362">(ImageNet), then all of them retrained by us on chest X-rays.</text>
+  <rect class="new" x="20" y="375" width="14" height="14" rx="2"/>
+  <text class="l" x="42" y="386">New last layer, trained from scratch (the original named 1,000 kinds of photo).</text>
+  <rect class="ours" x="20" y="399" width="14" height="14" rx="2"/>
+  <text class="l" x="42" y="410">Built around the network by us: threshold, heatmap, warning.</text>
+</svg>
