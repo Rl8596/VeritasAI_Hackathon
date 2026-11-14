@@ -36,12 +36,13 @@ def train_model(train_sets, val_set, out_dir, *, arch=C.DEFAULT_ARCH, epochs=6, 
     np.random.seed(seed)
     torch.set_num_threads(threads)
     out_dir = Path(out_dir)
+    device = "cuda" if torch.cuda.is_available() else "cpu"   # GPU on Colab, CPU elsewhere
 
     if init_from:
         model, _ = modeling.load_checkpoint(init_from)
     else:
         model = modeling.build_model(arch, pretrained=True)
-    model = model.to(memory_format=torch.channels_last)
+    model = model.to(device).to(memory_format=torch.channels_last)
 
     train_ds = torch.utils.data.ConcatDataset([XrayDataset(X, i, y, train=True) for X, i, y in train_sets])
     loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, shuffle=True, drop_last=True,
@@ -60,8 +61,8 @@ def train_model(train_sets, val_set, out_dir, *, arch=C.DEFAULT_ARCH, epochs=6, 
         model.train()
         run, seen = 0.0, 0
         for x, y, _ in loader:
-            x = x.to(memory_format=torch.channels_last)
-            loss = loss_fn(model(x).squeeze(1), y.float())
+            x = x.to(device).to(memory_format=torch.channels_last)
+            loss = loss_fn(model(x).squeeze(1), y.float().to(device))
             opt.zero_grad(set_to_none=True)
             loss.backward()
             opt.step()
@@ -69,16 +70,16 @@ def train_model(train_sets, val_set, out_dir, *, arch=C.DEFAULT_ARCH, epochs=6, 
             run += loss.item() * len(y); seen += len(y); step += 1
             if step == 20:
                 log(f"  speed: {20 * batch_size / (time.time() - t0):.1f} img/s, {len(loader)} steps per epoch")
-        val_logits = modeling.predict(model, Xv, iv)
+        val_logits = modeling.predict(model, Xv, iv, device=device)
         auc = metrics.auroc(yv, val_logits)
         history.append(dict(epoch=ep + 1, train_loss=run / seen, val_auroc=auc, minutes=(time.time() - t0) / 60))
         log(f"  epoch {ep + 1}/{epochs}  train loss {run / seen:.4f}  val AUROC {auc:.4f}  ({(time.time() - t0) / 60:.1f} min)")
         if auc > best_auc:
-            best_auc, best_state = auc, {k: v.clone() for k, v in model.state_dict().items()}
+            best_auc, best_state = auc, {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
 
     model.load_state_dict(best_state)
     model.eval()
-    val_logits = modeling.predict(model, Xv, iv)
+    val_logits = modeling.predict(model, Xv, iv, device=device)
     temperature = fit_temperature(val_logits, yv)
     val_p = modeling.sigmoid(val_logits, temperature)
     threshold = metrics.threshold_for_sensitivity(yv, val_p, 0.95)
@@ -96,9 +97,10 @@ def export_predictions(model, out_dir, datasets: dict, log=print) -> None:
     so that all later analysis (subgroups, OOD warning, learning curves) is fast and never
     needs the network again. Files: <out_dir>/preds_<name>.npz with arrays `logits`, `emb`."""
     out_dir = Path(out_dir)
+    device = next(model.parameters()).device
     for name, X in datasets.items():
         t = time.time()
-        logits, emb = modeling.predict(model, X, return_embeddings=True)
+        logits, emb = modeling.predict(model, X, return_embeddings=True, device=device)
         np.savez(out_dir / f"preds_{name}.npz", logits=logits.astype(np.float32), emb=emb.astype(np.float32))
         log(f"  predictions for {name}: {len(logits)} images in {time.time() - t:.0f}s")
 

@@ -47,8 +47,9 @@ def box_mask(bxs) -> np.ndarray:
 
 def cams_for(model, X, idx, batch=32):
     maps = []
+    device = next(model.parameters()).device
     for i in range(0, len(idx), batch):
-        x = to_model_input(np.asarray(X[np.sort(idx[i:i + batch])]))
+        x = to_model_input(np.asarray(X[np.sort(idx[i:i + batch])])).to(device)
         order = np.argsort(np.argsort(idx[i:i + batch]))
         maps.append(cam.grad_cam(model, x)[0][order])
     return np.concatenate(maps)
@@ -68,7 +69,8 @@ if __name__ == "__main__":
     Xk, mk = data.load_kermany()
     Xr, mr = data.load_rsna()
     boxes = boxes_in_model_coords(data.load_rsna_boxes())
-    models = {m: modeling.load_checkpoint(C.ARTIFACTS_DIR / m) for m in args.models if (C.ARTIFACTS_DIR / m).exists()}
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    models = {m: modeling.load_checkpoint(C.ARTIFACTS_DIR / m, device) for m in args.models if (C.ARTIFACTS_DIR / m).exists()}
     res = {}
 
     # ---------------- Part 1: pointing test on adult test X-rays with pneumonia ----------------
