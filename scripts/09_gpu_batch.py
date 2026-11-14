@@ -37,6 +37,7 @@ from pneumoshift import config as C  # noqa: E402
 V2 = C.RESULTS_DIR / "v2"
 LOGS = ROOT / "logs" / "gpu"
 PROTECTED = ("kids_only", "kids_plus_adults")
+KEEP_PREDICTIONS = ("v2_kids_plus_all",)        # the headline model of docs/V2_PROTOCOL.md
 ALL_ADULTS = "--rsna-n 16000"            # more than the 15,142 adult training X-rays, so: all of them
 COMMON = "--select last --no-test --require-gpu --workers 0"
 
@@ -96,6 +97,11 @@ def pack(name: str) -> None:
     if (src / "rsna_train_idx.npy").exists():
         np.save(dst / "rsna_train_idx.npy", np.load(src / "rsna_train_idx.npy").astype(np.int32))
     shutil.copy2(src / "config.json", dst / "config.json")          # written last: its presence means "done"
+    # The per-image files in artifacts/ also hold 512 numbers per X-ray (55 MB per model). Only the headline
+    # model needs them later (for its "unlike my training data" check), so the others give the disk space back.
+    if name not in KEEP_PREDICTIONS:
+        for f in ("preds_kermany.npz", "preds_rsna.npz"):
+            (src / f).unlink(missing_ok=True)
 
 
 def train(run: dict, extra: str = "") -> bool:

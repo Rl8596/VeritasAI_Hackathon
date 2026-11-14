@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     print("5. Disk and Hugging Face")
     free_gb = shutil.disk_usage(ROOT).free / 2**30
-    say(free_gb > 5, f"{free_gb:.0f} GB free on the disk of the project")
+    say(free_gb > 2.5, f"{free_gb:.1f} GB free on the disk of the project (the 22 runs need about 1.5 GB; at least 2.5 GB must be free)")
     try:
         from huggingface_hub import HfApi
 
