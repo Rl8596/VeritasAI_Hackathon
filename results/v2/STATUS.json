@@ -1,0 +1,124 @@
+{
+ "note": "Written by scripts/09_gpu_batch.py. Validation results only, no test image is involved.",
+ "runs": [
+  {
+   "name": "v2_kids_plus_all",
+   "stage": 1,
+   "status": "done",
+   "minutes": 12.9,
+   "best_epoch": 6,
+   "device": "NVIDIA GeForce RTX 3080",
+   "val_auroc_children": 0.9995,
+   "val_auroc_adults": 0.8744,
+   "val_auroc_adults_PA": 0.8357,
+   "val_auroc_adults_AP": 0.8287,
+   "val_adult_specificity_at_threshold": 0.5023,
+   "val_adult_sensitivity_at_threshold": 0.9514
+  },
+  {
+   "name": "v2_kids_plus_6000",
+   "stage": 1,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_0",
+   "stage": 1,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_300",
+   "stage": 1,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_1000",
+   "stage": 1,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_3000",
+   "stage": 1,
+   "status": "open"
+  },
+  {
+   "name": "v2_adults_all",
+   "stage": 1,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_all_s2027",
+   "stage": 2,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_6000_s2027",
+   "stage": 2,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_0_s2027",
+   "stage": 2,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_all_s2028",
+   "stage": 2,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_6000_s2028",
+   "stage": 2,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_0_s2028",
+   "stage": 2,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_300_s2027",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_1000_s2027",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_3000_s2027",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_adults_all_s2027",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_300_s2028",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_1000_s2028",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_3000_s2028",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_adults_all_s2028",
+   "stage": 3,
+   "status": "open"
+  },
+  {
+   "name": "v2_kids_plus_all_r50",
+   "stage": 4,
+   "status": "open"
+  }
+ ]
+}
