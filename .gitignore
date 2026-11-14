@@ -15,3 +15,8 @@ web/models/
 
 # logs of training runs
 logs/
+
+# virtual environments and stray logs
+.venv/
+venv/
+*.log

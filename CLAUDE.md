@@ -110,7 +110,7 @@ with ONNX Runtime Web. It exists because the Gradio Space was refused (see above
 - Checked on screenshots: desktop, tablet, phone, dark mode. Not checked: Safari and Firefox, a real phone.
 - Uploaded on Sat 14 Nov: `onnx/` in both model repos and the static Space `RL8596/pneumoshift`. The live page passes
   `node tests/web/parity.mjs --url https://rl8596-pneumoshift.static.hf.space/`. After changing `web/`, upload again with
-  `python scripts/08_export_web.py space RL8596/pneumoshift` (the token is saved on the cloud environment `VeritasAI_Hackathon`;
+  `python scripts/08_export_web.py space RL8596/pneumoshift --live`, but test in a staging Space first (the token is saved on the cloud environment `VeritasAI_Hackathon`;
   set `HF_TOKEN=hf_proxyinjected` for the command, the proxy puts the real token in).
 - If `app/examples/` changes, rerun the export script: it copies the examples to `web/examples/`.
 
@@ -139,7 +139,7 @@ first: it was committed before any v2 model was trained and fixes the recipe, th
   the PC's, run 05 for it, and decide with the team whether it replaces the second card of the demo
   (only through a staging Space, never by editing the live one first).
 - **Guards:** `02_train.py`, `hub_models.py push`, `08_export_web.py push` and `deploy_space.py` refuse to touch the two
-  published models and the live Space. The Hub repos and the Space carry the tag `v1-before-retraining`.
+  published models; `deploy_space.py space` and `08_export_web.py space` (without `--live`) refuse the live Space. The Hub repos and the Space carry the tag `v1-before-retraining`.
 - New finding from the rehearsal, already in the README: a frozen ImageNet network + logistic regression trained on
   the adult X-rays reaches 0.848 on adults. That is the fair baseline for any adult-trained model.
 - Multi-agent reviews are expensive: one plan review used most of a 5-hour usage allowance. Ask before starting one.

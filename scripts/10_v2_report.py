@@ -512,6 +512,8 @@ if __name__ == "__main__":
                     help="compute the v2 test results a second time; the reason is written into the report")
     args = ap.parse_args()
 
+    if args.out and (not args.v1_only or args.out == "v2_report"):
+        sys.exit("--out is for the rehearsal only (--v1-only), and not under the name v2_report")
     Xk, mk = data.load_kermany()
     Xr, mr = data.load_rsna()
 
