@@ -62,18 +62,28 @@ if __name__ == "__main__":
         torch.set_num_threads(int(os.environ.get("OMP_NUM_THREADS", "4")))
         model = xrv.models.DenseNet(weights=WEIGHTS).eval()
         labels = list(model.pathologies)
+        parts = SCRATCH / f"xrv_{WEIGHTS}_parts"          # one file per 3,200 X-rays, so an interrupted run continues
+        parts.mkdir(parents=True, exist_ok=True)
         feats, outs, t0 = [], [], time.time()
         with torch.no_grad():
-            for i in range(0, len(Xr), 64):
-                x = torch.from_numpy(np.ascontiguousarray(Xr[i:i + 64])).float()[:, None]          # [B, 1, 256, 256], 0..255
-                x = F.interpolate(x, size=(224, 224), mode="bilinear", antialias=True, align_corners=False)
-                x = (2 * (x / 255.0) - 1.0) * 1024.0                                               # the library's value range
-                feats.append(model.features2(x).numpy().astype(np.float32))
-                outs.append(model(x).numpy().astype(np.float32))
-                if i % 3200 == 0:
-                    print(f"  {i:6d} of {len(Xr)} X-rays ({time.time() - t0:.0f}s)", flush=True)
+            for s in range(0, len(Xr), 3200):
+                part = parts / f"{s:06d}.npz"
+                if not part.exists():
+                    f_, o_ = [], []
+                    for i in range(s, min(s + 3200, len(Xr)), 64):
+                        x = torch.from_numpy(np.ascontiguousarray(Xr[i:i + 64])).float()[:, None]  # [B, 1, 256, 256], 0..255
+                        x = F.interpolate(x, size=(224, 224), mode="bilinear", antialias=True, align_corners=False)
+                        x = (2 * (x / 255.0) - 1.0) * 1024.0                                       # the library's value range
+                        f_.append(model.features2(x).numpy().astype(np.float32))
+                        o_.append(model(x).numpy().astype(np.float32))
+                    tmp = parts / f"{s:06d}.tmp.npz"
+                    np.savez(tmp, features=np.concatenate(f_), outputs=np.concatenate(o_))
+                    tmp.replace(part)
+                    print(f"  {min(s + 3200, len(Xr)):6d} of {len(Xr)} X-rays ({time.time() - t0:.0f}s)", flush=True)
+                z = np.load(part)
+                feats.append(z["features"])
+                outs.append(z["outputs"])
         feats, outs = np.concatenate(feats), np.concatenate(outs)
-        SCRATCH.mkdir(parents=True, exist_ok=True)
         np.savez(cache, features=feats, outputs=outs, labels=np.array(labels))
 
     as_is = outs[:, labels.index("Lung Opacity")].astype(np.float64)
