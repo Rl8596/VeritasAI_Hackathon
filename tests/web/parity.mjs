@@ -11,7 +11,9 @@
      - logit, familiarity distance and heatmap must agree within the small limits below
      - the decision (flagged or not) and the warning level must be the same
 
-   Optional: --screenshots <folder> saves pictures of the page on a desktop and a phone screen. */
+   Optional: --screenshots <folder> saves pictures of the page on a desktop and a phone screen.
+             --url <address> tests a page that is already online (with the models from the Hub)
+             instead of the local copy, for example the Space: https://rl8596-pneumoshift.static.hf.space/ */
 import { createServer } from 'node:http';
 import { readFile, mkdir } from 'node:fs/promises';
 import { extname, join, normalize, resolve, dirname } from 'node:path';
@@ -40,7 +42,9 @@ const server = createServer(async (req, res) => {
   } catch { res.writeHead(404); res.end('not found'); }
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
-const url = `http://127.0.0.1:${server.address().port}/?models=local`;
+const urlAt = process.argv.indexOf('--url');
+const url = urlAt > 0 ? process.argv[urlAt + 1] : `http://127.0.0.1:${server.address().port}/?models=local`;
+console.log(`testing ${url}`);
 
 const reference = JSON.parse(await readFile(join(HERE, 'reference.json'), 'utf8')).models;
 const names = Object.keys(reference);

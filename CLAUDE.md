@@ -89,7 +89,11 @@ Never tested or looked at yet. Do not claim these work until you have checked:
 - **Scripts 06 and 07 have never been run by a session that read their output.** Read the numbers critically.
 - **The notebook has never been run in Colab.** Quick mode (`--rsna-limit 6000`, 3 epochs) is untested in every script.
 - **The app was tested with one image on a desktop screen.** Phone layout untested. Known flaws: some captions are cut off, the heatmaps sit below the fold.
-- **The Hugging Face Space is not online.** The upload was refused: Gradio Spaces on the free tier now need a PRO subscription.
+- **The Gradio Space is not online.** An earlier session reported: upload refused, Gradio Spaces on the free tier need PRO.
+  Not verified. Another possible cause: `short_description` in `app/README.md` is longer than the 60 characters the Hub allows
+  (the static Space was refused for exactly that until it was shortened).
+- **The browser demo is online and tested:** https://huggingface.co/spaces/RL8596/pneumoshift
+  (direct: https://rl8596-pneumoshift.static.hf.space/). This is the demo link for the submission.
 
 ### Browser demo (`web/`, added Sat 14 Nov, afternoon)
 
@@ -104,6 +108,10 @@ with ONNX Runtime Web. It exists because the Gradio Space was refused (see above
   for byte, logits differ by less than 0.00001, decisions and warnings are the same. Run it after any change to `web/`.
 - The page loads the models from the Hub and falls back to `web/models/` (not in git). `?models=local` skips the Hub.
 - Checked on screenshots: desktop, tablet, phone, dark mode. Not checked: Safari and Firefox, a real phone.
+- Uploaded on Sat 14 Nov: `onnx/` in both model repos and the static Space `RL8596/pneumoshift`. The live page passes
+  `node tests/web/parity.mjs --url https://rl8596-pneumoshift.static.hf.space/`. After changing `web/`, upload again with
+  `python scripts/08_export_web.py space RL8596/pneumoshift` (the token is saved on the cloud environment `VeritasAI_Hackathon`;
+  set `HF_TOKEN=hf_proxyinjected` for the command, the proxy puts the real token in).
 - If `app/examples/` changes, rerun the export script: it copies the examples to `web/examples/`.
 
 ## 4. Results so far (children-only model, held-out test patients)
@@ -185,7 +193,7 @@ Phrase novelty as "to our knowledge". Never change the threshold rule after seei
 
 1. Check section 3: what arrived, look at every figure, read the outputs of steps 05 (second model), 06 and 07.
 2. **`README.md` as the write-up.** One page first: problem and user, approach, results table with baseline, what did not work, limits. Then details, how to run, and all citations (ready to paste in `docs/RESEARCH_NOTES.md` section 8, impact numbers in section 4). Plain English, no jargon without explanation.
-3. **A demo link that judges can open.** Options: (a) the team buys Hugging Face PRO, then `python scripts/deploy_space.py space RL8596/pneumoshift`; (b) the public Gradio share link: already built as notebook section 9 (`PNEUMOSHIFT_SHARE=1 python app/app.py`), never tested, good enough for the video and the live final; (c) a static Space that runs the model in the browser with ONNX Runtime Web (free and permanent, most work).
+3. **A demo link that judges can open.** DONE with option (c), see "Browser demo" in section 3. The options were: (a) the team buys Hugging Face PRO, then `python scripts/deploy_space.py space RL8596/pneumoshift`; (b) the public Gradio share link: already built as notebook section 9 (`PNEUMOSHIFT_SHARE=1 python app/app.py`), never tested, good enough for the video and the live final; (c) a static Space that runs the model in the browser with ONNX Runtime Web (free and permanent, most work).
 4. Run the notebook in Colab once, in quick mode, and fix what breaks. Ask the team to do the run if you cannot.
 5. `docs/VIDEO_SCRIPT.md`: problem 15 s, demo 60 s, how it works 30 s, limits and next steps 15 s. The demo moment: the same adult X-ray, the children-only model is confidently wrong, the warning fires, the second model disagrees.
 6. App polish: model cards and the limits panel should state the numbers above. Explain that the score is not a calibrated probability.

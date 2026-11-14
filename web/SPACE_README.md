@@ -7,7 +7,7 @@ sdk: static
 app_file: index.html
 pinned: false
 license: mit
-short_description: Pneumonia X-ray screening that warns when it is out of its depth
+short_description: Chest X-ray pneumonia check that knows its limits
 models:
   - RL8596/pneumoshift-kids-only
   - RL8596/pneumoshift-kids-plus-adults
