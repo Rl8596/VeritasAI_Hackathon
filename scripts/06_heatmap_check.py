@@ -121,7 +121,7 @@ if __name__ == "__main__":
     ax.set_yticks(yy, [r[0] for r in rows]); ax.set_xlim(0, 1); ax.grid(axis="y", visible=False)
     ax.xaxis.set_major_formatter(lambda v, _: f"{v:.0%}")
     ax.set_xlabel("Hottest point of the heatmap lies inside a radiologist's box")
-    ax.set_title("Does the model look where the radiologists marked pneumonia?")
+    ax.set_title("Does the model look where the radiologists marked lung opacity?")
     plotting.finish(fig, C.FIGURES_DIR / "heatmap_pointing_test.png",
                     note=f"{pt['n_images']} adult test X-rays with lung opacity (RSNA). Grey = no-skill reference points.")
 

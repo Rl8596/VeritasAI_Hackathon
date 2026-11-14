@@ -29,8 +29,13 @@ def use_style() -> None:
 
 
 def finish(fig, path, note: str | None = None) -> None:
-    """Save and close. `note` is a small grey footnote (data source, sample size)."""
+    """Save and close. `note` is a small grey footnote (data source, sample size).
+
+    The note is placed below the lowest thing in the figure (axis label, legend), so it never overlaps."""
     if note:
-        fig.text(0.01, -0.02, note, ha="left", va="top", fontsize=9, color=TEXT_2)
+        fig.canvas.draw()
+        box = fig.get_tightbbox(fig.canvas.get_renderer())            # in inches
+        y = (box.y0 - 0.10) / fig.get_figheight()
+        fig.text(max(box.x0 / fig.get_figwidth(), 0.0) + 0.005, y, note, ha="left", va="top", fontsize=9, color=TEXT_2)
     fig.savefig(path)
     plt.close(fig)

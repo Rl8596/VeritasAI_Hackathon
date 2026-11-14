@@ -117,7 +117,7 @@ def make_figures(name, cfg, mk, pk, mr, pr, res, ood_scores, fig_dir):
     ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.12), ncol=1)
     ax.set_title(res["titles"]["headline"])
     plotting.finish(fig, fig_dir / f"shift_{name}_headline.png",
-                    note=f"Model '{name}'. Threshold {thr:.2f} fixed on validation data. Held-out test images only.")
+                    note=f"Model '{name}'. Threshold {thr:.3f} fixed on validation data. Held-out test images only.")
 
     # 2. what the model says: distribution of predicted probabilities
     fig, axes = plt.subplots(1, 2, figsize=(9.4, 3.5), sharey=False)
@@ -129,8 +129,8 @@ def make_figures(name, cfg, mk, pk, mr, pr, res, ood_scores, fig_dir):
         ax.axvline(thr, color=plotting.NEUTRAL, linestyle="--", linewidth=1.5)
         ax.text(thr, ax.get_ylim()[1] * 0.97, " flagged ->" if thr < 0.6 else "flagged -> ", color=plotting.TEXT_2,
                 ha="left" if thr < 0.6 else "right", va="top", fontsize=10)
-        ax.set_title(title, fontsize=12); ax.set_xlabel("Model's pneumonia probability"); ax.set_yticks([])
-        ax.legend(loc="upper center")
+        ax.set_title(title, fontsize=12); ax.set_xlabel("Model's pneumonia score"); ax.set_yticks([])
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=2)     # below the axes: nothing to overlap
     fig.suptitle(res["titles"]["scores"], x=0.01, ha="left", fontweight="bold", fontsize=14, y=1.03)
     plotting.finish(fig, fig_dir / f"shift_{name}_scores.png", note="Filled = truly no pneumonia, outline = truly pneumonia. Dashed line = decision threshold.")
 
@@ -147,7 +147,7 @@ def make_figures(name, cfg, mk, pk, mr, pr, res, ood_scores, fig_dir):
     ax.axvline(0.5, color=plotting.NEUTRAL, linestyle="--", linewidth=1.5)
     ax.axvline(kid["auroc"], color=plotting.CHILDREN, linewidth=2)
     ax.text(0.5, len(names) - 0.35, "coin flip", ha="center", fontsize=10, color=plotting.TEXT_2)
-    ax.text(kid["auroc"], len(names) - 0.35, "children's test set", ha="right", fontsize=10, color=plotting.TEXT_2)
+    ax.text(kid["auroc"] - 0.008, len(names) - 0.35, "children's test set", ha="right", fontsize=10, color=plotting.TEXT_2)
     ax.set_yticks(range(len(names)), names); ax.set_xlim(0.3, 1.0); ax.set_ylim(-0.6, len(names) + 0.1)
     ax.set_xlabel("AUROC (1.0 = perfect ranking, 0.5 = coin flip)"); ax.grid(axis="y", visible=False)
     ax.set_title(res["titles"]["subgroups"])
@@ -165,9 +165,9 @@ def make_figures(name, cfg, mk, pk, mr, pr, res, ood_scores, fig_dir):
     ax.axvline(t95, color=plotting.NEUTRAL, linestyle="--", linewidth=1.5)
     ax.text(t95, ax.get_ylim()[1] * 0.97, " warning ->", va="top", fontsize=10, color=plotting.TEXT_2)
     ax.set_xlabel("How unfamiliar the X-ray looks to the model (distance to training data)"); ax.set_yticks([])
-    ax.legend(loc="upper right"); ax.set_title(res["titles"]["ood"])
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=2); ax.set_title(res["titles"]["ood"])
     plotting.finish(fig, fig_dir / f"shift_{name}_ood.png",
-                    note="Warning threshold = 95th percentile of validation images from the training hospital.")
+                    note="Warning threshold: 95% of validation X-rays of the kind the model was trained on stay below it.")
 
     # 5. learning curve
     import pandas as pd
@@ -182,10 +182,14 @@ def make_figures(name, cfg, mk, pk, mr, pr, res, ood_scores, fig_dir):
     ax.plot(x, agg.c, "-o", color=plotting.CHILDREN, label="tested on children 1-5")
     ax.axhline(0.5, color=plotting.NEUTRAL, linestyle="--", linewidth=1.5)
     ax.text(x[-1], 0.505, "coin flip", ha="right", va="bottom", fontsize=10, color=plotting.TEXT_2)
-    ax.set_xscale("log"); ax.set_xticks(x, ["0"] + [f"{n:,}" for n in agg.n_adults[1:]], rotation=0, fontsize=10)
+    labels = ["0"] + [f"{n:,}" for n in agg.n_adults[1:]]
+    for i in range(len(x) - 1):                              # 10,000 and 15,142 sit too close on a log axis
+        if x[i + 1] / x[i] < 1.8:
+            labels[i] = ""
+    ax.set_xscale("log"); ax.set_xticks(x, labels, rotation=0, fontsize=10)
     ax.minorticks_off()
     ax.set_xlabel("Labelled adult X-rays added to training"); ax.set_ylabel("AUROC"); ax.set_ylim(0.45, 1.01)
-    ax.legend(loc="lower right"); ax.set_title(res["titles"]["learning_curve"])
+    ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.33)); ax.set_title(res["titles"]["learning_curve"])
     plotting.finish(fig, fig_dir / f"shift_{name}_learning_curve.png",
                     note="Network frozen, only the last layer retrained. Shaded band = range over 5 random draws of adult X-rays.")
 
@@ -194,6 +198,8 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="kids_only")
     ap.add_argument("--no-learning-curve", action="store_true")
+    ap.add_argument("--replot", action="store_true",
+                    help="only redraw the figures from results/shift_<model>.json and the stored ood.npz; no number is recomputed")
     args = ap.parse_args()
 
     model_dir = C.ARTIFACTS_DIR / args.model
@@ -208,6 +214,11 @@ if __name__ == "__main__":
     kte = (mk.split == "test").values
     ate = ((mr.split == "test") & mr.is_adult).values
     ava = ((mr.split == "val") & mr.is_adult).values
+    if args.replot:
+        res = json.loads((C.RESULTS_DIR / f"shift_{args.model}.json").read_text())
+        ood = MahalanobisOOD.load(model_dir / "ood.npz")
+        make_figures(args.model, cfg, mk, pk, mr, pr, res, dict(children_test=ood.score(ek[kte]), adults_test=ood.score(er[ate])), C.FIGURES_DIR)
+        sys.exit(f"figures of {args.model} redrawn, no number changed")
     res = dict(model=args.model, train_data=cfg.get("train_data"), threshold=thr, temperature=T)
 
     # 1. headline
