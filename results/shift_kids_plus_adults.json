@@ -1,0 +1,1169 @@
+{
+  "model": "kids_plus_adults",
+  "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "6000 adult X-rays (RSNA adapt)"
+  ],
+  "threshold": 0.1574653854211515,
+  "temperature": 1.0426836475890968,
+  "headline": {
+    "children_test (Kermany, pneumonia vs normal)": {
+      "n": 624,
+      "n_pos": 390,
+      "prevalence": 0.625,
+      "auroc": 0.9619329388560157,
+      "auroc_ci": [
+        0.9468178814545167,
+        0.9755571917609058
+      ],
+      "sensitivity": 1.0,
+      "sensitivity_ci": [
+        1.0,
+        1.0
+      ],
+      "specificity": 0.45726495726495725,
+      "specificity_ci": [
+        0.3982058431325009,
+        0.5230125523012552
+      ],
+      "accuracy": 0.7964743589743589,
+      "majority_baseline_accuracy": 0.625,
+      "flagged_rate": 0.8285256410256411,
+      "ppv": 0.7543520309477756,
+      "npv": 1.0,
+      "ece": 0.15178645425776904
+    },
+    "adults_test (RSNA, lung opacity vs normal)": {
+      "n": 4242,
+      "n_pos": 1723,
+      "prevalence": 0.4061763319189062,
+      "auroc": 0.9786912558000865,
+      "auroc_ci": [
+        0.9748584964861529,
+        0.9823315835958248
+      ],
+      "sensitivity": 0.9112013929193268,
+      "sensitivity_ci": [
+        0.8979663728612696,
+        0.9243670770169228
+      ],
+      "specificity": 0.9479952362048432,
+      "specificity_ci": [
+        0.9391862691579199,
+        0.9566304112006249
+      ],
+      "accuracy": 0.933050447901933,
+      "majority_baseline_accuracy": 0.5938236680810938,
+      "flagged_rate": 0.400990099009901,
+      "ppv": 0.9229864785420341,
+      "npv": 0.9397874852420307,
+      "ece": 0.15707202471135026
+    },
+    "adults_test (RSNA, lung opacity vs everything else)": {
+      "n": 7694,
+      "n_pos": 1723,
+      "prevalence": 0.22394073303873147,
+      "auroc": 0.873907091861,
+      "auroc_ci": [
+        0.8652351248758711,
+        0.8826967369844289
+      ],
+      "sensitivity": 0.9112013929193268,
+      "sensitivity_ci": [
+        0.8971443986191661,
+        0.9249866182544851
+      ],
+      "specificity": 0.6498074024451516,
+      "specificity_ci": [
+        0.6379133260545385,
+        0.6621857325940003
+      ],
+      "accuracy": 0.7083441642838576,
+      "majority_baseline_accuracy": 0.7760592669612685,
+      "flagged_rate": 0.4758253184299454,
+      "ppv": 0.4288445779841573,
+      "npv": 0.9620629804116043,
+      "ece": 0.029449503956182052
+    }
+  },
+  "adults_flagged_rate_by_class": {
+    "Normal": {
+      "n": 2519,
+      "flagged": 0.05200476379515681
+    },
+    "No Lung Opacity / Not Normal": {
+      "n": 3452,
+      "flagged": 0.5677867902665121
+    },
+    "Lung Opacity": {
+      "n": 1723,
+      "flagged": 0.9112013929193268
+    }
+  },
+  "adults_with_threshold_rechosen_on_adult_val": {
+    "n": 7694,
+    "n_pos": 1723,
+    "prevalence": 0.22394073303873147,
+    "auroc": 0.873907091861,
+    "auroc_ci": [
+      0.8649642802451574,
+      0.8829280541256598
+    ],
+    "sensitivity": 0.9599535693557748,
+    "sensitivity_ci": [
+      0.9509059595953461,
+      0.9689543006553004
+    ],
+    "specificity": 0.502260927817786,
+    "specificity_ci": [
+      0.4889269729325086,
+      0.5137939648696035
+    ],
+    "accuracy": 0.6047569534702365,
+    "majority_baseline_accuracy": 0.7760592669612685,
+    "flagged_rate": 0.60124772550039,
+    "ppv": 0.35754431474275833,
+    "npv": 0.977509778357236,
+    "ece": 0.029449503956182052,
+    "threshold": 0.07252710748836372
+  },
+  "subgroups_adult_hospital": {
+    "age 1-5": {
+      "n": 21,
+      "n_pos": 6,
+      "prevalence": 0.2857142857142857,
+      "auroc": 0.7444444444444445,
+      "auroc_ci": [
+        0.42424019607843133,
+        0.9666666666666667
+      ],
+      "sensitivity": 0.8333333333333334,
+      "sensitivity_ci": [
+        0.5,
+        1.0
+      ],
+      "specificity": 0.3333333333333333,
+      "specificity_ci": [
+        0.1083823529411765,
+        0.5776785714285712
+      ],
+      "accuracy": 0.47619047619047616,
+      "majority_baseline_accuracy": 0.7142857142857143,
+      "flagged_rate": 0.7142857142857143,
+      "ppv": 0.3333333333333333,
+      "npv": 0.8333333333333334,
+      "ece": 0.214275944586865
+    },
+    "age 6-17": {
+      "n": 290,
+      "n_pos": 75,
+      "prevalence": 0.25862068965517243,
+      "auroc": 0.8782015503875968,
+      "auroc_ci": [
+        0.8350730749580283,
+        0.9148078560460914
+      ],
+      "sensitivity": 0.92,
+      "sensitivity_ci": [
+        0.8533333333333334,
+        0.972986301369863
+      ],
+      "specificity": 0.586046511627907,
+      "specificity_ci": [
+        0.522667313841937,
+        0.6525892857142858
+      ],
+      "accuracy": 0.6724137931034483,
+      "majority_baseline_accuracy": 0.7413793103448276,
+      "flagged_rate": 0.5448275862068965,
+      "ppv": 0.43670886075949367,
+      "npv": 0.9545454545454546,
+      "ece": 0.06585618807045987
+    },
+    "age 18-39": {
+      "n": 2187,
+      "n_pos": 504,
+      "prevalence": 0.23045267489711935,
+      "auroc": 0.8890657273010213,
+      "auroc_ci": [
+        0.8735108990949585,
+        0.9032620345867536
+      ],
+      "sensitivity": 0.9126984126984127,
+      "sensitivity_ci": [
+        0.8868930968643584,
+        0.9346480544407607
+      ],
+      "specificity": 0.6619132501485443,
+      "specificity_ci": [
+        0.6388821412197208,
+        0.6840723545580897
+      ],
+      "accuracy": 0.7197073616826704,
+      "majority_baseline_accuracy": 0.7695473251028806,
+      "flagged_rate": 0.47050754458161864,
+      "ppv": 0.44703595724003886,
+      "npv": 0.9620034542314335,
+      "ece": 0.03165797918465829
+    },
+    "age 40-59": {
+      "n": 3588,
+      "n_pos": 778,
+      "prevalence": 0.21683389074693424,
+      "auroc": 0.8742532636836857,
+      "auroc_ci": [
+        0.8612536211286774,
+        0.8868343812726224
+      ],
+      "sensitivity": 0.9061696658097687,
+      "sensitivity_ci": [
+        0.8852280890804598,
+        0.9260959437709746
+      ],
+      "specificity": 0.6676156583629893,
+      "specificity_ci": [
+        0.649432657835583,
+        0.6848864798533739
+      ],
+      "accuracy": 0.7193422519509476,
+      "majority_baseline_accuracy": 0.7831661092530657,
+      "flagged_rate": 0.4568004459308807,
+      "ppv": 0.4301403294691885,
+      "npv": 0.9625448948178553,
+      "ece": 0.02759899281007786
+    },
+    "age 60+": {
+      "n": 1919,
+      "n_pos": 441,
+      "prevalence": 0.22980719124544033,
+      "auroc": 0.8548062436521744,
+      "auroc_ci": [
+        0.8367319525573881,
+        0.873048296416023
+      ],
+      "sensitivity": 0.9183673469387755,
+      "sensitivity_ci": [
+        0.8926184089786122,
+        0.9415155382469805
+      ],
+      "specificity": 0.6021650879566982,
+      "specificity_ci": [
+        0.5795665543770829,
+        0.6252148801546858
+      ],
+      "accuracy": 0.6748306409588327,
+      "majority_baseline_accuracy": 0.7701928087545596,
+      "flagged_rate": 0.5174570088587807,
+      "ppv": 0.4078549848942598,
+      "npv": 0.9611231101511879,
+      "ece": 0.03407061102104599
+    },
+    "female": {
+      "n": 3356,
+      "n_pos": 740,
+      "prevalence": 0.2205005959475566,
+      "auroc": 0.8717073725101249,
+      "auroc_ci": [
+        0.8578572263275684,
+        0.8841914500144004
+      ],
+      "sensitivity": 0.8932432432432432,
+      "sensitivity_ci": [
+        0.8691326825070919,
+        0.9151268567481534
+      ],
+      "specificity": 0.6628440366972477,
+      "specificity_ci": [
+        0.6433574442826938,
+        0.6828108071658162
+      ],
+      "accuracy": 0.7136471990464839,
+      "majority_baseline_accuracy": 0.7794994040524434,
+      "flagged_rate": 0.4597735399284863,
+      "ppv": 0.42838626053143225,
+      "npv": 0.9564258135686707,
+      "ece": 0.02967446350862682
+    },
+    "male": {
+      "n": 4338,
+      "n_pos": 983,
+      "prevalence": 0.22660212079299216,
+      "auroc": 0.875945621011745,
+      "auroc_ci": [
+        0.8647748685093273,
+        0.887705855500519
+      ],
+      "sensitivity": 0.9247202441505595,
+      "sensitivity_ci": [
+        0.9081836009132631,
+        0.9392210456873225
+      ],
+      "specificity": 0.6396423248882265,
+      "specificity_ci": [
+        0.623335687821845,
+        0.6560653940504363
+      ],
+      "accuracy": 0.7042415859843246,
+      "majority_baseline_accuracy": 0.7733978792070079,
+      "flagged_rate": 0.48824343015214383,
+      "ppv": 0.42917847025495753,
+      "npv": 0.9666666666666667,
+      "ece": 0.03330148138744905
+    },
+    "view PA (standing, walk-in)": {
+      "n": 4214,
+      "n_pos": 393,
+      "prevalence": 0.09326056003796868,
+      "auroc": 0.8646471588309683,
+      "auroc_ci": [
+        0.8457961134690001,
+        0.8831412148960631
+      ],
+      "sensitivity": 0.7150127226463104,
+      "sensitivity_ci": [
+        0.6666666666666666,
+        0.7619088408774604
+      ],
+      "specificity": 0.842449620518189,
+      "specificity_ci": [
+        0.8309312567124759,
+        0.8533814013648473
+      ],
+      "accuracy": 0.8305647840531561,
+      "majority_baseline_accuracy": 0.9067394399620313,
+      "flagged_rate": 0.20953962980541055,
+      "ppv": 0.318233295583239,
+      "npv": 0.9663764635244672,
+      "ece": 0.008053278019637218
+    },
+    "view AP (portable, bedside)": {
+      "n": 3480,
+      "n_pos": 1330,
+      "prevalence": 0.382183908045977,
+      "auroc": 0.8108550445882148,
+      "auroc_ci": [
+        0.7973346406453226,
+        0.8241250008247701
+      ],
+      "sensitivity": 0.969172932330827,
+      "sensitivity_ci": [
+        0.9586126583588087,
+        0.9782084868951773
+      ],
+      "specificity": 0.3074418604651163,
+      "specificity_ci": [
+        0.29082314645409074,
+        0.32623284907183214
+      ],
+      "accuracy": 0.5603448275862069,
+      "majority_baseline_accuracy": 0.617816091954023,
+      "flagged_rate": 0.7982758620689655,
+      "ppv": 0.4640028797696184,
+      "npv": 0.9415954415954416,
+      "ece": 0.056414831646353976
+    }
+  },
+  "adults_by_view": {
+    "PA, lung opacity vs normal": {
+      "n": 2465,
+      "n_pos": 393,
+      "prevalence": 0.1594320486815416,
+      "auroc": 0.9617252203130066,
+      "auroc_ci": [
+        0.950926272509071,
+        0.97199422346248
+      ],
+      "sensitivity": 0.7150127226463104,
+      "sensitivity_ci": [
+        0.6711028945395837,
+        0.7624651976096699
+      ],
+      "specificity": 0.98503861003861,
+      "specificity_ci": [
+        0.9791146328893118,
+        0.9900771736841599
+      ],
+      "accuracy": 0.9419878296146045,
+      "majority_baseline_accuracy": 0.8405679513184584,
+      "flagged_rate": 0.12657200811359026,
+      "ppv": 0.9006410256410257,
+      "npv": 0.9479795633999071,
+      "ece": 0.08916516505496005
+    },
+    "PA, lung opacity vs everything else": {
+      "n": 4214,
+      "n_pos": 393,
+      "prevalence": 0.09326056003796868,
+      "auroc": 0.8646471588309683,
+      "auroc_ci": [
+        0.8455824960587072,
+        0.8834207063171341
+      ],
+      "sensitivity": 0.7150127226463104,
+      "sensitivity_ci": [
+        0.66790152597734,
+        0.7621483375959079
+      ],
+      "specificity": 0.842449620518189,
+      "specificity_ci": [
+        0.8310502941110892,
+        0.8533713167218939
+      ],
+      "accuracy": 0.8305647840531561,
+      "majority_baseline_accuracy": 0.9067394399620313,
+      "flagged_rate": 0.20953962980541055,
+      "ppv": 0.318233295583239,
+      "npv": 0.9663764635244672,
+      "ece": 0.008053278019637218
+    },
+    "AP, lung opacity vs normal": {
+      "n": 1777,
+      "n_pos": 1330,
+      "prevalence": 0.7484524479459763,
+      "auroc": 0.9684799246438244,
+      "auroc_ci": [
+        0.9611922641082312,
+        0.9765598412355886
+      ],
+      "sensitivity": 0.969172932330827,
+      "sensitivity_ci": [
+        0.9608382347941387,
+        0.9776184994598479
+      ],
+      "specificity": 0.7762863534675615,
+      "specificity_ci": [
+        0.7372620500305064,
+        0.8151299256948505
+      ],
+      "accuracy": 0.9206527855936972,
+      "majority_baseline_accuracy": 0.7484524479459763,
+      "flagged_rate": 0.7816544738323016,
+      "ppv": 0.9280057595392368,
+      "npv": 0.8943298969072165,
+      "ece": 0.2512703415672883
+    },
+    "AP, lung opacity vs everything else": {
+      "n": 3480,
+      "n_pos": 1330,
+      "prevalence": 0.382183908045977,
+      "auroc": 0.8108550445882148,
+      "auroc_ci": [
+        0.7966095846067179,
+        0.8248469749272292
+      ],
+      "sensitivity": 0.969172932330827,
+      "sensitivity_ci": [
+        0.960286304099349,
+        0.978001517482131
+      ],
+      "specificity": 0.3074418604651163,
+      "specificity_ci": [
+        0.29082314645409074,
+        0.32835891165454945
+      ],
+      "accuracy": 0.5603448275862069,
+      "majority_baseline_accuracy": 0.617816091954023,
+      "flagged_rate": 0.7982758620689655,
+      "ppv": 0.4640028797696184,
+      "npv": 0.9415954415954416,
+      "ece": 0.056414831646353976
+    }
+  },
+  "threshold_sweep": {
+    "0.100": {
+      "children": {
+        "sensitivity": 1.0,
+        "specificity": 0.41452991452991456
+      },
+      "adults PA": {
+        "sensitivity": 0.8015267175572519,
+        "specificity": 0.7657681235278723
+      },
+      "adults AP": {
+        "sensitivity": 0.9902255639097745,
+        "specificity": 0.19441860465116279
+      }
+    },
+    "0.300": {
+      "children": {
+        "sensitivity": 0.9974358974358974,
+        "specificity": 0.5128205128205128
+      },
+      "adults PA": {
+        "sensitivity": 0.4732824427480916,
+        "specificity": 0.934833813137922
+      },
+      "adults AP": {
+        "sensitivity": 0.8729323308270677,
+        "specificity": 0.5451162790697675
+      }
+    },
+    "0.500": {
+      "children": {
+        "sensitivity": 0.9974358974358974,
+        "specificity": 0.5854700854700855
+      },
+      "adults PA": {
+        "sensitivity": 0.2340966921119593,
+        "specificity": 0.98403559277676
+      },
+      "adults AP": {
+        "sensitivity": 0.6834586466165413,
+        "specificity": 0.7641860465116279
+      }
+    },
+    "0.700": {
+      "children": {
+        "sensitivity": 0.9974358974358974,
+        "specificity": 0.6581196581196581
+      },
+      "adults PA": {
+        "sensitivity": 0.06870229007633588,
+        "specificity": 0.9971211724679403
+      },
+      "adults AP": {
+        "sensitivity": 0.45112781954887216,
+        "specificity": 0.9083720930232558
+      }
+    },
+    "0.900": {
+      "children": {
+        "sensitivity": 0.9769230769230769,
+        "specificity": 0.7222222222222222
+      },
+      "adults PA": {
+        "sensitivity": 0.002544529262086514,
+        "specificity": 1.0
+      },
+      "adults AP": {
+        "sensitivity": 0.14285714285714285,
+        "specificity": 0.987906976744186
+      }
+    },
+    "0.157": {
+      "children": {
+        "sensitivity": 1.0,
+        "specificity": 0.45726495726495725
+      },
+      "adults PA": {
+        "sensitivity": 0.7150127226463104,
+        "specificity": 0.842449620518189
+      },
+      "adults AP": {
+        "sensitivity": 0.969172932330827,
+        "specificity": 0.3074418604651163
+      }
+    }
+  },
+  "ood": {
+    "threshold_p95": 27.54106817428627,
+    "threshold_p99": 31.31960791446764,
+    "warned_children_test": 0.24358974358974358,
+    "warned_adults_test": 0.011177540940992981,
+    "warned_children_test_p99": 0.04326923076923077,
+    "warned_adults_test_p99": 0.002209513906940473,
+    "warned_other_hospital_age_0_5": {
+      "n": 21,
+      "share": 0.47619047619047616
+    },
+    "warned_other_hospital_age_0_17": {
+      "n": 311,
+      "share": 0.1189710610932476
+    },
+    "auroc_children_vs_adults": 0.06311840561743083,
+    "auroc_score_predicts_error_within_adults": 0.33390276210567627
+  },
+  "learning_curve": [
+    {
+      "n_adults": 0,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8673987534837806,
+      "auroc_adults_vs_normal": 0.9718865582685923,
+      "auroc_children": 0.9692746000438309
+    },
+    {
+      "n_adults": 10,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8216585716628242,
+      "auroc_adults_vs_normal": 0.8916811455226984,
+      "auroc_children": 0.9679925487617795
+    },
+    {
+      "n_adults": 10,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.778216691178965,
+      "auroc_adults_vs_normal": 0.8081544855730228,
+      "auroc_children": 0.9445321060705676
+    },
+    {
+      "n_adults": 10,
+      "seed": 1,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8568924691435185,
+      "auroc_adults_vs_normal": 0.9490944849325049,
+      "auroc_children": 0.9701073854920009
+    },
+    {
+      "n_adults": 10,
+      "seed": 1,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8726534994590317,
+      "auroc_adults_vs_normal": 0.9768620930147363,
+      "auroc_children": 0.2447731755424063
+    },
+    {
+      "n_adults": 10,
+      "seed": 2,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8672109624842765,
+      "auroc_adults_vs_normal": 0.9689701276681435,
+      "auroc_children": 0.9683541529695376
+    },
+    {
+      "n_adults": 10,
+      "seed": 2,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8595821961302028,
+      "auroc_adults_vs_normal": 0.964595020963141,
+      "auroc_children": 0.9582730659653738
+    },
+    {
+      "n_adults": 10,
+      "seed": 3,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8212258844815137,
+      "auroc_adults_vs_normal": 0.9039584704706216,
+      "auroc_children": 0.9686938417707648
+    },
+    {
+      "n_adults": 10,
+      "seed": 3,
+      "strategy": "n adults only",
+      "auroc_adults": 0.7667309193117868,
+      "auroc_adults_vs_normal": 0.8321990250762804,
+      "auroc_children": 0.04524435678281831
+    },
+    {
+      "n_adults": 10,
+      "seed": 4,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8672277781379589,
+      "auroc_adults_vs_normal": 0.9692108979302282,
+      "auroc_children": 0.9681240412009643
+    },
+    {
+      "n_adults": 10,
+      "seed": 4,
+      "strategy": "n adults only",
+      "auroc_adults": 0.865821581248816,
+      "auroc_adults_vs_normal": 0.9724987368201322,
+      "auroc_children": 0.04157352618891079
+    },
+    {
+      "n_adults": 30,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8565572738734412,
+      "auroc_adults_vs_normal": 0.9586508755167058,
+      "auroc_children": 0.9719811527503834
+    },
+    {
+      "n_adults": 30,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8520033907356248,
+      "auroc_adults_vs_normal": 0.9537787913425005,
+      "auroc_children": 0.051818978742055676
+    },
+    {
+      "n_adults": 30,
+      "seed": 1,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.7868662551918332,
+      "auroc_adults_vs_normal": 0.92590082062339,
+      "auroc_children": 0.9696800350646504
+    },
+    {
+      "n_adults": 30,
+      "seed": 1,
+      "strategy": "n adults only",
+      "auroc_adults": 0.7948268634052787,
+      "auroc_adults_vs_normal": 0.9445405861477151,
+      "auroc_children": 0.9333881218496602
+    },
+    {
+      "n_adults": 30,
+      "seed": 2,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.853000665919326,
+      "auroc_adults_vs_normal": 0.9668253139171893,
+      "auroc_children": 0.9713346482577251
+    },
+    {
+      "n_adults": 30,
+      "seed": 2,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8483082723393286,
+      "auroc_adults_vs_normal": 0.9698023402869476,
+      "auroc_children": 0.04498137190444882
+    },
+    {
+      "n_adults": 30,
+      "seed": 3,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.807609238811734,
+      "auroc_adults_vs_normal": 0.8890335942484247,
+      "auroc_children": 0.9719482796405874
+    },
+    {
+      "n_adults": 30,
+      "seed": 3,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8137582762419211,
+      "auroc_adults_vs_normal": 0.9065186993244838,
+      "auroc_children": 0.9495945649791804
+    },
+    {
+      "n_adults": 30,
+      "seed": 4,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8593287463210897,
+      "auroc_adults_vs_normal": 0.9716699802337984,
+      "auroc_children": 0.9681678720140258
+    },
+    {
+      "n_adults": 30,
+      "seed": 4,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8678424729003105,
+      "auroc_adults_vs_normal": 0.9744149916237294,
+      "auroc_children": 0.13370589524435678
+    },
+    {
+      "n_adults": 100,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8357470276388111,
+      "auroc_adults_vs_normal": 0.9585564106291892,
+      "auroc_children": 0.9625794433486742
+    },
+    {
+      "n_adults": 100,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8404507936551137,
+      "auroc_adults_vs_normal": 0.9618478207526455,
+      "auroc_children": 0.9557308788078019
+    },
+    {
+      "n_adults": 100,
+      "seed": 1,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8309132562074791,
+      "auroc_adults_vs_normal": 0.9496748679853197,
+      "auroc_children": 0.972134560596099
+    },
+    {
+      "n_adults": 100,
+      "seed": 1,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8558580634412817,
+      "auroc_adults_vs_normal": 0.9728659978706231,
+      "auroc_children": 0.9570019723865878
+    },
+    {
+      "n_adults": 100,
+      "seed": 2,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.83771144591002,
+      "auroc_adults_vs_normal": 0.9639427524349479,
+      "auroc_children": 0.9734933158010081
+    },
+    {
+      "n_adults": 100,
+      "seed": 2,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8365703142670713,
+      "auroc_adults_vs_normal": 0.9658212212835383,
+      "auroc_children": 0.045605960990576365
+    },
+    {
+      "n_adults": 100,
+      "seed": 3,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8317324604227067,
+      "auroc_adults_vs_normal": 0.951364637461042,
+      "auroc_children": 0.9701183431952661
+    },
+    {
+      "n_adults": 100,
+      "seed": 3,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8412951241505543,
+      "auroc_adults_vs_normal": 0.9555360686524722,
+      "auroc_children": 0.9316129739206662
+    },
+    {
+      "n_adults": 100,
+      "seed": 4,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8135397213442065,
+      "auroc_adults_vs_normal": 0.9440825466443421,
+      "auroc_children": 0.9644422529037913
+    },
+    {
+      "n_adults": 100,
+      "seed": 4,
+      "strategy": "n adults only",
+      "auroc_adults": 0.831377873690724,
+      "auroc_adults_vs_normal": 0.9558586316830164,
+      "auroc_children": 0.7173460442691212
+    },
+    {
+      "n_adults": 300,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8461726843216775,
+      "auroc_adults_vs_normal": 0.9502034105510828,
+      "auroc_children": 0.9720030681569144
+    },
+    {
+      "n_adults": 300,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8574859742382241,
+      "auroc_adults_vs_normal": 0.9634377108899814,
+      "auroc_children": 0.9486412447950909
+    },
+    {
+      "n_adults": 300,
+      "seed": 1,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8416623469228763,
+      "auroc_adults_vs_normal": 0.9592252681132389,
+      "auroc_children": 0.9693513039666886
+    },
+    {
+      "n_adults": 300,
+      "seed": 1,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8537440538925177,
+      "auroc_adults_vs_normal": 0.9672077815105489,
+      "auroc_children": 0.06214113521805829
+    },
+    {
+      "n_adults": 300,
+      "seed": 2,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8480552113314567,
+      "auroc_adults_vs_normal": 0.9663039138185311,
+      "auroc_children": 0.9704580319964935
+    },
+    {
+      "n_adults": 300,
+      "seed": 2,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8458820067937185,
+      "auroc_adults_vs_normal": 0.9626038854560246,
+      "auroc_children": 0.051588866973482354
+    },
+    {
+      "n_adults": 300,
+      "seed": 3,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8259129320444443,
+      "auroc_adults_vs_normal": 0.9387775368027138,
+      "auroc_children": 0.9625027394258163
+    },
+    {
+      "n_adults": 300,
+      "seed": 3,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8427172618905868,
+      "auroc_adults_vs_normal": 0.9582990514112478,
+      "auroc_children": 0.10181897874205567
+    },
+    {
+      "n_adults": 300,
+      "seed": 4,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8426209363830773,
+      "auroc_adults_vs_normal": 0.9581147296795083,
+      "auroc_children": 0.9692526846373001
+    },
+    {
+      "n_adults": 300,
+      "seed": 4,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8406389248557037,
+      "auroc_adults_vs_normal": 0.9607530648671953,
+      "auroc_children": 0.33608371685294763
+    },
+    {
+      "n_adults": 1000,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8608033236285303,
+      "auroc_adults_vs_normal": 0.9714960265994692,
+      "auroc_children": 0.9655489809335964
+    },
+    {
+      "n_adults": 1000,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8481153783235338,
+      "auroc_adults_vs_normal": 0.9602176102364917,
+      "auroc_children": 0.1188143765066842
+    },
+    {
+      "n_adults": 1000,
+      "seed": 1,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8530858619913058,
+      "auroc_adults_vs_normal": 0.9613502672780312,
+      "auroc_children": 0.9686938417707649
+    },
+    {
+      "n_adults": 1000,
+      "seed": 1,
+      "strategy": "n adults only",
+      "auroc_adults": 0.844074955824889,
+      "auroc_adults_vs_normal": 0.9544676938148768,
+      "auroc_children": 0.9300241069471838
+    },
+    {
+      "n_adults": 1000,
+      "seed": 2,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8677540206179354,
+      "auroc_adults_vs_normal": 0.9703242011899349,
+      "auroc_children": 0.9726824457593688
+    },
+    {
+      "n_adults": 1000,
+      "seed": 2,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8596405163163843,
+      "auroc_adults_vs_normal": 0.9631607674880428,
+      "auroc_children": 0.9150339688801228
+    },
+    {
+      "n_adults": 1000,
+      "seed": 3,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8544056964047451,
+      "auroc_adults_vs_normal": 0.9633287306660904,
+      "auroc_children": 0.9695485426254657
+    },
+    {
+      "n_adults": 1000,
+      "seed": 3,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8462678920256185,
+      "auroc_adults_vs_normal": 0.9551821709275323,
+      "auroc_children": 0.06426692965154504
+    },
+    {
+      "n_adults": 1000,
+      "seed": 4,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.864360077383111,
+      "auroc_adults_vs_normal": 0.9744414878726669,
+      "auroc_children": 0.9712798597413982
+    },
+    {
+      "n_adults": 1000,
+      "seed": 4,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8564139520159005,
+      "auroc_adults_vs_normal": 0.9698898931095237,
+      "auroc_children": 0.2673241288625904
+    },
+    {
+      "n_adults": 3000,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8711142353450849,
+      "auroc_adults_vs_normal": 0.9766010473621602,
+      "auroc_children": 0.9683322375630068
+    },
+    {
+      "n_adults": 3000,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8626721939947122,
+      "auroc_adults_vs_normal": 0.9710875235615014,
+      "auroc_children": 0.5041858426473811
+    },
+    {
+      "n_adults": 3000,
+      "seed": 1,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8684262579639859,
+      "auroc_adults_vs_normal": 0.97449240675106,
+      "auroc_children": 0.969778654394039
+    },
+    {
+      "n_adults": 3000,
+      "seed": 1,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8602833991687235,
+      "auroc_adults_vs_normal": 0.9651422261042427,
+      "auroc_children": 0.1301775147928994
+    },
+    {
+      "n_adults": 3000,
+      "seed": 2,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8740519689235056,
+      "auroc_adults_vs_normal": 0.9771885728820799,
+      "auroc_children": 0.9694060924830156
+    },
+    {
+      "n_adults": 3000,
+      "seed": 2,
+      "strategy": "n adults only",
+      "auroc_adults": 0.86207344008325,
+      "auroc_adults_vs_normal": 0.9700186879195767,
+      "auroc_children": 0.9435349550734166
+    },
+    {
+      "n_adults": 3000,
+      "seed": 3,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8707168804765693,
+      "auroc_adults_vs_normal": 0.9758298913169948,
+      "auroc_children": 0.9680692526846374
+    },
+    {
+      "n_adults": 3000,
+      "seed": 3,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8614046047480602,
+      "auroc_adults_vs_normal": 0.9686429565943059,
+      "auroc_children": 0.06742274819197897
+    },
+    {
+      "n_adults": 3000,
+      "seed": 4,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8695191782530246,
+      "auroc_adults_vs_normal": 0.9752946670884561,
+      "auroc_children": 0.9699211045364892
+    },
+    {
+      "n_adults": 3000,
+      "seed": 4,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8590796705259401,
+      "auroc_adults_vs_normal": 0.9694482121598428,
+      "auroc_children": 0.801742274819198
+    },
+    {
+      "n_adults": 10000,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8741386230001401,
+      "auroc_adults_vs_normal": 0.9785023260250535,
+      "auroc_children": 0.9699211045364892
+    },
+    {
+      "n_adults": 10000,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8703432910839225,
+      "auroc_adults_vs_normal": 0.9756530576556072,
+      "auroc_children": 0.9367959675651985
+    },
+    {
+      "n_adults": 10000,
+      "seed": 1,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8742505977576083,
+      "auroc_adults_vs_normal": 0.9788688958690505,
+      "auroc_children": 0.9709072978303748
+    },
+    {
+      "n_adults": 10000,
+      "seed": 1,
+      "strategy": "n adults only",
+      "auroc_adults": 0.869803197559728,
+      "auroc_adults_vs_normal": 0.9753432819452025,
+      "auroc_children": 0.3421981152750383
+    },
+    {
+      "n_adults": 10000,
+      "seed": 2,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8746294845671665,
+      "auroc_adults_vs_normal": 0.9792020573991697,
+      "auroc_children": 0.9699101468332239
+    },
+    {
+      "n_adults": 10000,
+      "seed": 2,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8715021617835013,
+      "auroc_adults_vs_normal": 0.975664923367088,
+      "auroc_children": 0.8229015998246767
+    },
+    {
+      "n_adults": 10000,
+      "seed": 3,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8739972937489605,
+      "auroc_adults_vs_normal": 0.9782458884157708,
+      "auroc_children": 0.9703265395573089
+    },
+    {
+      "n_adults": 10000,
+      "seed": 3,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8700323958914207,
+      "auroc_adults_vs_normal": 0.974977864112029,
+      "auroc_children": 0.5114069690992767
+    },
+    {
+      "n_adults": 10000,
+      "seed": 4,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8735439515017108,
+      "auroc_adults_vs_normal": 0.9785449504255183,
+      "auroc_children": 0.9711154941924173
+    },
+    {
+      "n_adults": 10000,
+      "seed": 4,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8706611846987662,
+      "auroc_adults_vs_normal": 0.9749810897423344,
+      "auroc_children": 0.8077799693184309
+    },
+    {
+      "n_adults": 15142,
+      "seed": 0,
+      "strategy": "children + n adults",
+      "auroc_adults": 0.8744108810692967,
+      "auroc_adults_vs_normal": 0.9789340996816533,
+      "auroc_children": 0.9704580319964935
+    },
+    {
+      "n_adults": 15142,
+      "seed": 0,
+      "strategy": "n adults only",
+      "auroc_adults": 0.8727264968920685,
+      "auroc_adults_vs_normal": 0.9769752204775914,
+      "auroc_children": 0.7155161078238002
+    }
+  ],
+  "titles": {
+    "headline": "Children: AUROC 0.96. Adults: 0.87. Same model, same threshold.",
+    "scores": "The model flags 48% of adults (children: 83%)",
+    "subgroups": "How well the model ranks X-rays from the other hospital, by group",
+    "ood": "The warning fires for 1% of adults and 24% of children",
+    "learning_curve": "How many adult X-rays does it take to fix the model?"
+  }
+}

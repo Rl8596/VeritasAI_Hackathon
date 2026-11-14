@@ -1,0 +1,54 @@
+{
+  "pointing_test": {
+    "n_images": 1500,
+    "reference": {
+      "random_point": 0.1524018920068027,
+      "image_centre": 0.09933333333333333,
+      "most_common_spot": 0.5746666666666667
+    },
+    "models": {
+      "kids_only": {
+        "hit_rate": 0.25266666666666665,
+        "hit_rate_ci": [
+          0.23133333333333334,
+          0.276
+        ],
+        "share_of_heat_inside_boxes": 0.18256588280200958
+      },
+      "kids_plus_adults": {
+        "hit_rate": 0.5226666666666666,
+        "hit_rate_ci": [
+          0.4973166666666667,
+          0.5466666666666666
+        ],
+        "share_of_heat_inside_boxes": 0.26969319581985474
+      }
+    }
+  },
+  "failures": {
+    "kids_only": {
+      "Children 1-5": {
+        "n_test": 624,
+        "missed_pneumonia": 8,
+        "false_alarms": 31
+      },
+      "Adults": {
+        "n_test": 7694,
+        "missed_pneumonia": 377,
+        "false_alarms": 1567
+      }
+    },
+    "kids_plus_adults": {
+      "Children 1-5": {
+        "n_test": 624,
+        "missed_pneumonia": 0,
+        "false_alarms": 127
+      },
+      "Adults": {
+        "n_test": 7694,
+        "missed_pneumonia": 153,
+        "false_alarms": 2091
+      }
+    }
+  }
+}
