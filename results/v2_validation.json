@@ -1,0 +1,331 @@
+{
+ "recipe_check": "all 22 runs follow the recipe of docs/V2_PROTOCOL.md; their rows line up with our tables",
+ "note": "Validation X-rays only. Written before any test result of a v2 model is computed. The headline model is fixed by name in docs/V2_PROTOCOL.md; nothing is chosen from this table.",
+ "headline": "v2_kids_plus_all",
+ "runs": {
+  "v2_adults_all": {
+   "adult_val_auroc": 0.8757943732909202,
+   "children_val_auroc": 0.9241132667058592,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 15142,
+   "train_data": [
+    "15142 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8346244202156496,
+   "adult_val_auroc_AP": 0.8309498687367323
+  },
+  "v2_adults_all_s2027": {
+   "adult_val_auroc": 0.8769166108599811,
+   "children_val_auroc": 0.8996056241426611,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2027,
+   "n_train": 15142,
+   "train_data": [
+    "15142 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8473043792542617,
+   "adult_val_auroc_AP": 0.827910087801937
+  },
+  "v2_adults_all_s2028": {
+   "adult_val_auroc": 0.876554739382778,
+   "children_val_auroc": 0.9185895551636294,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2028,
+   "n_train": 15142,
+   "train_data": [
+    "15142 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8454671405337028,
+   "adult_val_auroc_AP": 0.8253256459534488
+  },
+  "v2_kids_plus_0": {
+   "adult_val_auroc": 0.8134687691835483,
+   "children_val_auroc": 0.9994488536155203,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 4578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7590807782663695,
+   "adult_val_auroc_AP": 0.7260334627124393
+  },
+  "v2_kids_plus_0_s2027": {
+   "adult_val_auroc": 0.8150880350465987,
+   "children_val_auroc": 0.999791789143641,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2027,
+   "n_train": 4578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7590687307993494,
+   "adult_val_auroc_AP": 0.7257225760259262
+  },
+  "v2_kids_plus_0_s2028": {
+   "adult_val_auroc": 0.8263697053406998,
+   "children_val_auroc": 0.9994121105232217,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2028,
+   "n_train": 4578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7734353352207698,
+   "adult_val_auroc_AP": 0.748784715679994
+  },
+  "v2_kids_plus_1000": {
+   "adult_val_auroc": 0.8346133991852224,
+   "children_val_auroc": 0.9996325690770135,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 5578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "1000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7870248780193965,
+   "adult_val_auroc_AP": 0.770003517101908
+  },
+  "v2_kids_plus_1000_s2027": {
+   "adult_val_auroc": 0.8482930130029576,
+   "children_val_auroc": 0.9990936703899667,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2027,
+   "n_train": 5578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "1000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7805132220950545,
+   "adult_val_auroc_AP": 0.7984166760874754
+  },
+  "v2_kids_plus_1000_s2028": {
+   "adult_val_auroc": 0.844822534739662,
+   "children_val_auroc": 0.9984935332157554,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2028,
+   "n_train": 5578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "1000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7876392988374195,
+   "adult_val_auroc_AP": 0.7929023627388175
+  },
+  "v2_kids_plus_300": {
+   "adult_val_auroc": 0.8302186226909984,
+   "children_val_auroc": 0.9995468351949833,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 4878,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "300 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.776091801698693,
+   "adult_val_auroc_AP": 0.7643761540490637
+  },
+  "v2_kids_plus_3000": {
+   "adult_val_auroc": 0.8532641679223172,
+   "children_val_auroc": 0.9991304134822653,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 7578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "3000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8017529064514186,
+   "adult_val_auroc_AP": 0.8004076069889839
+  },
+  "v2_kids_plus_3000_s2027": {
+   "adult_val_auroc": 0.8597019922986773,
+   "children_val_auroc": 0.9999020184205369,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2027,
+   "n_train": 7578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "3000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8179266309258479,
+   "adult_val_auroc_AP": 0.813345517579229
+  },
+  "v2_kids_plus_3000_s2028": {
+   "adult_val_auroc": 0.846964116301133,
+   "children_val_auroc": 0.999571330589849,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2028,
+   "n_train": 7578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "3000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.80409011505331,
+   "adult_val_auroc_AP": 0.8055482282599138
+  },
+  "v2_kids_plus_300_s2027": {
+   "adult_val_auroc": 0.830577878229812,
+   "children_val_auroc": 0.9991426611796982,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2027,
+   "n_train": 4878,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "300 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7843503403409434,
+   "adult_val_auroc_AP": 0.745823441484217
+  },
+  "v2_kids_plus_300_s2028": {
+   "adult_val_auroc": 0.8253329217590268,
+   "children_val_auroc": 0.999069174995101,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2028,
+   "n_train": 4878,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "300 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.7612071561954099,
+   "adult_val_auroc_AP": 0.7477798294205574
+  },
+  "v2_kids_plus_6000": {
+   "adult_val_auroc": 0.8754307578547911,
+   "children_val_auroc": 0.9991426611796982,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 10578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "6000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8371965544244322,
+   "adult_val_auroc_AP": 0.828330883923076
+  },
+  "v2_kids_plus_6000_s2027": {
+   "adult_val_auroc": 0.8667353786483621,
+   "children_val_auroc": 0.9995223398001175,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2027,
+   "n_train": 10578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "6000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8254864164809349,
+   "adult_val_auroc_AP": 0.8158169097235306
+  },
+  "v2_kids_plus_6000_s2028": {
+   "adult_val_auroc": 0.8684348666220213,
+   "children_val_auroc": 0.9992038996668626,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2028,
+   "n_train": 10578,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "6000 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.831841455334016,
+   "adult_val_auroc_AP": 0.8265001067691651
+  },
+  "v2_kids_plus_all": {
+   "adult_val_auroc": 0.8744105418829177,
+   "children_val_auroc": 0.999473349010386,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 19720,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "15142 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8356725498463948,
+   "adult_val_auroc_AP": 0.8287296981572898
+  },
+  "v2_kids_plus_all_r50": {
+   "adult_val_auroc": 0.8778801481667502,
+   "children_val_auroc": 0.9993386243386243,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2026,
+   "n_train": 19720,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "15142 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet50.tv_in1k",
+   "adult_val_auroc_PA": 0.8399494006385156,
+   "adult_val_auroc_AP": 0.8318479858311036
+  },
+  "v2_kids_plus_all_s2027": {
+   "adult_val_auroc": 0.872391037446286,
+   "children_val_auroc": 0.999473349010386,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2027,
+   "n_train": 19720,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "15142 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8315462923920246,
+   "adult_val_auroc_AP": 0.8267136450992952
+  },
+  "v2_kids_plus_all_s2028": {
+   "adult_val_auroc": 0.8768982992912551,
+   "children_val_auroc": 0.9994855967078189,
+   "kept_epoch": 6,
+   "epochs": 6,
+   "seed": 2028,
+   "n_train": 19720,
+   "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "15142 adult X-rays (RSNA adapt)"
+   ],
+   "arch": "resnet18.tv_in1k",
+   "adult_val_auroc_PA": 0.8528582615505089,
+   "adult_val_auroc_AP": 0.825561166170504
+  }
+ }
+}
