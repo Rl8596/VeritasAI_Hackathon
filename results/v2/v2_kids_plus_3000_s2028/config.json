@@ -1,0 +1,130 @@
+{
+  "arch": "resnet18.tv_in1k",
+  "img_size": 224,
+  "store_size": 256,
+  "class_names": [
+    "normal",
+    "pneumonia"
+  ],
+  "temperature": 1.4516447555232952,
+  "threshold": 0.05626230858835325,
+  "threshold_rule": "95% sensitivity on the validation set",
+  "n_train": 7578,
+  "epochs": 6,
+  "lr": 0.0003,
+  "batch_size": 32,
+  "seed": 2028,
+  "best_val_auroc": 0.846964116301133,
+  "best_epoch": 6,
+  "epoch_rule": "last",
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.3043710893904001,
+      "val_auroc": 0.8361123318823596,
+      "minutes": 0.8621171116828918,
+      "val_auroc_children": 0.9975749559082892,
+      "val_auroc_adults": 0.8361123318823596,
+      "val_auroc_adults_PA": 0.7687488705499669,
+      "val_auroc_adults_AP": 0.7809473565210837
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.21539725289064443,
+      "val_auroc": 0.8420156328478152,
+      "minutes": 1.7550679683685302,
+      "val_auroc_children": 0.9966073878110916,
+      "val_auroc_adults": 0.8420156328478152,
+      "val_auroc_adults_PA": 0.7960845732184809,
+      "val_auroc_adults_AP": 0.7909271331851127
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.18993494763844093,
+      "val_auroc": 0.8432425079524527,
+      "minutes": 2.6132023771603903,
+      "val_auroc_children": 0.9983588085439937,
+      "val_auroc_adults": 0.8432425079524527,
+      "val_auroc_adults_PA": 0.7908258538642251,
+      "val_auroc_adults_AP": 0.8112007134692442
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.1677899352132769,
+      "val_auroc": 0.8661058094759753,
+      "minutes": 3.4755088726679486,
+      "val_auroc_children": 0.9995223398001176,
+      "val_auroc_adults": 0.8661058094759753,
+      "val_auroc_adults_PA": 0.8287091139088006,
+      "val_auroc_adults_AP": 0.8171075605129945
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.1359488749560916,
+      "val_auroc": 0.8472789008873263,
+      "minutes": 4.336086471875508,
+      "val_auroc_children": 0.9996448167744464,
+      "val_auroc_adults": 0.8472789008873263,
+      "val_auroc_adults_PA": 0.8050539124149148,
+      "val_auroc_adults_AP": 0.8057303638944366
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.11508348106280349,
+      "val_auroc": 0.846964116301133,
+      "minutes": 5.1941923578580225,
+      "val_auroc_children": 0.999571330589849,
+      "val_auroc_adults": 0.846964116301133,
+      "val_auroc_adults_PA": 0.80409011505331,
+      "val_auroc_adults_AP": 0.8055450879903531
+    }
+  ],
+  "train_minutes": 5.3185950438181555,
+  "mixed_precision": false,
+  "device": "NVIDIA GeForce RTX 3080",
+  "torch_version": "2.14.1+cu130",
+  "validation": {
+    "children": {
+      "n": 654,
+      "n_pos": 486,
+      "auroc": 0.999571330589849,
+      "sensitivity": 1.0,
+      "specificity": 0.7440476190476191,
+      "accuracy": 0.9342507645259939
+    },
+    "adults": {
+      "n": 2567,
+      "n_pos": 576,
+      "auroc": 0.846964116301133,
+      "sensitivity": 0.9513888888888888,
+      "specificity": 0.3545956805625314,
+      "accuracy": 0.48850798597584727
+    },
+    "adults_PA": {
+      "n": 1407,
+      "n_pos": 130,
+      "auroc": 0.80409011505331,
+      "sensitivity": 0.8769230769230769,
+      "specificity": 0.4346123727486296,
+      "accuracy": 0.47547974413646055
+    },
+    "adults_AP": {
+      "n": 1160,
+      "n_pos": 446,
+      "auroc": 0.8055450879903531,
+      "sensitivity": 0.9730941704035875,
+      "specificity": 0.211484593837535,
+      "accuracy": 0.5043103448275862
+    }
+  },
+  "name": "v2_kids_plus_3000_s2028",
+  "train_data": [
+    "4578 children X-rays (Kermany train)",
+    "3000 adult X-rays (RSNA adapt)"
+  ],
+  "train_groups": [
+    "children",
+    "adults"
+  ],
+  "val_data": "adult val"
+}
