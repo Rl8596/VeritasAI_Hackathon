@@ -473,7 +473,8 @@ def markdown(report: dict) -> str:
               f"{p['what']}: **{p['difference']:+.3f}** (95% interval {p['ci'][0]:+.3f} to {p['ci'][1]:+.3f}). "
               f"Inside standing X-rays {p['inside_PA']['difference']:+.3f} ({p['inside_PA']['ci'][0]:+.3f} to {p['inside_PA']['ci'][1]:+.3f}), "
               f"inside bedside X-rays {p['inside_AP']['difference']:+.3f} ({p['inside_AP']['ci'][0]:+.3f} to {p['inside_AP']['ci'][1]:+.3f}). "
-              f"Rule: {p['rule']}. **Verdict: " + ("the repaired model is better.**" if p["repair_is_better"] else "no improvement is shown.**")]
+              f"Rule: {p['rule']}. **Verdict: " + ("the repaired model is better.**" if p["repair_is_better"]
+                                                  else "the repaired model is worse.**" if p["ci"][1] < 0 else "no improvement is shown.**")]
     if report.get("paired_auroc_differences"):
         L += ["", "## Other paired differences in adult AUROC (description, not confirmation)", "", "| Comparison | Adults | inside PA | inside AP |", "|---|---|---|---|"]
         for k, d in report["paired_auroc_differences"].items():

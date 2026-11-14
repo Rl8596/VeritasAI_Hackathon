@@ -63,8 +63,9 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 3. **The warning notices the wrong hospital, not the wrong answer.** It fires for 7% of the children's test X-rays
    and 81% of the adults'. But it cannot tell which adult answers are wrong.
 4. **Adult data repairs part of it, and a simple baseline gets most of the way.** 6,000 adult X-rays lift the adult
-   score from 0.824 to 0.874. A network that was never fine-tuned reaches 0.848 with the same adults. So the honest
-   gain of our fine-tuning over that baseline is 0.025 (95% interval 0.019 to 0.032).
+   score from 0.824 to 0.874. A network that was never fine-tuned, plus a simple classifier trained on all 15,142
+   adult training X-rays (our model saw 6,000 of them), reaches 0.848. So the gain of our fine-tuning over that
+   baseline is 0.025 (95% interval 0.019 to 0.032).
 5. **The heatmaps do not show where the disease is.** We tested them against radiologists' boxes: the hottest point
    lies inside a box for 25% (children-only) and 52% (children + adults) of X-rays. Always pointing at the most
    common spot, without looking at the picture, scores 57%.
