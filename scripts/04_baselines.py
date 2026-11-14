@@ -13,7 +13,7 @@ Three baselines, all following the project's evaluation protocol:
   3. frozen ImageNet features  the pretrained ResNet-18 WITHOUT any fine-tuning (512 numbers per image)
                                + logistic regression
 
-Outputs: results/baselines.json, results/figures/baseline_*.png, and per-image probabilities plus cached
+Outputs: results/baselines.json, and per-image probabilities plus cached
 embeddings in the scratch folder (PNEUMOSHIFT_SCRATCH, default: <system temp dir>/pneumoshift_scratch).
 One CPU thread by default (set OMP_NUM_THREADS to use more); embedding ~13,500 images takes about
 10 minutes on one thread the first time, a few seconds afterwards thanks to the cache.
@@ -37,7 +37,7 @@ from sklearn.preprocessing import StandardScaler  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from pneumoshift import config as C, data, metrics, modeling, plotting  # noqa: E402
+from pneumoshift import config as C, data, metrics, modeling  # noqa: E402
 from pneumoshift.preprocess import center_crop  # noqa: E402
 
 torch.set_num_threads(THREADS)
@@ -138,24 +138,29 @@ def pixels_32(X, idx):
 
 
 def embeddings(model, X, idx, cache_file):
-    """512-d ResNet-18 features for X[idx], cached on disk."""
+    """512-d ResNet-18 features for X[idx]. Cached on disk per image, so only new images are computed."""
+    have_idx, have = np.zeros(0, np.int64), None
     if cache_file.exists():
         z = np.load(cache_file)
-        if np.array_equal(z["idx"], idx):
-            log(f"   loaded cached embeddings {cache_file}")
-            return z["emb"]
-    parts, t = [], time.time()
-    for s in range(0, len(idx), 1024):
-        parts.append(modeling.predict(model, X, idx[s:s + 1024], batch_size=64, return_embeddings=True)[1])
-        done = min(s + 1024, len(idx))
-        log(f"   embedded {done}/{len(idx)} images ({done / (time.time() - t):.1f} img/s)")
-    emb = np.concatenate(parts).astype(np.float32)
-    np.savez(cache_file, idx=idx, emb=emb)
-    return emb
+        have_idx, have = z["idx"], z["emb"]
+    missing = np.setdiff1d(idx, have_idx)
+    log(f"   {cache_file.name}: {len(idx) - len(missing)} of {len(idx)} embeddings cached, computing {len(missing)}")
+    if len(missing):
+        parts, t = [], time.time()
+        for s in range(0, len(missing), 1024):
+            parts.append(modeling.predict(model, X, missing[s:s + 1024], batch_size=64, return_embeddings=True)[1])
+            done = min(s + 1024, len(missing))
+            log(f"   embedded {done}/{len(missing)} images ({done / (time.time() - t):.1f} img/s)")
+        new = np.concatenate(parts).astype(np.float32)
+        have = new if have is None else np.concatenate([have, new])
+        have_idx = np.concatenate([have_idx, missing])
+        order = np.argsort(have_idx)
+        have_idx, have = have_idx[order], have[order]
+        np.savez(cache_file, idx=have_idx, emb=have)
+    return have[np.searchsorted(have_idx, idx)]
 
 
 SCRATCH.mkdir(parents=True, exist_ok=True)
-C.FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 baselines = {}
 all_k = np.arange(len(mk))
 
@@ -223,81 +228,3 @@ out = dict(
 )
 (C.RESULTS_DIR / "baselines.json").write_text(json.dumps(clean(out), indent=2))
 log(f"wrote {C.RESULTS_DIR / 'baselines.json'}")
-
-# --------------------------------------------------------------------------
-# Figures
-# --------------------------------------------------------------------------
-import matplotlib.pyplot as plt  # noqa: E402
-
-plotting.use_style()
-ROWS = [("majority_class", "Always say\n\"pneumonia\""),
-        ("pixels_32x32_logreg", "Logistic regression\non 32×32 pixels"),
-        ("frozen_imagenet_resnet18_logreg", "ImageNet ResNet-18,\nnot fine-tuned,\n+ logistic regression")]
-GROUPS = [(KEY_CHILD, "Children, test set (pneumonia vs normal)", plotting.CHILDREN, plotting.CHILDREN, None),
-          (KEY_ADULT_NORMAL, "Adults, test set (lung opacity vs normal)", plotting.ADULTS, plotting.ADULTS, None),
-          (KEY_ADULT_ALL, "Adults, test set (lung opacity vs everything else)", plotting.ADULTS, plotting.SURFACE, "////")]
-
-
-def r(name, key):
-    return baselines[name]["results"][key]
-
-
-# Figure 1: AUROC of every baseline in every test group
-fig, ax = plt.subplots(figsize=(10, 5.4))
-for i, (name, _) in enumerate(ROWS):
-    for j, (key, label, edge, face, _) in enumerate(GROUPS):
-        v = r(name, key)
-        y = i + (j - 1) * 0.24
-        lo, hi = v.get("auroc_ci", (v["auroc"], v["auroc"]))
-        ax.plot([lo, hi], [y, y], color=edge, lw=2, solid_capstyle="round", zorder=2)
-        ax.plot(v["auroc"], y, "o", ms=11, mfc=face, mec=edge, mew=2.2, zorder=3, label=label if i == 0 else None)
-        ax.annotate(f"{v['auroc']:.2f}", (hi, y), xytext=(10, 0), textcoords="offset points", va="center",
-                    fontsize=12, color=plotting.TEXT)
-ax.axvline(0.5, color=plotting.NEUTRAL, lw=1.5, zorder=1)
-ax.annotate("coin flip", (0.5, -0.52), xytext=(6, 0), textcoords="offset points", va="center", fontsize=11,
-            color=plotting.TEXT_2)
-ax.set_yticks(range(len(ROWS)), [lab for _, lab in ROWS])
-ax.set_ylim(len(ROWS) - 0.45, -0.7)
-ax.set_xlim(0.38, 1.06)
-ax.set_xticks([0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-ax.grid(axis="y", visible=False)
-ax.tick_params(axis="y", length=0, labelsize=12)
-ax.set_xlabel("AUROC: how well the score ranks sick above healthy (1.0 = perfect, 0.5 = coin flip)")
-best = max(("pixels_32x32_logreg", "frozen_imagenet_resnet18_logreg"), key=lambda n: r(n, KEY_CHILD)["auroc"])
-ax.set_title(f"Simple baselines trained on children: AUROC {r(best, KEY_CHILD)['auroc']:.2f} on children, "
-             f"{r(best, KEY_ADULT_NORMAL)['auroc']:.2f} and {r(best, KEY_ADULT_ALL)['auroc']:.2f} on adults", pad=14)
-ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=1, handletextpad=0.4)
-plotting.finish(fig, C.FIGURES_DIR / "baseline_auroc.png",
-                note=f"Trained on Kermany train ({k_train.sum()} children's X-rays) only. Test sets: Kermany test n={k_test.sum()}, "
-                     f"RSNA adults n={r(best, KEY_ADULT_NORMAL)['n']} / {r(best, KEY_ADULT_ALL)['n']}. "
-                     "Lines: 95% bootstrap intervals.")
-
-# Figure 2: what the fixed threshold does in each group (sensitivity and specificity)
-fig, axes = plt.subplots(1, 2, figsize=(11, 5), sharey=True)
-for ax, (name, title) in zip(axes, [("pixels_32x32_logreg", "Logistic regression on 32×32 pixels"),
-                                    ("frozen_imagenet_resnet18_logreg", "ImageNet ResNet-18 (not fine-tuned) + logistic regression")]):
-    for m, metric in enumerate(("sensitivity", "specificity")):
-        for j, (key, label, edge, face, hatch) in enumerate(GROUPS):
-            v = r(name, key)
-            x = m + (j - 1) * 0.27
-            ax.bar(x, 100 * v[metric], width=0.23, color=face, edgecolor=edge, linewidth=1.6, hatch=hatch,
-                   label=label if m == 0 else None, zorder=3)
-            ax.annotate(f"{100 * v[metric]:.0f}%", (x, 100 * v[metric]), xytext=(0, 4), textcoords="offset points",
-                        ha="center", fontsize=11, color=plotting.TEXT)
-    ax.set_xticks([0, 1], ["Sick patients flagged\n(sensitivity)", "Healthy patients cleared\n(specificity)"])
-    ax.set_ylim(0, 112)
-    ax.set_yticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"])
-    ax.grid(axis="x", visible=False)
-    ax.set_title(title, fontsize=12, fontweight="normal", color=plotting.TEXT_2)
-axes[0].legend(loc="upper center", bbox_to_anchor=(1.0, -0.2), ncol=1, handletextpad=0.5)
-b3 = "frozen_imagenet_resnet18_logreg"
-fig.suptitle(f"A threshold tuned on children does not carry over: the best baseline catches "
-             f"{100 * r(b3, KEY_CHILD)['sensitivity']:.0f}% of sick children\nbut "
-             f"{100 * r(b3, KEY_ADULT_ALL)['sensitivity']:.0f}% of sick adults, and clears "
-             f"{100 * r(b3, KEY_CHILD)['specificity']:.0f}% vs {100 * r(b3, KEY_ADULT_ALL)['specificity']:.0f}% of the healthy",
-             x=0.01, ha="left", fontsize=14, fontweight="bold")
-fig.tight_layout(rect=(0, 0, 1, 0.98))
-plotting.finish(fig, C.FIGURES_DIR / "baseline_sensitivity_specificity.png",
-                note="Decision threshold chosen once, on Kermany validation images, to catch 95% of pneumonia cases; never re-tuned. "
-                     "Adults: RSNA test set.")
-log("wrote figures baseline_auroc.png, baseline_sensitivity_specificity.png")

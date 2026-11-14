@@ -25,7 +25,6 @@ import json  # noqa: E402
 import sys  # noqa: E402
 import tempfile  # noqa: E402
 import time  # noqa: E402
-import urllib.request  # noqa: E402
 from pathlib import Path  # noqa: E402
 
 import numpy as np  # noqa: E402
@@ -52,15 +51,12 @@ SCRATCH = Path(os.environ.get("PNEUMOSHIFT_SCRATCH", Path(tempfile.gettempdir())
 SCRATCH.mkdir(parents=True, exist_ok=True)
 C.FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
-# Near-duplicate search. Thresholds were set by LOOKING at the pairs (see audit_duplicate_pairs.png):
+# Near-duplicate search. Thresholds were set by LOOKING at the most similar pairs:
 # every pair at or above 0.98 is a pixel-identical copy, the most similar non-identical pairs
 # (0.90-0.98) are different exposures or different patients.
 CANDIDATE_CORR_32 = 0.90     # stage 1: correlation of 32x32 thumbnails, all pairs
 NEAR_DUP_CORR_256 = 0.98     # stage 2: correlation of the full 256 px images
 SIMILAR_CORR_256 = 0.95      # reported separately as "very similar, not the same image"
-# RSNA "patientId" is really an image id. RSNA published the link back to the NIH ChestX-ray14 file
-# names, whose first 8 digits are the true patient number.
-NIH_MAPPING_URL = "https://s3.amazonaws.com/east1.public.rsna.org/AI/2018/pneumonia-challenge-dataset-mappings_2018.json"
 PERCENTILES = [1, 5, 25, 50, 75, 95, 99]
 AGE_BANDS = [(1, 5), (6, 17), (18, 29), (30, 39), (40, 49), (50, 59), (60, 69), (70, 100)]
 NOT_NORMAL = "No Lung Opacity / Not Normal"
@@ -168,7 +164,7 @@ def by_split(df, col, order, names=None):
 def rate_table(df, key):
     """Lung-opacity rate per subgroup, both against everything else and against 'Normal' only."""
     out = {}
-    for k, g in df.groupby(key, observed=True, sort=False):
+    for k, g in df.groupby(key, observed=True):
         n, n_op, n_norm = len(g), int(g.label.sum()), int((g.cls == "Normal").sum())
         out[str(k)] = dict(n=n, n_lung_opacity=n_op, n_normal=n_norm, n_not_normal_no_opacity=n - n_op - n_norm,
                            opacity_rate=n_op / n,
@@ -234,38 +230,11 @@ ax.legend(handles=[
     Patch(color=plotting.ADULTS, label=f"Adult dataset (RSNA, USA): {len(valid_age):,} X-rays, median age {valid_age.median():.0f}")],
     loc="upper right", fontsize=11)
 ax.set_ylim(0, ax.get_ylim()[1] * 1.22)
-ax.set_title(f"The two datasets barely overlap in age: only {int((valid_age <= 5).sum())} of {len(valid_age):,} "
+ax.set_title(f"The two datasets barely overlap in age:\nonly {int((valid_age <= 5).sum())} of {len(valid_age):,} "
              "US X-rays are from 1–5-year-olds", pad=12)
 plotting.finish(fig, C.FIGURES_DIR / "audit_age_populations.png",
                 note="Kermany has no per-image ages; the 1–5 range is from the paper (Kermany et al. 2018), so it is shown as a band, "
                      f"not as counts.\nRSNA ages are from the DICOM headers; {int((~mr.age_valid).sum())} impossible ages (over 100) removed.")
-
-# Figure: lung-opacity rate by view, age and sex among RSNA adults
-ad = r_tables["adults"]
-panels = [("How the X-ray was taken", [("AP", "AP: front-to-back,\nusually bedside / portable"), ("PA", "PA: back-to-front,\nstanding")], ad["by_view"]),
-          ("Age", [(b, f"{b} years") for b in ad["by_age_band"]], ad["by_age_band"]),
-          ("Sex", [("F", "Women"), ("M", "Men")], ad["by_sex"])]
-fig, axes = plt.subplots(3, 1, figsize=(10, 7.6), sharex=True, gridspec_kw=dict(height_ratios=[2, len(panels[1][1]), 2], hspace=0.42))
-for ax, (title, rows, tab) in zip(axes, panels):
-    vals = [100 * tab[k]["opacity_rate"] for k, _ in rows]
-    ax.barh(range(len(rows)), vals, height=0.62, color=plotting.ADULTS, zorder=3)
-    for i, (k, _) in enumerate(rows):
-        ax.annotate(f"{vals[i]:.0f}%  ({tab[k]['n_lung_opacity']:,} of {tab[k]['n']:,})", (vals[i], i), xytext=(6, 0),
-                    textcoords="offset points", va="center", fontsize=11, color=plotting.TEXT)
-    ax.set_yticks(range(len(rows)), [lab for _, lab in rows])
-    ax.invert_yaxis()
-    ax.grid(axis="y", visible=False)
-    ax.tick_params(axis="y", length=0)
-    ax.set_title(title, fontsize=12, fontweight="normal", color=plotting.TEXT_2)
-axes[-1].set_xlim(0, 62)
-axes[-1].set_xticks([0, 10, 20, 30, 40, 50], ["0%", "10%", "20%", "30%", "40%", "50%"])
-axes[-1].set_xlabel("Share of X-rays labelled \"lung opacity\" (possible pneumonia)")
-fig.suptitle(f"In the adult dataset the label follows how the X-ray was taken:\n"
-             f"{100 * ad['by_view']['AP']['opacity_rate']:.0f}% of bedside (AP) X-rays show lung opacity, "
-             f"but only {100 * ad['by_view']['PA']['opacity_rate']:.0f}% of standing (PA) ones",
-             x=0.01, ha="left", fontsize=14, fontweight="bold", y=1.0)
-plotting.finish(fig, C.FIGURES_DIR / "audit_adult_opacity_rate.png",
-                note=f"RSNA adults (18+), all splits, n={ad['n']:,}. Rate = lung opacity vs everything else.")
 
 # ==========================================================================
 # A2. Leakage: identical and near-identical images
@@ -353,7 +322,8 @@ for cat in CATEGORIES:
 
 # Identical images, as groups
 sha_s = pd.Series(sha)
-dup_groups = [np.array(ix) for ix in sha_s[sha_s.duplicated(keep=False)].groupby(sha_s).groups.values()]
+dup_s = sha_s[sha_s.duplicated(keep=False)]
+dup_groups = [np.array(ix) for ix in dup_s.groupby(dup_s).groups.values()]
 k_groups = [g for g in dup_groups if g.max() < nk]
 r_groups = [g for g in dup_groups if g.min() >= nk]
 
@@ -399,7 +369,7 @@ dhash_report["largest_hamming_distance_among_confirmed_pairs"] = int(confirmed.h
 
 # ---- Kermany: are the patient ids parsed from the file names right, and is the official test set separate?
 series = np.where(yk == 1, mk.subtype.values.astype(str),
-                  np.where(mk.filename.str.startswith("NORMAL2").values, "NORMAL2-IM", "IM"))
+                  np.where(np.asarray(mk.filename.str.startswith("NORMAL2"), dtype=bool), "NORMAL2-IM", "IM"))
 number = mk.patient_id.str.extract(r"_[PN](\d+)$")[0].astype(int).values
 official_test = (mk.official_split == "test").values
 numbering = {}
@@ -433,63 +403,23 @@ kermany_ids = dict(
 del Ck, same_number, same_series, same_label, upper_k
 
 
-# ---- RSNA: the same patient in several splits (needs RSNA's own mapping back to the NIH file names)
-def load_nih_mapping():
-    f = SCRATCH / "nih_mapping" / "pneumonia-challenge-dataset-mappings_2018.json"
-    if not f.exists():
-        try:
-            f.parent.mkdir(parents=True, exist_ok=True)
-            with urllib.request.urlopen(NIH_MAPPING_URL, timeout=120) as resp:
-                raw = resp.read()
-            f.write_bytes(raw)
-            log(f"   downloaded the RSNA -> NIH mapping ({len(raw) / 1e6:.0f} MB)")
-        except Exception as e:  # no internet: the audit still runs, this check is skipped
-            log(f"   could not download the RSNA -> NIH mapping ({type(e).__name__}: {e})")
-            return None
-    m = pd.DataFrame(json.loads(f.read_text()))[["subset_img_id", "img_id"]]
-    return mr[["patient_id"]].merge(m, left_on="patient_id", right_on="subset_img_id", how="left").img_id.str.slice(0, 8)
-
-
-nih = load_nih_mapping()
-if nih is not None and nih.notna().all():
-    nihv = nih.values.astype(str)
+# ---- RSNA: one person, many exams. RSNA "patientId" is unique per IMAGE. The prepared metadata carries the
+# true patient (`nih_patient`, from RSNA's exam-to-NIH mapping) and the split is made by patient; verify that.
+if "nih_patient" in mr.columns:
+    nihv = mr.nih_patient.values.astype(str)
     per_patient = pd.Series(nihv).value_counts()
     sets = {s: set(nihv[(mr.split == s).values]) for s in ("adapt", "val", "test")}
-    seen_in_adapt = np.isin(nihv, list(sets["adapt"]))
-    seen_in_adapt_or_val = np.isin(nihv, list(sets["adapt"] | sets["val"]))
-    clean_test = r_test & ~seen_in_adapt_or_val
     rsna_overlap = dict(
-        checked=True, source=NIH_MAPPING_URL,
-        how="RSNA 'patientId' is unique per IMAGE. RSNA's mapping file gives the NIH ChestX-ray14 file name of every "
-            "image (e.g. 00012773_000.png); the first 8 digits are the real patient number.",
+        checked=True, source="column nih_patient of rsna_meta.csv (RSNA's mapping of every exam to its NIH ChestX-ray14 patient)",
         n_images=nr, n_distinct_patients=int(len(per_patient)),
         patients_with_more_than_one_image=int((per_patient > 1).sum()),
         images_of_patients_with_more_than_one_image=int(per_patient[per_patient > 1].sum()),
         max_images_of_one_patient=int(per_patient.max()),
-        sex_identical_within_every_multi_image_patient=bool((mr.groupby(nihv).sex.nunique() == 1).all()),
-        patients_in_both={"adapt and test": len(sets["adapt"] & sets["test"]), "adapt and val": len(sets["adapt"] & sets["val"]),
-                          "val and test": len(sets["val"] & sets["test"])},
-        adult_test_images=dict(
-            n=int(r_test.sum()),
-            patient_also_in_adapt=int((r_test & seen_in_adapt).sum()),
-            share_patient_also_in_adapt=float((r_test & seen_in_adapt).sum() / r_test.sum()),
-            patient_also_in_adapt_or_val=int((r_test & seen_in_adapt_or_val).sum()),
-            share_patient_also_in_adapt_or_val=float((r_test & seen_in_adapt_or_val).sum() / r_test.sum()),
-            share_patient_also_in_adapt_by_class={c: float((r_test & seen_in_adapt & (mr.cls == c).values).sum()
-                                                           / (r_test & (mr.cls == c).values).sum()) for c in sorted(mr.cls.unique())},
-            distinct_patients=int(len(set(nihv[r_test])))),
-        leak_free_adult_test_subset=dict(
-            definition="adult test images whose patient has no image in adapt or val",
-            n=int(clean_test.sum()), n_lung_opacity=int((clean_test & (yr == 1)).sum()),
-            n_normal=int((clean_test & (mr.cls == "Normal").values).sum()),
-            n_not_normal_no_opacity=int((clean_test & (mr.cls == NOT_NORMAL).values).sum()),
-            file=str(SCRATCH / "rsna_true_patients.csv")),
-        consequence="The kids-only model and the baselines never train on RSNA, so their adult numbers are not inflated by this. "
-                    "Any model that trains on RSNA 'adapt' and is scored on RSNA 'test' IS affected (same patients on both sides). "
-                    "In every case several test images come from the same person, so image-level bootstrap intervals are too narrow.")
-    pd.DataFrame(dict(idx=mr.idx, rsna_image_id=mr.patient_id, nih_patient=nihv, split=mr.split,
-                      patient_also_in_adapt_or_val=seen_in_adapt_or_val,
-                      leak_free_adult_test=clean_test)).to_csv(SCRATCH / "rsna_true_patients.csv", index=False)
+        patients_in_two_splits={"adapt and test": len(sets["adapt"] & sets["test"]), "adapt and val": len(sets["adapt"] & sets["val"]),
+                                "val and test": len(sets["val"] & sets["test"])},
+        adult_test_set=dict(n_images=int(r_test.sum()), n_distinct_patients=int(len(set(nihv[r_test])))),
+        consequence="The split is by patient, so no person is on both sides. Several test images still come from the same "
+                    "person, so image-level bootstrap intervals on RSNA are somewhat too narrow.")
     # Does picture similarity agree with true patient identity? (justifies the near-duplicate threshold)
     rr = pairs[(pairs.kind == 2) & ~pairs.exact]
     same_patient = nihv[rr.i.values - nk] == nihv[rr.j.values - nk]
@@ -505,7 +435,7 @@ if nih is not None and nih.notna().all():
 else:
     nihv = None
     pairs["same_nih_patient"] = False
-    rsna_overlap = dict(checked=False, reason="could not download or match the RSNA -> NIH mapping file", source=NIH_MAPPING_URL)
+    rsna_overlap = dict(checked=False, reason="rsna_meta.csv has no nih_patient column")
 
 audit["A2_leakage"] = dict(
     identical_images=identical,
@@ -524,77 +454,6 @@ audit["A2_leakage"] = dict(
     rsna_same_patient_in_several_splits=rsna_overlap)
 log(f"   identical: {len(k_groups)} groups in Kermany, {len(r_groups)} in RSNA; non-identical near-duplicates: "
     f"{sum(v['near_duplicate_pairs_not_identical'] for v in by_category.values())}")
-
-# Figure: example pairs, chosen by rule (not by hand)
-examples = []
-
-
-def first(df):
-    return (int(df.i.iloc[0]), int(df.j.iloc[0]), float(df.c256.iloc[0])) if len(df) else None
-
-
-kk = pairs[pairs.kind == 0]
-same_pid = mk.patient_id.values[kk.i.values] == mk.patient_id.values[kk.j.values]
-e = first(kk[kk.exact & same_pid & (kk.category == "within kermany train")])
-if e:
-    examples.append((e, "IDENTICAL image stored twice\n(same child, both copies in train)"))
-e = first(kk[kk.exact & ~same_pid])
-if e:
-    examples.append((e, "IDENTICAL image filed under two\npatient numbers (both in test)"))
-e = first(kk[~kk.exact & (kk.category == "kermany train+val vs kermany test")].sort_values("c256", ascending=False))
-if e:
-    examples.append((e, f"Closest train–test pair: correlation {e[2]:.2f}.\nDifferent children, NOT a copy"))
-rr_ = pairs[pairs.kind == 2]
-e = first(rr_[rr_.exact])
-if e:
-    examples.append((e, "IDENTICAL image under two image ids\n(adult dataset, both in test)"))
-cross = rr_[~rr_.exact & (rr_.category == "rsna adapt vs rsna test")]
-e = first((cross[cross.same_nih_patient] if nihv is not None else cross).sort_values("c256", ascending=False))
-if e:
-    examples.append((e, f"Same adult, two visits, one in 'adapt' and\none in 'test' (correlation {e[2]:.2f})"))
-e = first(pairs[pairs.kind == 1].sort_values("c256", ascending=False))
-if e:
-    examples.append((e, f"Closest child–adult pair: correlation {e[2]:.2f}.\nNo image is in both datasets"))
-
-
-def caption(g):
-    if g < nk:
-        row = mk.iloc[g]
-        return f"{row.filename.replace('.jpeg', '')}\n{row.split}"
-    row = mr.iloc[g - nk]
-    return f"{row.age} y, {row.sex}, {row['view']}, {row.cls.split(' /')[0].lower()}\n{row.split}"
-
-
-ncol = 2
-nrow = int(np.ceil(len(examples) / ncol))
-fig, axes = plt.subplots(nrow, ncol * 2, figsize=(12.5, 3.75 * nrow), gridspec_kw=dict(wspace=0.08, hspace=0.55))
-axes = np.atleast_2d(axes)
-for ax in axes.ravel():
-    ax.axis("off")
-for kx, ((i, j, c), title) in enumerate(examples):
-    for sx, g in enumerate((i, j)):
-        ax = axes[kx // ncol, (kx % ncol) * 2 + sx]
-        ax.axis("on")
-        ax.imshow(image(g), cmap="gray", vmin=0, vmax=255)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.grid(False)
-        for sp in ax.spines.values():
-            sp.set_visible(True)
-            sp.set_linewidth(4)
-            sp.set_color(plotting.ADULTS if g >= nk else plotting.CHILDREN)
-        ax.set_xlabel(caption(g), fontsize=9.5, color=plotting.TEXT_2)
-        if sx == 0:
-            ax.set_title(title, loc="left", fontsize=11.5, fontweight="bold")
-fig.legend(handles=[Patch(color=plotting.CHILDREN, label="Children's dataset (Kermany)"),
-                    Patch(color=plotting.ADULTS, label="Adult dataset (RSNA)")],
-           loc="lower center", ncol=2, bbox_to_anchor=(0.5, 0.02))
-k_id = identical["kermany"]
-fig.suptitle(f"No X-ray is shared between training and test data. {k_id['redundant_images']} children's images are stored twice "
-             f"inside one split,\nand in the adult dataset the same patients appear on both sides of the split",
-             x=0.04, ha="left", fontsize=14, fontweight="bold", y=0.99)
-plotting.finish(fig, C.FIGURES_DIR / "audit_duplicate_pairs.png",
-                note=f"All {n * (n - 1) // 2:,} image pairs compared. Same image = pixel correlation of at least {NEAR_DUP_CORR_256} at 256 px.")
 
 # ==========================================================================
 # A3 / A4. Shortcuts: predicting the label without looking at the lungs
@@ -706,26 +565,6 @@ plotting.finish(fig, C.FIGURES_DIR / "audit_shortcuts.png",
                 note=f"Children: fitted on Kermany train, scored on Kermany test (n={k_test.sum()}). Adults: fitted on RSNA adapt, scored on RSNA "
                      f"test adults (n={r_test.sum():,}).\nLines: 95% bootstrap intervals. AUROC 0.5 = coin flip, 1.0 = perfect.")
 
-# Figure: the image-size shortcut itself
-fig, axes = plt.subplots(2, 1, figsize=(10, 5.6), sharex=True, gridspec_kw=dict(hspace=0.32))
-bins = np.arange(300, 2800, 50)
-for ax, lab, name in ((axes[0], 0, "Normal"), (axes[1], 1, "Pneumonia")):
-    h = mk.orig_h.values[k_train & (yk == lab)]
-    ax.hist(h, bins=bins, color=plotting.CHILDREN, rwidth=0.88, zorder=3)
-    ax.axvline(np.median(h), color=plotting.TEXT, lw=1.5, zorder=4)
-    ax.annotate(f"median {np.median(h):,.0f} px", (np.median(h), 1), xycoords=("data", "axes fraction"), xytext=(6, -4),
-                textcoords="offset points", va="top", fontsize=11, color=plotting.TEXT)
-    ax.set_title(f"{name} ({len(h):,} training images)", fontsize=12, fontweight="normal", color=plotting.TEXT_2)
-    ax.set_ylabel("Images")
-    ax.grid(axis="x", visible=False)
-axes[1].set_xlabel("Height of the original image file (pixels)")
-fig.suptitle(f"Healthy children's X-rays are simply bigger files: width and height alone separate\nnormal from pneumonia "
-             f"with AUROC {a3['image_size'][KEY_CHILD]['auroc']:.2f} on the test set, without a single pixel",
-             x=0.01, ha="left", fontsize=14, fontweight="bold", y=1.04)
-plotting.finish(fig, C.FIGURES_DIR / "audit_image_size_shortcut.png",
-                note="Kermany train. All images are resized to 256 px before training, so the network cannot read the file size directly;\n"
-                     "the gap shows that normal and pneumonia images were produced differently (cropping, equipment or export settings).")
-
 # ==========================================================================
 # A5. "Which hospital is this from?"
 # ==========================================================================
@@ -817,33 +656,6 @@ audit["A5_which_hospital"] = dict(
 for k, v in a5.items():
     if "auroc" in v:
         log(f"   {k:60s} AUROC {v['auroc']:.3f}  (n {v['n_a']} vs {v['n_b']})")
-
-# Figure: same age, different hospital
-same = a5["same_age_different_hospital_age_1_to_5"]
-show_k = np.sort(rng.choice(np.flatnonzero(k_test), 6, replace=False))
-show_r = np.sort(rng.choice(np.flatnonzero(young5), 6, replace=False))
-fig, axes = plt.subplots(2, 6, figsize=(12.5, 5.2), gridspec_kw=dict(wspace=0.06, hspace=0.22))
-for row, (idxs, X, colour) in enumerate(((show_k, Xk, plotting.CHILDREN), (show_r, Xr, plotting.ADULTS))):
-    for ax, g in zip(axes[row], idxs):
-        ax.imshow(center_crop(np.asarray(X[g]), C.IMG_SIZE), cmap="gray", vmin=0, vmax=255)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.grid(False)
-        for sp in ax.spines.values():
-            sp.set_visible(True)
-            sp.set_linewidth(4)
-            sp.set_color(colour)
-        if row == 1:
-            ax.set_xlabel(f"{mr.age.iloc[g]} years, {mr['view'].iloc[g]}", fontsize=10.5)
-axes[0, 0].set_title("Guangzhou (Kermany), ages 1–5", loc="left", fontsize=12, fontweight="normal", color=plotting.TEXT_2)
-axes[1, 0].set_title(f"USA (RSNA), ages 1–5: only {same['n_b']} X-rays exist", loc="left", fontsize=12, fontweight="normal",
-                     color=plotting.TEXT_2)
-fig.suptitle(f"Same age, different hospital: a simple classifier still tells the two sources apart (AUROC {same['auroc']:.2f}).\n"
-             "So the model faces a new hospital, not only a new age group", x=0.02, ha="left", fontsize=14, fontweight="bold", y=1.06)
-plotting.finish(fig, C.FIGURES_DIR / "audit_which_hospital.png",
-                note=f"Random examples as the network sees them (224 px centre crop). Logistic regression on 32×32 pixels, 5-fold cross-validation, "
-                     f"{same['n_a']:,} Kermany vs {same['n_b']} RSNA X-rays.\nWith only {same['n_b']} US children the estimate is rough "
-                     f"(95% interval {same['auroc_ci'][0]:.2f}–{same['auroc_ci'][1]:.2f}), and they are not a random sample of children.")
 
 # ==========================================================================
 (C.RESULTS_DIR / "audit.json").write_text(json.dumps(clean(audit), indent=2))
