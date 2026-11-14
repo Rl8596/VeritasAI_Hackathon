@@ -66,6 +66,9 @@ Threshold rule, fixed before testing: 95% sensitivity on validation data. Never 
 
 ## 3. State at handoff
 
+The newest work is always on the branch `claude/loving-hawking-jtiwb3` (later results are pushed there automatically).
+If a file named here is missing in your checkout: `git fetch origin claude/loving-hawking-jtiwb3` and merge it.
+
 Done and in git: data pipeline, library, children-only model, audit, baselines, shift analysis of the children-only model,
 demo app, Colab notebook, scripts 06 and 07.
 
