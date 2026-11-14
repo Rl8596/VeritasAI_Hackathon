@@ -134,7 +134,7 @@ if __name__ == "__main__":
         print(f"  {k:12s} n={v['n']:5d}  AUROC {v['auroc']:.3f}  sens {v['sensitivity']:.3f}  spec {v['specificity']:.3f}")
 
     if args.no_test:
-        print("\nTest results were not computed (--no-test). They come from scripts/05_shift_analysis.py at the end.")
+        print("\nTest results were not computed (--no-test). They are computed once, at the end, by scripts/10_v2_report.py.")
     else:
         head = train.headline(out_dir, mk, mr)
         (C.RESULTS_DIR / f"headline_{args.name}.json").write_text(json.dumps(

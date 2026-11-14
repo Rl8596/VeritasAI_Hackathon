@@ -125,7 +125,11 @@ def train(run: dict, extra: str = "") -> bool:
 
 def git(*args: str) -> bool:
     ident = ["-c", "user.name=PneumoShift GPU runs", "-c", "user.email=pneumoshift@users.noreply.github.com"]
-    r = subprocess.run(["git", *ident, *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600)
+    try:
+        r = subprocess.run(["git", *ident, *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600)
+    except subprocess.TimeoutExpired:
+        print(f"    git {' '.join(args[:2])} timed out", flush=True)
+        return False
     if r.returncode != 0:
         print(f"    git {' '.join(args[:2])} failed: {(r.stderr or r.stdout).strip().splitlines()[-1:]}", flush=True)
     return r.returncode == 0
@@ -138,7 +142,7 @@ def commit_and_push(message: str) -> None:
         return
     if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode == 0:
         return                                                  # nothing new
-    if git("commit", "-m", message) and not git("push", "origin", "HEAD"):
+    if git("commit", "-m", message, "--", *paths) and not git("push", "origin", "HEAD"):     # only these paths, whatever else is staged
         print("    the results are committed locally but NOT pushed. Push them by hand: git push origin HEAD", flush=True)
 
 

@@ -5,9 +5,43 @@ Read it fully, then `docs/HACKATHON_CONTEXT.md` (rules, judging) and skim `docs/
 
 Written Sat 14 Nov 2026, 11:50 UTC. **Deadline: Sun 15 Nov 2026, 11:59 PM ET (= Mon 04:59 UTC).**
 
+## START HERE: state on Sat 14 Nov 2026, 19:30 UTC (20:30 Swiss time)
+
+A new Claude session (possibly on the second team member's account) continues from here. `main` and
+`claude/friendly-wright-kfzg9j` are identical and hold everything. The team writes English in chat now. Usage is
+nearly exhausted on the first account: work frugally, no multi-agent runs unless the team asks.
+
+**Nothing is running any more.** The home PC finished all 22 runs of `docs/V2_PROTOCOL.md` at 19:08 UTC, none
+failed. Their results are in `results/v2/`. The test results were computed ONCE (`results/v2_report.md` and
+`.json`). `scripts/10_v2_report.py test` refuses a second run, and that is intended. Do not train anything else.
+
+**The result:** the headline model `v2_kids_plus_all` scores 0.880 on adults, the published `kids_plus_adults`
+0.874. Difference +0.006 (95% interval -0.000 to +0.011): by the rule fixed in advance, no improvement is shown.
+This is written into README section 6, summary point 4 and the video script. Do not soften or dramatise it.
+
+**Do next, in this order:**
+
+1. Check every number in `README.md` (summary and sections 1 to 5) and in `web/index.html` against
+   `results/*.json` once. Section 6 was written from `results/v2_report.md` on 14 Nov.
+2. Remind the team of their own tasks (section 9), the AI-assistance paragraph (README section 11) and the personal
+   e-mail address in the first git commit (blind judging; rewriting history is their decision).
+
+Scheduled check-ins (`send_later`, triggers) fail in this setup with "access denied". To be woken later, start a
+background command that ends when the condition is met.
+
+**Unfinished, optional:**
+
+- *Exploratory check* (`scripts/11_xray_pretrained_check.py`): DONE, in git (`results/exploratory/`), reported in README section 6.
+- *The browser demo was never reviewed by anyone but its author.* It passes its automated comparison with Python on
+  15 pictures in Chromium. Safari, Firefox and a real phone are untested. A multi-agent review was started and
+  stopped to save usage.
+- *Weights of the new models exist only on the PC.* To publish the headline model a person must log in on the PC
+  (`.venv/Scripts/hf auth login`) and the PC session must run `python scripts/09_gpu_batch.py upload v2_kids_plus_all`.
+  Not needed for the submission: the demo keeps the two published models.
+
 ## 0. Rules from the team (follow them)
 
-- The team is two high-school students. They write German. Answer in German, short and concrete (Swiss spelling: "ss", not "ß").
+- The team is two high-school students. They asked for answers in English (14 Nov), short and concrete.
 - Usage is limited. Few tool calls, no subagents unless they ask, short answers.
 - Goal: win the Veritas AI International High School Hackathon 2026, track **AI + Health**, Advanced level.
 - A scam-SMS project is forbidden (it is the organisers' own demo submission).
@@ -110,7 +144,7 @@ with ONNX Runtime Web. It exists because the Gradio Space was refused (see above
 - Checked on screenshots: desktop, tablet, phone, dark mode. Not checked: Safari and Firefox, a real phone.
 - Uploaded on Sat 14 Nov: `onnx/` in both model repos and the static Space `RL8596/pneumoshift`. The live page passes
   `node tests/web/parity.mjs --url https://rl8596-pneumoshift.static.hf.space/`. After changing `web/`, upload again with
-  `python scripts/08_export_web.py space RL8596/pneumoshift` (the token is saved on the cloud environment `VeritasAI_Hackathon`;
+  `python scripts/08_export_web.py space RL8596/pneumoshift --live`, but test in a staging Space first (the token is saved on the cloud environment `VeritasAI_Hackathon`;
   set `HF_TOKEN=hf_proxyinjected` for the command, the proxy puts the real token in).
 - If `app/examples/` changes, rerun the export script: it copies the examples to `web/examples/`.
 
@@ -139,7 +173,7 @@ first: it was committed before any v2 model was trained and fixes the recipe, th
   the PC's, run 05 for it, and decide with the team whether it replaces the second card of the demo
   (only through a staging Space, never by editing the live one first).
 - **Guards:** `02_train.py`, `hub_models.py push`, `08_export_web.py push` and `deploy_space.py` refuse to touch the two
-  published models and the live Space. The Hub repos and the Space carry the tag `v1-before-retraining`.
+  published models; `deploy_space.py space` and `08_export_web.py space` (without `--live`) refuse the live Space. The Hub repos and the Space carry the tag `v1-before-retraining`.
 - New finding from the rehearsal, already in the README: a frozen ImageNet network + logistic regression trained on
   the adult X-rays reaches 0.848 on adults. That is the fair baseline for any adult-trained model.
 - Multi-agent reviews are expensive: one plan review used most of a 5-hour usage allowance. Ask before starting one.

@@ -1,0 +1,16 @@
+{
+ "status": "exploratory: added on 14 Nov 2026 after the first v2 validation result, not part of docs/V2_PROTOCOL.md",
+ "model": "TorchXRayVision DenseNet-121, weights 'densenet121-res224-chex' (trained on CheXpert, Stanford Hospital; no NIH or RSNA X-ray)",
+ "input": "stored 256 px picture resized to 224 px, values scaled to -1024..1024, no fine-tuning",
+ "rows": {
+  "xray_pretrained_as_is": "the network's own output for 'Lung Opacity', used as published (it never saw one of our X-rays)",
+  "xray_pretrained_frozen": "logistic regression on the network's 1,024 features, trained on the adult training X-rays; C = 0.001 chosen on adult validation X-rays"
+ },
+ "validation": {
+  "adult_auroc_as_is": 0.7772371505106312,
+  "adult_auroc_frozen": 0.8378039720408504,
+  "note": "validation X-rays only; test results come from scripts/10_v2_report.py"
+ },
+ "n_features": 1024,
+ "chosen_C": 0.001
+}

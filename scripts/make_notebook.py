@@ -79,10 +79,10 @@ md("""
 A ResNet-18 pretrained on ImageNet, loaded from the Hugging Face Hub (`timm/resnet18.tv_in1k`) and fine-tuned.
 The decision threshold is set on validation data so that 95% of pneumonia cases are caught. Test data is never used here.
 """)
-code("!python scripts/02_train.py --name kids_only --reproduce-published --epochs $EPOCHS --workers 2")
+code("!PNEUMOSHIFT_ALLOW_PROTECTED=1 python scripts/02_train.py --name kids_only --reproduce-published --overwrite --epochs $EPOCHS --workers 2")
 
 md("## 5. Train the comparison model (children + adults)")
-code("!python scripts/02_train.py --name kids_plus_adults --reproduce-published --rsna-n 6000 --epochs $EPOCHS --workers 2")
+code("!PNEUMOSHIFT_ALLOW_PROTECTED=1 python scripts/02_train.py --name kids_plus_adults --reproduce-published --overwrite --rsna-n 6000 --epochs $EPOCHS --workers 2")
 
 md("""
 ## 6. The main question: what happens on adults?

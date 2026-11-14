@@ -32,6 +32,7 @@ Outputs: results/v2_validation.json (val), results/v2_report.json and results/v2
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -44,6 +45,7 @@ from scipy.stats import rankdata
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from pneumoshift import config as C, data, metrics  # noqa: E402
+from pneumoshift.train import fit_temperature  # noqa: E402
 
 V2 = C.RESULTS_DIR / "v2"
 TAG = "v1-before-retraining"
@@ -51,6 +53,10 @@ V1 = {"kids_only": "RL8596/pneumoshift-kids-only", "kids_plus_adults": "RL8596/p
 HEADLINE, V1_REPAIR = "v2_kids_plus_all", "kids_plus_adults"
 SCRATCH = Path(os.environ.get("PNEUMOSHIFT_SCRATCH", Path(tempfile.gettempdir()) / "pneumoshift_scratch"))
 N_BOOT = 1000
+# the one recipe of docs/V2_PROTOCOL.md; a run that deviates is not evaluated
+RECIPE = dict(epochs=6, lr=3e-4, batch_size=32, mixed_precision=False, epoch_rule="last")
+NAME = re.compile(r"^v2_(?:kids_plus_(?P<n>all|\d+)|(?P<adults>adults_all))(?P<r50>_r50)?(?:_s(?P<seed>\d{4}))?$")
+N_CHILDREN_TRAIN, N_ADULT_TRAIN = 4578, 15142
 SEED = 2026
 T0 = time.time()
 
@@ -193,6 +199,66 @@ def baselines(mr, Xr, train, val) -> dict:
     return out
 
 
+def exploratory_rows() -> dict:
+    """Rows that were added after the first v2 validation result (scripts/11_xray_pretrained_check.py). Always labelled."""
+    out = {}
+    f = C.RESULTS_DIR / "exploratory" / "xray_pretrained_chex.npz"
+    if f.exists():
+        z = np.load(f)
+        out["xray_pretrained_as_is"] = dict(kind="exploratory", rsna=z["as_is_lung_opacity"].astype(np.float64),
+                                            label="EXPLORATORY: public network trained on chest X-rays of another hospital (CheXpert), used as published")
+        out["xray_pretrained_frozen"] = dict(kind="exploratory", rsna=z["frozen_features_logreg"].astype(np.float64),
+                                             label="EXPLORATORY: the same network + logistic regression trained on the adult training X-rays")
+    return out
+
+
+def parse_name(name: str):
+    """v2 run name -> (family without the seed, number of adult training X-rays, seed), or None if it is not a protocol name."""
+    m = NAME.match(name)
+    if not m:
+        return None
+    n = N_ADULT_TRAIN if (m["adults"] or m["n"] == "all") else int(m["n"])
+    family = re.sub(r"_s\d{4}$", "", name)
+    return family, n, int(m["seed"]) if m["seed"] else C.SEED
+
+
+def check_recipe(name: str, m: dict, mr) -> list:
+    """Did this run follow the one recipe of the protocol, and do its rows line up with our tables? -> list of problems."""
+    cfg, bad = m["cfg"], []
+    parsed = parse_name(name)
+    if parsed is None:
+        return ["the name is not one of the protocol"]
+    _, n_adults, seed = parsed
+    for k, want in RECIPE.items():
+        if cfg.get(k) != want:
+            bad.append(f"{k} is {cfg.get(k)!r}, the protocol says {want!r}")
+    if cfg.get("best_epoch") != cfg.get("epochs"):
+        bad.append("the kept epoch is not the last one")
+    want_arch = "resnet50.tv_in1k" if name.endswith("_r50") or "_r50_" in name else "resnet18.tv_in1k"
+    if cfg.get("arch") != want_arch:
+        bad.append(f"network is {cfg.get('arch')}, expected {want_arch}")
+    if cfg.get("seed") != seed:
+        bad.append(f"seed is {cfg.get('seed')}, the name says {seed}")
+    if str(cfg.get("device", "cpu")).lower() == "cpu":
+        bad.append("trained on a CPU")
+    adult_train = ((mr.split == "adapt") & mr.is_adult).values
+    idx_file = V2 / name / "rsna_train_idx.npy"
+    idx = np.load(idx_file) if idx_file.exists() else np.array([], dtype=int)
+    if len(idx) != n_adults:
+        bad.append(f"trained on {len(idx)} adult X-rays, the name says {n_adults}")
+    if len(idx) and (not adult_train[idx].all() or len(np.unique(idx)) != len(idx)):
+        bad.append("its adult training list holds an X-ray that is not an adult training X-ray, or one twice")
+    n_children = 0 if name.startswith("v2_adults_all") else N_CHILDREN_TRAIN
+    if cfg.get("n_train") != n_children + n_adults:
+        bad.append(f"n_train is {cfg.get('n_train')}, expected {n_children + n_adults}")
+    val = ((mr.split == "val") & mr.is_adult).values
+    stored = (cfg.get("validation") or {}).get("adults", {}).get("auroc")
+    got = metrics.auroc(mr.label.values[val], m["rsna"][val])
+    if stored is None or abs(got - stored) > 1e-4:          # proves that the PC's rows are our rows
+        bad.append(f"adult validation AUROC from its scores is {got:.5f}, its own record says {stored}")
+    return bad
+
+
 # ---------------------------------------------------------------------------------------------------
 def validation_summary(models: dict, mk, mr) -> dict:
     yr, yk = mr.label.values.astype(int), mk.label.values.astype(int)
@@ -254,9 +320,16 @@ def evaluate(models: dict, mk, mr, n_boot: int) -> dict:
             point_thr[name]["stored"] = stored_threshold_logit(cfg)
             temp = float(cfg.get("temperature", 1.0))
             sig = lambda z: 1.0 / (1.0 + np.exp(-z / temp))  # noqa: E731
-            res["calibration_error"] = dict(adults=metrics.ece(yr[test], sig(s[test])), children=metrics.ece(yk[ktest], sig(m["kermany"][ktest])))
+            # calibration with the model's own temperature (fitted on ITS validation set, see val_data), and with a
+            # temperature fitted on adult validation X-rays for every model, so that the rows can be compared
+            t_adult = fit_temperature(s[val], yr[val])
+            sig_a = lambda z: 1.0 / (1.0 + np.exp(-z / t_adult))  # noqa: E731
+            res["calibration_error"] = dict(adults=metrics.ece(yr[test], sig(s[test])), children=metrics.ece(yk[ktest], sig(m["kermany"][ktest])),
+                                            adults_with_temperature_from_adult_validation=metrics.ece(yr[test], sig_a(s[test])),
+                                            own_temperature_fitted_on=cfg.get("val_data"))
             res["auroc"]["children"] = dict(value=metrics.auroc(yk[ktest], m["kermany"][ktest]))
             res["children_at_stored_threshold"] = rates(yk[ktest], m["kermany"][ktest], point_thr[name]["stored"])
+            res["children"] = {rule: rates(yk[ktest], m["kermany"][ktest], thr) for rule, thr in point_thr[name].items()}
         for g, mask in groups.items():
             res["auroc"][g] = dict(value=float(auroc_rows(s[None, mask], yr[mask])[0]))
             if "fixed_threshold" not in m:
@@ -306,30 +379,34 @@ def evaluate(models: dict, mk, mr, n_boot: int) -> dict:
 
     out["paired_auroc_differences"] = {}
     for a, b in ((HEADLINE, V1_REPAIR), (HEADLINE, "v2_kids_plus_6000"), (HEADLINE, "v2_adults_all"), (HEADLINE, "frozen_imagenet"),
-                 (V1_REPAIR, "kids_only"), (V1_REPAIR, "frozen_imagenet")):
+                 (V1_REPAIR, "kids_only"), (V1_REPAIR, "frozen_imagenet"), ("v2_kids_plus_6000", V1_REPAIR),
+                 ("xray_pretrained_frozen", V1_REPAIR), ("xray_pretrained_frozen", "frozen_imagenet"), ("xray_pretrained_as_is", "kids_only")):
         if a in names and b in names:
             out["paired_auroc_differences"][f"{a} minus {b}"] = paired(a, b)
     if HEADLINE in names and V1_REPAIR in names:
-        p = out["paired_auroc_differences"][f"{HEADLINE} minus {V1_REPAIR}"]["adults"]
+        d = out["paired_auroc_differences"][f"{HEADLINE} minus {V1_REPAIR}"]
+        p = d["adults"]
+        better = bool(p["ci"][0] > 0 and d["adults_PA"]["difference"] > 0 and d["adults_AP"]["difference"] > 0)
         out["primary_comparison"] = dict(
             what=f"adult test AUROC (lung opacity vs everything else), {HEADLINE} minus published {V1_REPAIR}, patients resampled {n_boot} times",
-            difference=p["difference"], ci=p["ci"], interval_excludes_zero=bool(p["ci"][0] > 0 or p["ci"][1] < 0))
+            difference=p["difference"], ci=p["ci"], inside_PA=d["adults_PA"], inside_AP=d["adults_AP"],
+            rule="called better only if the overall interval lies above zero and the difference is positive inside both views",
+            repair_is_better=better)
     return out
 
 
 def seeds_and_curve(report: dict) -> dict:
-    """Group v2 runs of one recipe over their seeds: mean and range of three runs (not a confidence interval)."""
+    """Group v2 runs of one recipe over their seeds: mean and range of the runs (not a confidence interval)."""
     fam = {}
     for name, m in report["models"].items():
-        if m["kind"] != "v2":
-            continue
-        base = name.rsplit("_s", 1)[0] if name.rsplit("_s", 1)[-1].isdigit() else name
-        fam.setdefault(base, []).append(name)
+        parsed = parse_name(name) if m["kind"] == "v2" else None
+        if parsed:
+            fam.setdefault(parsed[0], dict(n_adults=parsed[1], runs=[]))["runs"].append(name)
     out = {}
-    for base, members in sorted(fam.items()):
-        row = dict(runs=sorted(members))
+    for base, f in sorted(fam.items(), key=lambda kv: (kv[0].startswith("v2_adults"), kv[0].endswith("_r50"), kv[1]["n_adults"])):
+        row = dict(runs=sorted(f["runs"]), n_adult_training_xrays=f["n_adults"])
         for g in ("adults", "adults_PA", "adults_AP", "children"):
-            vals = [report["models"][n]["auroc"][g]["value"] for n in members]
+            vals = [report["models"][n]["auroc"][g]["value"] for n in f["runs"]]
             row[f"auroc_{g}"] = dict(mean=float(np.mean(vals)), min=float(np.min(vals)), max=float(np.max(vals)), n_runs=len(vals))
         out[base] = row
     return out
@@ -340,39 +417,81 @@ def fmt(x, d=3):
 
 
 def markdown(report: dict) -> str:
-    M = report["models"]
-    G = report["groups"]
+    M, G = report["models"], report["groups"]
     order = [n for n in ("always_no", "flag_bedside", "metadata_only", "frozen_imagenet", "kids_only", "kids_plus_adults",
-                         "v2_kids_plus_6000", HEADLINE, "v2_adults_all") if n in M]
+                         "v2_kids_plus_6000", HEADLINE, "v2_adults_all", "xray_pretrained_as_is", "xray_pretrained_frozen") if n in M]
+    name = lambda n: n + (" (exploratory)" if M[n]["kind"] == "exploratory" else "")  # noqa: E731
+    pair = lambda r, g: f"{fmt(r[g]['sensitivity'], 2)} / {fmt(r[g]['specificity'], 2)}"  # noqa: E731
+    rng = lambda c: f"{fmt(c[0], 2)} to {fmt(c[1], 2)}"  # noqa: E731
+    prev = G["adults"]["prevalence"]
     L = ["# Model comparison (written by scripts/10_v2_report.py)", "",
-         "Rules: docs/V2_PROTOCOL.md. Every threshold comes from validation X-rays. Intervals: 95%, patients resampled.", "",
+         "Rules: docs/V2_PROTOCOL.md. Every threshold comes from validation X-rays and is applied unchanged to test X-rays.",
+         "Intervals are 95% intervals from resampling patients. 'Lung opacity' is a radiologist's finding, not a confirmed pneumonia.",
+         "Operating points: A = 95% sensitivity on adult validation X-rays; B = 95% sensitivity on children's + adult validation X-rays",
+         "pooled (shown without interval); C = 95% specificity on adult validation X-rays (added 14 Nov, after the v1 test results).",
+         "Rows marked exploratory were added after the first v2 validation result and are not part of the protocol.", "",
          f"## Adults, lung opacity vs everything else (n = {G['adults']['n']:,} X-rays of {G['adults']['n_patients']:,} patients, "
-         f"{100 * G['adults']['prevalence']:.1f}% with lung opacity)", "",
-         "| Model | AUROC | inside standing (PA) | inside bedside (AP) | A: sensitivity / specificity | C: sensitivity / specificity |",
-         "|---|---|---|---|---|---|"]
+         f"{100 * prev:.1f}% with lung opacity)", "",
+         "| Model | AUROC | inside standing (PA) | inside bedside (AP) | A: sens / spec | B: sens / spec | C: sens / spec |",
+         "|---|---|---|---|---|---|---|"]
+    for n in order:
+        m, a = M[n], M[n]["auroc"]
+        L.append(f"| {name(n)} | {fmt(a['adults']['value'])} ({fmt(a['adults']['ci'][0])} to {fmt(a['adults']['ci'][1])}) | "
+                 f"{fmt(a['adults_PA']['value'])} | {fmt(a['adults_AP']['value'])} | {pair(m['rules']['A'], 'adults')} | "
+                 f"{pair(m['rules']['B'], 'adults') if 'B' in m['rules'] else 'n/a'} | {pair(m['rules']['C'], 'adults')} |")
+    L += ["", f"## Standing X-rays only (PA): n = {G['adults_PA']['n']:,}, {100 * G['adults_PA']['prevalence']:.1f}% with lung opacity "
+          f"('always no' is right for {100 * (1 - G['adults_PA']['prevalence']):.1f}%)", "",
+          "| Model | AUROC | A: sensitivity | A: specificity | C: sensitivity | C: specificity |", "|---|---|---|---|---|---|"]
+    for n in order:
+        m, a = M[n], M[n]["auroc"]["adults_PA"]
+        cell = lambda r, k: f"{fmt(m['rules'][r]['adults_PA'][k], 2)} ({rng(m['rules'][r]['adults_PA'][k + '_ci'])})"  # noqa: E731
+        L.append(f"| {name(n)} | {fmt(a['value'])} ({fmt(a['ci'][0])} to {fmt(a['ci'][1])}) | {cell('A', 'sensitivity')} | "
+                 f"{cell('A', 'specificity')} | {cell('C', 'sensitivity')} | {cell('C', 'specificity')} |")
+    L += ["", "## Adults at point A, with intervals, and further checks", "",
+          f"'Always no' is right for {100 * (1 - prev):.1f}% of these adults. Curve read-offs describe the test curve; they are not thresholds set in advance.", "",
+          "| Model | A: sensitivity | A: specificity | A: right answers | Read off the curve: spec. at 95% sens. | sens. at 95% spec. | "
+          "Bedside vs standing among Normal adults (0.5 = the score ignores the view) |", "|---|---|---|---|---|---|---|"]
     for n in order:
         m = M[n]
-        a = m["auroc"]
-        cell = lambda r: f"{fmt(m['rules'][r]['adults']['sensitivity'], 2)} / {fmt(m['rules'][r]['adults']['specificity'], 2)}"  # noqa: E731
-        L.append(f"| {n} | {fmt(a['adults']['value'])} ({fmt(a['adults']['ci'][0])} to {fmt(a['adults']['ci'][1])}) | "
-                 f"{fmt(a['adults_PA']['value'])} | {fmt(a['adults_AP']['value'])} | {cell('A')} | {cell('C')} |")
-    L += ["", f"## Standing X-rays only (PA): n = {G['adults_PA']['n']:,}, {100 * G['adults_PA']['prevalence']:.1f}% with lung opacity", "",
-          "| Model | AUROC | A: sensitivity / specificity | C: sensitivity / specificity |", "|---|---|---|---|"]
-    for n in order:
-        m = M[n]
-        a = m["auroc"]["adults_PA"]
-        cell = lambda r: f"{fmt(m['rules'][r]['adults_PA']['sensitivity'], 2)} / {fmt(m['rules'][r]['adults_PA']['specificity'], 2)}"  # noqa: E731
-        L.append(f"| {n} | {fmt(a['value'])} ({fmt(a['ci'][0])} to {fmt(a['ci'][1])}) | {cell('A')} | {cell('C')} |")
+        r = m["rules"]["A"]["adults"]
+        cr = m["curve_reads"].get("adults", {})
+        L.append(f"| {name(n)} | {fmt(r['sensitivity'], 2)} ({rng(r['sensitivity_ci'])}) | {fmt(r['specificity'], 2)} ({rng(r['specificity_ci'])}) | "
+                 f"{fmt(r['accuracy'], 3)} | {fmt(cr.get('specificity_at_95_sensitivity'), 2)} | {fmt(cr.get('sensitivity_at_95_specificity'), 2)} | "
+                 f"{fmt(m['view_shortcut_auroc_among_normal_adults'], 2)} |")
+    nets = [n for n in order if "calibration_error" in M[n]]
+    L += ["", "## Children, and calibration", "",
+          "'Own threshold' is the one stored with the model; the validation X-rays it was chosen on differ between models (last column).", "",
+          "| Model | Children: AUROC | at own threshold: sens / spec | at point A: sens / spec | Calibration error, adults (own temperature) | "
+          "adults (temperature from adult validation) | children | Own threshold and temperature chosen on |", "|---|---|---|---|---|---|---|---|"]
+    for n in nets:
+        m, c = M[n], M[n]["calibration_error"]
+        L.append(f"| {n} | {fmt(m['auroc']['children']['value'])} | {pair(m['children'], 'stored')} | {pair(m['children'], 'A')} | {fmt(c['adults'])} | "
+                 f"{fmt(c['adults_with_temperature_from_adult_validation'])} | {fmt(c['children'])} | {c['own_temperature_fitted_on']} |")
     if "primary_comparison" in report:
         p = report["primary_comparison"]
-        L += ["", "## Primary comparison", "", f"{p['what']}: **{p['difference']:+.3f}** (95% interval {p['ci'][0]:+.3f} to {p['ci'][1]:+.3f}). "
-              + ("The interval excludes zero." if p["interval_excludes_zero"] else "The interval includes zero: no difference is shown.")]
+        L += ["", "## Primary comparison (the only confirmation in the protocol)", "",
+              f"{p['what']}: **{p['difference']:+.3f}** (95% interval {p['ci'][0]:+.3f} to {p['ci'][1]:+.3f}). "
+              f"Inside standing X-rays {p['inside_PA']['difference']:+.3f} ({p['inside_PA']['ci'][0]:+.3f} to {p['inside_PA']['ci'][1]:+.3f}), "
+              f"inside bedside X-rays {p['inside_AP']['difference']:+.3f} ({p['inside_AP']['ci'][0]:+.3f} to {p['inside_AP']['ci'][1]:+.3f}). "
+              f"Rule: {p['rule']}. **Verdict: " + ("the repaired model is better.**" if p["repair_is_better"]
+                                                  else "the repaired model is worse.**" if p["ci"][1] < 0 else "no improvement is shown.**")]
+    if report.get("paired_auroc_differences"):
+        L += ["", "## Other paired differences in adult AUROC (description, not confirmation)", "", "| Comparison | Adults | inside PA | inside AP |", "|---|---|---|---|"]
+        for k, d in report["paired_auroc_differences"].items():
+            c = lambda g: f"{d[g]['difference']:+.3f} ({d[g]['ci'][0]:+.3f} to {d[g]['ci'][1]:+.3f})"  # noqa: E731
+            L.append(f"| {k} | {c('adults')} | {c('adults_PA')} | {c('adults_AP')} |")
     if report.get("seeds"):
-        L += ["", "## Runs of one recipe (mean and range over seeds, not a confidence interval)", "",
-              "| Recipe | runs | adult AUROC | standing (PA) | bedside (AP) | children |", "|---|---|---|---|---|---|"]
+        L += ["", "## Repair curve and seeds (mean and range of the runs, not a confidence interval)", "",
+              "At 300 to 6,000 adult X-rays every seed draws its own X-rays, so the range covers the draw and the training.", "",
+              "| Recipe | adult training X-rays | runs | adult AUROC | standing (PA) | bedside (AP) | children |", "|---|---|---|---|---|---|---|"]
         for base, r in report["seeds"].items():
             c = lambda g: f"{fmt(r[f'auroc_{g}']['mean'])} ({fmt(r[f'auroc_{g}']['min'])} to {fmt(r[f'auroc_{g}']['max'])})"  # noqa: E731
-            L.append(f"| {base} | {len(r['runs'])} | {c('adults')} | {c('adults_PA')} | {c('adults_AP')} | {c('children')} |")
+            L.append(f"| {base} | {r['n_adult_training_xrays']:,} | {len(r['runs'])} | {c('adults')} | {c('adults_PA')} | {c('adults_AP')} | {c('children')} |")
+        for n, label in (("kids_only", "published v1, best epoch kept"), ("kids_plus_adults", "published v1, 6,000 adults, best epoch kept")):
+            if n in M:
+                a = M[n]["auroc"]
+                L.append(f"| {n} ({label}) | {'0' if n == 'kids_only' else '6,000'} | 1 | {fmt(a['adults']['value'])} | {fmt(a['adults_PA']['value'])} | "
+                         f"{fmt(a['adults_AP']['value'])} | {fmt(a['children']['value'])} |")
     return "\n".join(L) + "\n"
 
 
@@ -389,8 +508,12 @@ if __name__ == "__main__":
     ap.add_argument("--v1-only", action="store_true", help="only the published models and the baselines (a rehearsal)")
     ap.add_argument("--boot", type=int, default=N_BOOT)
     ap.add_argument("--out", default=None, help="file name stem in results/ (default v2_report, or v1_rehearsal with --v1-only)")
+    ap.add_argument("--again", default=None, metavar="REASON",
+                    help="compute the v2 test results a second time; the reason is written into the report")
     args = ap.parse_args()
 
+    if args.out and (not args.v1_only or args.out == "v2_report"):
+        sys.exit("--out is for the rehearsal only (--v1-only), and not under the name v2_report")
     Xk, mk = data.load_kermany()
     Xr, mr = data.load_rsna()
 
@@ -398,8 +521,15 @@ if __name__ == "__main__":
         v2 = load_v2()
         if not v2:
             sys.exit("no finished v2 run in results/v2/")
+        problems = {name: check_recipe(name, m, mr) for name, m in v2.items()}
+        problems = {k: v for k, v in problems.items() if v}
+        if problems:
+            for k, v in problems.items():
+                print(f"NOT ACCORDING TO THE PROTOCOL: {k}: " + "; ".join(v))
+            sys.exit("\nThese runs are not evaluated. Move their folders out of results/v2/ (and say so in the write-up), then run this again.")
         rows = validation_summary(v2, mk, mr)
-        out = dict(note="Validation X-rays only. Written before any test result of a v2 model is computed. "
+        out = dict(recipe_check=f"all {len(v2)} runs follow the recipe of docs/V2_PROTOCOL.md; their rows line up with our tables",
+                   note="Validation X-rays only. Written before any test result of a v2 model is computed. "
                         "The headline model is fixed by name in docs/V2_PROTOCOL.md; nothing is chosen from this table.",
                    headline=HEADLINE, runs=rows)
         (C.RESULTS_DIR / "v2_validation.json").write_text(json.dumps(out, indent=1))
@@ -413,15 +543,28 @@ if __name__ == "__main__":
     if not args.v1_only:
         if not committed(C.RESULTS_DIR / "v2_validation.json"):
             sys.exit("results/v2_validation.json is not committed. Run 'python scripts/10_v2_report.py val', commit the file, then run this again.")
-        models.update(load_v2())
+        v2 = load_v2()
+        listed = set(json.loads((C.RESULTS_DIR / "v2_validation.json").read_text())["runs"])
+        if listed != set(v2):
+            sys.exit(f"results/v2_validation.json lists other runs than results/v2/ holds (only in one of them: {sorted(listed ^ set(v2))}). "
+                     "Run 'val' again and commit before 'test'.")
+        if (C.RESULTS_DIR / "v2_report.json").exists() and not args.again:
+            sys.exit("results/v2_report.json exists: the v2 test results were already computed. The protocol says once. "
+                     "If there is a reason (for example a corrected script), pass --again \"the reason\".")
+        models.update(v2)
     adult = mr.is_adult.values
     train = ((mr.split == "adapt") & adult).values
     val = ((mr.split == "val") & adult).values
     log("baselines trained on the adult training X-rays")
     models.update(baselines(mr, Xr, train, val))
+    models.update(exploratory_rows())
     log(f"evaluating {len(models)} models and baselines, {args.boot} patient-level resamples")
     report = evaluate(models, mk, mr, args.boot)
     report["seeds"] = seeds_and_curve(report)
+    report["evaluated_models"] = sorted(models)
+    report["computed_at_utc"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
+    if args.again:
+        report["computed_again_because"] = args.again
     report["note"] = ("Test results. Thresholds come from validation X-rays only (docs/V2_PROTOCOL.md). 'Lung opacity' is a radiologist's "
                       "finding, not a confirmed pneumonia. Seeds: range of the runs, not a confidence interval.")
     stem = args.out or ("v1_rehearsal" if args.v1_only else "v2_report")

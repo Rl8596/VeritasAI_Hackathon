@@ -2,7 +2,8 @@
 
     python scripts/08_export_web.py                    # export both models, check them, write the reference file
     python scripts/08_export_web.py push               # upload the exported files to the model repos (write token)
-    python scripts/08_export_web.py space RL8596/pneumoshift   # upload web/ as a static Space (write token)
+    python scripts/08_export_web.py space RL8596/pneumoshift-staging   # upload web/ as a static Space (write token);
+                                                                       # the live Space RL8596/pneumoshift needs --live
 
 For every model this writes three files to artifacts/<name>/onnx/:
 
@@ -191,7 +192,8 @@ def stage_space(dest: Path) -> Path:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("what", nargs="?", default="export", choices=["export", "push", "space"])
-    ap.add_argument("repo_id", nargs="?", default=f"{USER}/pneumoshift", help="Space repo id (only for 'space')")
+    ap.add_argument("repo_id", nargs="?", default=None, help="Space repo id (only for 'space'), for example RL8596/pneumoshift-staging")
+    ap.add_argument("--live", action="store_true", help="allow uploading to RL8596/pneumoshift, the live demo that judges open")
     ap.add_argument("--dry-run", action="store_true", help="list what would be uploaded, upload nothing")
     args = ap.parse_args()
 
@@ -230,6 +232,12 @@ if __name__ == "__main__":
 
         from huggingface_hub import HfApi
 
+        if not args.repo_id:
+            sys.exit("name the Space, for example: python scripts/08_export_web.py space RL8596/pneumoshift-staging")
+        if args.repo_id.lower() == f"{USER}/pneumoshift".lower() and not args.live and not args.dry_run:
+            sys.exit(f"{args.repo_id} is the live demo. Test a change in a staging Space first (another name), run "
+                     "'node tests/web/parity.mjs --url <its address>', and only then upload here with --live.")
+        print(f"target Space: {args.repo_id}")
         with tempfile.TemporaryDirectory() as tmp:
             staged = stage_space(Path(tmp))
             for p in sorted(staged.rglob("*")):
