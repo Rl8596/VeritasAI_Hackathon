@@ -34,6 +34,10 @@ def download_raw(cache_dir: Path = C.CACHE_DIR) -> None:
                           local_dir=cache_dir / "kermany")
     if not list((cache_dir / "rsna").glob("*.zip")):
         hf_hub_download(C.RSNA_REPO, C.RSNA_ZIP, repo_type="dataset", local_dir=cache_dir / "rsna")
+    mapping = cache_dir / "rsna" / "rsna_nih_mapping.json"
+    if not mapping.exists():                      # RSNA's own table: challenge id -> original NIH file name
+        import urllib.request
+        urllib.request.urlretrieve(C.RSNA_NIH_MAPPING_URL, mapping)
 
 
 # --------------------------------------------------------------------------
@@ -161,24 +165,52 @@ def prepare_rsna(cache_dir: Path = C.CACHE_DIR, workers: int = 4, limit: int | N
     meta["age_valid"] = meta.age.between(0, 100)          # a handful of ages are typos (e.g. 148)
     meta["is_adult"] = meta.age_valid & (meta.age >= C.ADULT_AGE)
 
-    # One image per patient, so a random split is already a patient-level split.
-    # adapt = adult images we are allowed to learn from, val = tuning, test = final numbers only.
-    from sklearn.model_selection import train_test_split
-
-    strat = meta.cls + "_" + meta["view"]
-    idx = np.arange(len(meta))
-    rest, test = train_test_split(idx, test_size=0.30, stratify=strat, random_state=C.SEED)
-    adapt, val = train_test_split(rest, test_size=1 / 7, stratify=strat.values[rest], random_state=C.SEED)
-    meta["split"] = "adapt"
-    meta.loc[val, "split"] = "val"
-    meta.loc[test, "split"] = "test"
-    meta.insert(0, "idx", idx)
+    meta = _split_rsna(meta, Path(cache_dir))
+    meta.insert(0, "idx", np.arange(len(meta)))
 
     np.save(out_dir / "rsna_256.npy", np.stack([r[1] for r in recs]))
     meta.to_csv(out_dir / "rsna_meta.csv", index=False)
     boxes = labels[labels.Target == 1].rename(columns={"patientId": "patient_id"})
     boxes = boxes[boxes.patient_id.isin(meta.patient_id)]
     boxes.to_csv(out_dir / "rsna_boxes.csv", index=False)   # radiologist boxes, in 1024 px coordinates
+    return meta
+
+
+def _split_rsna(meta: pd.DataFrame, cache_dir: Path) -> pd.DataFrame:
+    """Patient-level split: adapt (60%) = adult images a model may learn from,
+    val (10%) = tuning, test (30%) = final numbers only.
+
+    The challenge's "patientId" is really an exam id: the same person can appear many
+    times. RSNA publishes a table that maps each exam back to the NIH file name, which
+    starts with the real patient number. We split by that number, so no person is on
+    both sides of a split.
+    """
+    import json
+
+    from sklearn.model_selection import StratifiedGroupKFold
+
+    mapping = Path(cache_dir) / "rsna" / "rsna_nih_mapping.json"
+    if mapping.exists():
+        m = pd.DataFrame(json.loads(mapping.read_text()))
+        nih = dict(zip(m.subset_img_id, m.img_id.str.split("_").str[0]))
+        meta["nih_patient"] = meta.patient_id.map(nih).fillna(meta.patient_id)
+    else:
+        print("WARNING: NIH mapping not found, falling back to an exam-level split (patients may overlap)")
+        meta["nih_patient"] = meta.patient_id
+    strat = (meta.cls + "_" + meta["view"]).values
+    folds = np.zeros(len(meta), dtype=int)
+    sgkf = StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=C.SEED)
+    for f, (_, te) in enumerate(sgkf.split(strat, strat, meta.nih_patient.values)):
+        folds[te] = f
+    meta["split"] = np.where(folds < 3, "test", np.where(folds == 3, "val", "adapt"))
+    return meta
+
+
+def resplit_rsna(cache_dir: Path = C.CACHE_DIR) -> pd.DataFrame:
+    """Redo only the split of an already prepared RSNA set (image order stays the same)."""
+    p = Path(cache_dir) / "processed" / "rsna_meta.csv"
+    meta = _split_rsna(pd.read_csv(p).drop(columns=["split", "nih_patient"], errors="ignore"), Path(cache_dir))
+    meta.to_csv(p, index=False)
     return meta
 
 

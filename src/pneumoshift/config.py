@@ -17,6 +17,7 @@ FIGURES_DIR = RESULTS_DIR / "figures"
 KERMANY_REPO = "hf-vision/chest-xray-pneumonia"   # children 1-5, Guangzhou (Kermany et al. 2018), CC BY 4.0
 RSNA_REPO = "kellly/RSNA-Pneumonia-Detection"     # mostly adults, USA (RSNA 2018 challenge, NIH images)
 RSNA_ZIP = "rsna-pneumonia-detection-challenge.zip"
+RSNA_NIH_MAPPING_URL = "https://s3.amazonaws.com/east1.public.rsna.org/AI/2018/pneumonia-challenge-dataset-mappings_2018.json"
 
 # Images are stored as 256x256 8-bit grayscale and fed to the model as 224x224.
 STORE_SIZE = 256
