@@ -24,6 +24,7 @@ test tests/web/parity.mjs compares the page against that file.
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -209,6 +210,9 @@ if __name__ == "__main__":
         print(f"wrote {TESTS / 'reference.json'}, web/examples/, web/inferno.json, web/models/")
 
     elif args.what == "push":
+        if not args.dry_run and os.environ.get("PNEUMOSHIFT_ALLOW_PROTECTED") != "1":
+            sys.exit("This uploads onnx/ of the two published models, which the live demo loads. It is only needed after "
+                     "changing the export itself. If that is intended: PNEUMOSHIFT_ALLOW_PROTECTED=1 python scripts/08_export_web.py push")
         from huggingface_hub import HfApi
 
         for name in NAMES:

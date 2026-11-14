@@ -9,6 +9,7 @@ Upload the models first: the Space downloads them when it starts.
 """
 import argparse
 import json
+import os
 import shutil
 import sys
 import tempfile
@@ -100,6 +101,12 @@ if __name__ == "__main__":
         p.add_argument("--private", action="store_true", help="create the repo as private")
         p.add_argument("--dry-run", action="store_true", help="only list the files, upload nothing")
     args = ap.parse_args()
+    if args.what == "space" and args.repo_id.lower() == "rl8596/pneumoshift" and not args.dry_run:
+        sys.exit("RL8596/pneumoshift is the live browser demo (a static Space, uploaded by scripts/08_export_web.py). "
+                 "Uploading the Gradio app there would take the demo link down. Use another Space name.")
+    if args.what == "model" and args.repo_id.lower() in ("rl8596/pneumoshift-kids-only", "rl8596/pneumoshift-kids-plus-adults") \
+            and not args.dry_run and os.environ.get("PNEUMOSHIFT_ALLOW_PROTECTED") != "1":
+        sys.exit(f"{args.repo_id} is a published first model that the live demo loads. It is not replaced.")
 
     with tempfile.TemporaryDirectory() as tmp:
         staged = stage_space(Path(tmp)) if args.what == "space" else stage_model(args.folder, args.repo_id, Path(tmp))

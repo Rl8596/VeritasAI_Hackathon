@@ -1,5 +1,6 @@
 """Fine-tune the pretrained backbone and save everything later steps need."""
 import json
+import os
 import time
 from pathlib import Path
 
@@ -25,18 +26,37 @@ def fit_temperature(logits: np.ndarray, y: np.ndarray) -> float:
 
 
 def train_model(train_sets, val_set, out_dir, *, arch=C.DEFAULT_ARCH, epochs=6, lr=3e-4, weight_decay=1e-4,
-                batch_size=32, threads=4, workers=2, seed=C.SEED, init_from=None, extra_config=None, log=print):
+                batch_size=32, threads=4, workers=2, seed=C.SEED, init_from=None, extra_config=None, log=print,
+                amp=False, require_gpu=False, report_sets=None, select="best"):
     """train_sets: list of (X, indices, labels). val_set: one (X, indices, labels).
 
-    Keeps the epoch with the best validation AUROC. Picks the decision threshold
-    (95% sensitivity) and the temperature on the validation set, never on test data.
+    Keeps the epoch with the best AUROC on val_set. Picks the decision threshold
+    (95% sensitivity) and the temperature on val_set, never on test data.
+
+    report_sets: optional {name: (X, indices, labels)} of further VALIDATION groups. Their AUROC is
+    recorded after every epoch and their results at the final threshold are stored in the config
+    under "validation". They are only reported; nothing is chosen on them.
+    select: "best" keeps the epoch with the best AUROC on val_set (the first models). "last" keeps the final
+    epoch, so that the kept weights do not depend on any validation X-ray. That matters for the question
+    "how many local X-rays does a clinic need": a clinic with 300 labelled X-rays has no 2,500 more to pick an epoch.
+    amp: mixed precision on the GPU (about twice as fast, half the memory). Off by default, so a
+    run without the flag follows the same recipe as the first models.
     -> (model, config dict)
     """
     torch.manual_seed(seed)
     np.random.seed(seed)
     torch.set_num_threads(threads)
     out_dir = Path(out_dir)
-    device = "cuda" if torch.cuda.is_available() else "cpu"   # GPU on Colab, CPU elsewhere
+    device = "cuda" if torch.cuda.is_available() else "cpu"   # GPU if there is one, CPU elsewhere
+    if device == "cuda":
+        torch.backends.cudnn.benchmark = True
+        log(f"  device: {torch.cuda.get_device_name(0)} (mixed precision {'on' if amp else 'off'})")
+    else:
+        if require_gpu:
+            raise RuntimeError("No GPU found, but --require-gpu was given. Is PyTorch installed with CUDA support? "
+                               "(python -c \"import torch; print(torch.__version__, torch.cuda.is_available())\")")
+        log("  device: CPU (no GPU found, this takes 20 to 60 minutes per model)")
+    amp = bool(amp) and device == "cuda"
 
     if init_from:
         model, _ = modeling.load_checkpoint(init_from)
@@ -45,48 +65,78 @@ def train_model(train_sets, val_set, out_dir, *, arch=C.DEFAULT_ARCH, epochs=6, 
     model = model.to(device).to(memory_format=torch.channels_last)
 
     train_ds = torch.utils.data.ConcatDataset([XrayDataset(X, i, y, train=True) for X, i, y in train_sets])
+    # PNEUMOSHIFT_MP=spawn starts the worker processes the way Windows does (to test that on Linux)
+    mp_context = (os.environ.get("PNEUMOSHIFT_MP") or None) if workers > 0 else None
     loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, shuffle=True, drop_last=True,
-                                         num_workers=workers, persistent_workers=workers > 0)
+                                         num_workers=workers, persistent_workers=workers > 0,
+                                         pin_memory=device == "cuda", multiprocessing_context=mp_context)
+    if len(loader) == 0:
+        raise ValueError(f"only {len(train_ds)} training images, fewer than one batch of {batch_size}")
     Xv, iv, yv = val_set
+    report_sets = dict(report_sets or {})
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     total = epochs * len(loader)
-    warm = len(loader) // 2
+    warm = max(1, len(loader) // 2)
     sched = torch.optim.lr_scheduler.LambdaLR(
         opt, lambda s: (s + 1) / warm if s < warm else 0.5 * (1 + np.cos(np.pi * (s - warm) / max(1, total - warm))))
     loss_fn = nn.BCEWithLogitsLoss()
+    scaler = torch.amp.GradScaler("cuda", enabled=amp)
 
-    history, best_auc, best_state = [], -1.0, None
-    step, t0 = 0, time.time()
+    history, best_auc, best_state, best_epoch = [], -1.0, None, 0
+    step, t0, t_speed = 0, time.time(), None
     for ep in range(epochs):
         model.train()
         run, seen = 0.0, 0
         for x, y, _ in loader:
-            x = x.to(device).to(memory_format=torch.channels_last)
-            loss = loss_fn(model(x).squeeze(1), y.float().to(device))
+            x = x.to(device, non_blocking=True).to(memory_format=torch.channels_last)
+            y = y.float().to(device, non_blocking=True)
+            with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=amp):
+                logits = model(x).squeeze(1)
+            loss = loss_fn(logits.float(), y)
+            if not torch.isfinite(loss):
+                raise RuntimeError(f"the training loss became {loss.item()} at step {step}: stopping instead of saving a broken model")
             opt.zero_grad(set_to_none=True)
-            loss.backward()
-            opt.step()
+            scaler.scale(loss).backward()
+            scaler.step(opt)
+            scaler.update()
             sched.step()
             run += loss.item() * len(y); seen += len(y); step += 1
-            if step == 20:
-                log(f"  speed: {20 * batch_size / (time.time() - t0):.1f} img/s, {len(loader)} steps per epoch")
+            if step == 10:                       # the first steps include starting the worker processes
+                t_speed = time.time()
+            if step == 60 and t_speed is not None:
+                mem = f", GPU memory peak {torch.cuda.max_memory_allocated() / 2**30:.1f} GB" if device == "cuda" else ""
+                log(f"  speed: {50 * batch_size / (time.time() - t_speed):.0f} img/s, {len(loader)} steps per epoch{mem}")
         val_logits = modeling.predict(model, Xv, iv, device=device)
         auc = metrics.auroc(yv, val_logits)
-        history.append(dict(epoch=ep + 1, train_loss=run / seen, val_auroc=auc, minutes=(time.time() - t0) / 60))
-        log(f"  epoch {ep + 1}/{epochs}  train loss {run / seen:.4f}  val AUROC {auc:.4f}  ({(time.time() - t0) / 60:.1f} min)")
-        if auc > best_auc:
+        row = dict(epoch=ep + 1, train_loss=run / seen, val_auroc=auc, minutes=(time.time() - t0) / 60)
+        for name, (Xg, ig, yg) in report_sets.items():
+            row[f"val_auroc_{name}"] = metrics.auroc(yg, modeling.predict(model, Xg, ig, device=device))
+        history.append(row)
+        extra = "".join(f"  {name} {row[f'val_auroc_{name}']:.4f}" for name in report_sets)
+        log(f"  epoch {ep + 1}/{epochs}  train loss {run / seen:.4f}  val AUROC {auc:.4f}{extra}  ({(time.time() - t0) / 60:.1f} min)")
+        if (select == "last" and ep == epochs - 1) or (select != "last" and auc > best_auc):
             best_auc, best_state = auc, {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            best_epoch = ep + 1
 
+    if best_state is None or not np.isfinite(best_auc):
+        raise RuntimeError("the validation AUROC could not be computed (does the validation set hold both classes?)")
     model.load_state_dict(best_state)
     model.eval()
     val_logits = modeling.predict(model, Xv, iv, device=device)
     temperature = fit_temperature(val_logits, yv)
     val_p = modeling.sigmoid(val_logits, temperature)
     threshold = metrics.threshold_for_sensitivity(yv, val_p, 0.95)
+    validation = {}
+    for name, (Xg, ig, yg) in report_sets.items():
+        pg = modeling.sigmoid(modeling.predict(model, Xg, ig, device=device), temperature)
+        g = metrics.summarize(yg, pg, threshold, n_boot=0)
+        validation[name] = {k: g[k] for k in ("n", "n_pos", "auroc", "sensitivity", "specificity", "accuracy")}
     cfg = dict(arch=arch, temperature=temperature, threshold=threshold,
                threshold_rule="95% sensitivity on the validation set",
                n_train=len(train_ds), epochs=epochs, lr=lr, batch_size=batch_size, seed=seed,
-               best_val_auroc=best_auc, history=history, train_minutes=(time.time() - t0) / 60)
+               best_val_auroc=best_auc, best_epoch=best_epoch, epoch_rule=select, history=history, train_minutes=(time.time() - t0) / 60,
+               mixed_precision=amp, device=torch.cuda.get_device_name(0) if device == "cuda" else "cpu",
+               torch_version=torch.__version__, validation=validation)
     cfg.update(extra_config or {})
     modeling.save_checkpoint(model, out_dir, cfg)
     return model, cfg

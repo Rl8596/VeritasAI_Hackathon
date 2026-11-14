@@ -254,6 +254,22 @@ class XrayDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.indices)
 
+    # On Windows every DataLoader worker is a new process that receives a pickled copy of this object.
+    # A memory-mapped array pickles as its whole contents (about 2 GB per worker for the adult images),
+    # so workers get the file path instead and open the file themselves.
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        path = getattr(self.X, "filename", None)
+        if isinstance(self.X, np.memmap) and path is not None and np.load(path, mmap_mode="r").shape == self.X.shape:
+            state["X"], state["_X_path"] = None, str(path)
+        return state
+
+    def __setstate__(self, state):
+        path = state.pop("_X_path", None)
+        self.__dict__.update(state)
+        if path is not None:
+            self.X = np.load(path, mmap_mode="r")
+
     def __getitem__(self, i):
         t = torch.from_numpy(np.array(self.X[self.indices[i]]))[None]      # uint8 [1, 256, 256]
         if self.train:

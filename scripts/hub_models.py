@@ -1,6 +1,7 @@
 """Move trained models between artifacts/ and the Hugging Face Hub.
 
-    python scripts/hub_models.py push kids_only     # weights, config, model card, analysis files
+    python scripts/hub_models.py push v2_kids_plus_all   # weights, config, model card, analysis files (names are required;
+                                                         # the two published first models are refused)
     python scripts/hub_models.py pull               # every published model -> artifacts/<name>/
 
 `pull` is what a fresh clone needs: artifacts/ is not in git. The analysis files
@@ -26,8 +27,17 @@ def repo(name: str) -> str:
     return f"{USER}/pneumoshift-{name.replace('_', '-')}"
 
 
+PROTECTED = ("kids_only", "kids_plus_adults")     # the published first models; the live demo loads them from the Hub
+
 if __name__ == "__main__":
     what, names = sys.argv[1], sys.argv[2:] or NAMES
+    if what == "push":
+        if not sys.argv[2:]:
+            sys.exit("push needs model names, for example: python scripts/hub_models.py push v2_kids_plus_all")
+        blocked = [n for n in names if n in PROTECTED]
+        if blocked and os.environ.get("PNEUMOSHIFT_ALLOW_PROTECTED") != "1":
+            sys.exit(f"{blocked} are the published first models. Pushing would change what the live demo loads. "
+                     "Train new models under new names instead.")
     from huggingface_hub import HfApi, snapshot_download
 
     for name in names:

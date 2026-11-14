@@ -12,3 +12,6 @@ flagged/
 
 # local copy of the browser models, for testing the page without the Hub
 web/models/
+
+# logs of training runs
+logs/
