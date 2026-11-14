@@ -48,7 +48,8 @@ def resolve_dir(path_or_repo) -> Path:
         return p
     from huggingface_hub import snapshot_download
 
-    return Path(snapshot_download(str(path_or_repo)))
+    # only what a prediction needs; the repo also holds analysis files
+    return Path(snapshot_download(str(path_or_repo), allow_patterns=["model.safetensors", "config.json", "ood.npz"]))
 
 
 def load_checkpoint(path_or_repo, device: str = "cpu"):

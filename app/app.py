@@ -621,5 +621,5 @@ demo = build()
 
 if __name__ == "__main__":
     demo.queue(default_concurrency_limit=2, max_size=40)
-    demo.launch(theme=THEME, css=CSS, show_error=False, ssr_mode=False, max_file_size=MAX_UPLOAD,
+    demo.launch(share=os.environ.get("PNEUMOSHIFT_SHARE") == "1", theme=THEME, css=CSS, show_error=False, ssr_mode=False, max_file_size=MAX_UPLOAD,
                 footer_links=["gradio", "settings"])

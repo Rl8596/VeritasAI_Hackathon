@@ -129,6 +129,17 @@ display(PILImage.fromarray(out["heatmap"]).resize((320, 320)))
 """)
 
 md("""
+## 9. Start the demo app
+
+Prints a public link (valid for about a week while this cell runs). The app loads our published models from the Hugging Face Hub.
+""")
+code("""
+!pip install -q gradio==6.32.0
+%env PNEUMOSHIFT_SHARE=1
+!python app/app.py
+""")
+
+md("""
 ## Sources
 
 - Kermany D, Zhang K, Goldbaum M. Labeled Optical Coherence Tomography (OCT) and Chest X-Ray Images for Classification. Mendeley Data V2, 2018. CC BY 4.0. Hugging Face copy: `hf-vision/chest-xray-pneumonia`.
