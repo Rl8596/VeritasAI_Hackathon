@@ -112,7 +112,8 @@ def train(run: dict, extra: str = "") -> bool:
     t = time.time()
     with open(LOGS / f"{name}.log", "w", encoding="utf-8") as log:
         proc = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                                encoding="utf-8", errors="replace", env=dict(os.environ, PYTHONUNBUFFERED="1"))
+                                encoding="utf-8", errors="replace",
+                                env=dict(os.environ, PYTHONUNBUFFERED="1", PYTHONIOENCODING="utf-8", PYTHONUTF8="1"))
         for line in proc.stdout:
             log.write(line); log.flush()
             print("    " + line.rstrip(), flush=True)
@@ -184,6 +185,10 @@ if __name__ == "__main__":
     ap.add_argument("--extra", default="", help="extra flags for 02_train.py, for example \"--amp\" or \"--batch-size 16\"")
     ap.add_argument("--cpu", action="store_true", help="allow training without a GPU (slow: 20 to 60 minutes per run)")
     args = ap.parse_args()
+    try:        # a Windows console cannot print every character a download progress bar may contain
+        sys.stdout.reconfigure(errors="replace")
+    except Exception:
+        pass
     if args.cpu:
         COMMON = COMMON.replace("--require-gpu", "").replace("--workers 0", "--workers 2")
     runs = plan()
