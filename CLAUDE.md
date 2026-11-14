@@ -5,9 +5,52 @@ Read it fully, then `docs/HACKATHON_CONTEXT.md` (rules, judging) and skim `docs/
 
 Written Sat 14 Nov 2026, 11:50 UTC. **Deadline: Sun 15 Nov 2026, 11:59 PM ET (= Mon 04:59 UTC).**
 
+## START HERE: state on Sat 14 Nov 2026, 16:50 UTC (17:50 Swiss time)
+
+A new Claude session (possibly on the second team member's account) continues from here. `main` and
+`claude/friendly-wright-kfzg9j` are identical and hold everything. The team writes English in chat now. Usage is
+nearly exhausted on the first account: work frugally, no multi-agent runs unless the team asks.
+
+**Running without you:** the home PC (RTX 3080) trains the 22 runs of `docs/V2_PROTOCOL.md`, driven by a Claude
+session on that PC. 6 of 22 were done at 16:42 UTC, the rest should be done by about 19:30 UTC. Results arrive as
+commits on the branch `pc/v2-runs`. You cannot message that PC session from another account; the team relays.
+Check progress with:
+
+    git fetch origin pc/v2-runs && git show origin/pc/v2-runs:results/v2/STATUS.json
+
+**What the first results say (validation data, one run each):** adult AUROC by number of adult X-rays added:
+0 → 0.814, 300 → 0.830, 1,000 → 0.835, 3,000 → 0.853, 6,000 → 0.875, all 15,142 → 0.874. More data than 6,000 does
+not help. The team knows and has decided to let all stages finish. This is the finding to write up; do not start
+other training to "fix" it.
+
+**Do next, in this order:**
+
+1. When all 22 runs are on `pc/v2-runs` (or the team says stop): follow the bullet "When runs have arrived" in
+   section 3 below (copy the files, `python scripts/10_v2_report.py val`, commit, `python scripts/10_v2_report.py test`
+   exactly once). Needs `pip install -r requirements.txt` and `python scripts/01_prepare_data.py` first (5 GB), then
+   `python scripts/00_preflight.py --allow-cpu` must say PREFLIGHT OK.
+2. Put the results into `README.md` section 6 (tables are in `results/v2_report.md`), update summary point 4 and
+   `docs/VIDEO_SCRIPT.md` (the sentence marked [v2]).
+3. Check every number in `README.md` and in `web/index.html` against `results/*.json` once.
+4. Remind the team of their own tasks (section 9), the AI-assistance paragraph (README section 11) and the personal
+   e-mail address in the first git commit (blind judging; rewriting history is their decision).
+
+**Unfinished, optional:**
+
+- *Exploratory check* (`scripts/11_xray_pretrained_check.py`, a public network pretrained on another hospital's chest
+  X-rays): it was still computing in the old cloud session. If `results/exploratory/xray_pretrained_chex.npz` is not
+  in git, either rerun it (`pip install torchxrayvision`, about 1 hour on 4 CPU cores) BEFORE `10_v2_report.py test`,
+  or leave it out and delete the sentence about it in `docs/V2_PROTOCOL.md` note 7 and README if added.
+- *The browser demo was never reviewed by anyone but its author.* It passes its automated comparison with Python on
+  15 pictures in Chromium. Safari, Firefox and a real phone are untested. A multi-agent review was started and
+  stopped to save usage.
+- *Weights of the new models exist only on the PC.* To publish the headline model a person must log in on the PC
+  (`.venv/Scripts/hf auth login`) and the PC session must run `python scripts/09_gpu_batch.py upload v2_kids_plus_all`.
+  Not needed for the submission: the demo keeps the two published models.
+
 ## 0. Rules from the team (follow them)
 
-- The team is two high-school students. They write German. Answer in German, short and concrete (Swiss spelling: "ss", not "ß").
+- The team is two high-school students. They asked for answers in English (14 Nov), short and concrete.
 - Usage is limited. Few tool calls, no subagents unless they ask, short answers.
 - Goal: win the Veritas AI International High School Hackathon 2026, track **AI + Health**, Advanced level.
 - A scam-SMS project is forbidden (it is the organisers' own demo submission).
