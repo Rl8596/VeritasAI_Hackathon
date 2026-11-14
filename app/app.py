@@ -303,7 +303,7 @@ def status_html(model: dict, r: dict | None, age: str, example: dict | None) -> 
     verdict = (
         f'<div class="ps-verdict ps-verdict--{kind}">'
         f'<div class="ps-verdict__title">{title}</div>'
-        f'<div class="ps-verdict__sub">Estimated chance of pneumonia: <b>{p_text}</b> <span>({detail})</span></div>'
+        f'<div class="ps-verdict__sub">Pneumonia score: <b>{p_text}</b> <span>({detail})</span></div>'
         f'<div class="ps-bar" aria-hidden="true"><div class="ps-bar__fill" style="width:{100 * p:.1f}%"></div>'
         f'<div class="ps-bar__tick" style="left:{100 * min(max(thr, 0.0), 1.0):.1f}%"></div></div>'
         f'</div>')
