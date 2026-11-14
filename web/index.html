@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A second look at a chest X-ray for pneumonia, with warnings when the model is out of its depth. Research demo, not a medical device.">
+<title>PneumoShift: chest X-ray second look</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="ps-page">
+
+<header class="ps-header">
+  <div>
+    <h1>PneumoShift <span>a second look at a chest X-ray for pneumonia</span></h1>
+    <p>For a clinic without a radiologist. Choose a chest X-ray to see whether a doctor should review it first.
+    Each AI model shows where it looked, and warns you when the X-ray or the patient is unlike what it learned from.</p>
+  </div>
+  <div class="ps-badge">Research demo. Not a medical device. Not for diagnosis.</div>
+</header>
+
+<noscript><div class="ps-notice ps-notice--error"><b>This demo needs JavaScript.</b>
+<span>The models run inside your browser, so the page cannot work without it.</span></div></noscript>
+
+<main class="ps-layout">
+
+  <section class="ps-input" aria-label="Your X-ray">
+    <div class="ps-panel">
+      <div class="ps-label">Chest X-ray</div>
+      <label class="ps-drop" id="drop" for="file">
+        <canvas id="preview" width="224" height="224" hidden></canvas>
+        <span class="ps-drop__text" id="drop-text"><b>Drop a chest X-ray here</b><br>or click to choose a file (PNG or JPEG)</span>
+      </label>
+      <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif" class="ps-visually-hidden">
+      <div class="ps-drop__foot">
+        <span>Your picture stays on this device. The models run in your browser, nothing is uploaded.</span>
+        <button type="button" id="clear" class="ps-button" hidden>Remove</button>
+      </div>
+    </div>
+
+    <fieldset class="ps-panel ps-age" id="age">
+      <legend class="ps-label">Patient age group (optional)</legend>
+      <p class="ps-hint">Lets the tool check whether each model was trained on patients like this one.</p>
+      <label><input type="radio" name="age" value="unknown" checked> Not sure</label>
+      <label><input type="radio" name="age" value="child_1_5"> Child, 1 to 5 years</label>
+      <label><input type="radio" name="age" value="child_6_17"> Child or teenager, 6 to 17 years</label>
+      <label><input type="radio" name="age" value="adult"> Adult, 18 years or older</label>
+    </fieldset>
+
+    <div class="ps-panel" id="examples-panel" hidden>
+      <div class="ps-label">Examples with a known answer (click one)</div>
+      <div class="ps-examples" id="examples"></div>
+    </div>
+  </section>
+
+  <section class="ps-results" id="results" aria-label="Results" aria-live="polite">
+    <div id="notice"></div>
+    <div class="ps-cards" id="cards"></div>
+    <div class="ps-caption">Left picture: the X-ray as the model received it (grey, cropped to a square, 224 pixels).
+      Right picture: bright colours mark the areas that pushed the model towards pneumonia. The colours are scaled per
+      picture, so the brightest spot is equally bright whether the model found much or little.</div>
+  </section>
+
+</main>
+
+<section class="ps-limits ps-panel">
+  <h2>Limits you should know about</h2>
+  <ul>
+    <li><b>Research demo. Not a medical device. Not for diagnosis.</b> A student project that no authority has
+        checked. It can only suggest which X-rays to look at first. The decision stays with a clinician.</li>
+    <li>A model can be very accurate on its own test X-rays and still be wrong for a patient unlike the ones it
+        learned from. The two checks catch many such cases, not all. No warning does not mean the result is right.</li>
+    <li>The pneumonia score is not the chance that the patient has pneumonia. Each model flags above its own
+        cut-off, chosen before testing so that it catches 95% of the pneumonia cases in its validation X-rays.
+        That is why the two cut-offs are so different.</li>
+    <li>The models know two answers, pneumonia or not. In our test, adults who were sick with something else
+        were often flagged as well: 42% of them by the children-only model and 57% by the children + adults model.</li>
+    <li>For the adult X-rays, "pneumonia" means that radiologists marked a lung opacity. That is a finding on the
+        picture, not a confirmed diagnosis.</li>
+    <li>The models learned from public X-rays of two groups only: children aged 1 to 5 from one hospital in
+        Guangzhou, China, and (second model) adults from one hospital in the USA. Babies, older children,
+        teenagers, other hospitals and other X-ray machines are untested.</li>
+    <li>The heatmap shows what influenced the model. It is coarse (a 7 by 7 grid, smoothed) and it is not a map
+        of the disease.</li>
+    <li>Please do not use pictures that show a patient's name or other personal details.</li>
+  </ul>
+  <p id="credits"></p>
+  <p id="about">This page runs both models on your device with ONNX Runtime Web. It gives the same results as
+    the Python code of the project: the test in the code repository compares the two on every example picture.
+    The models are published on the Hugging Face Hub:
+    <a href="https://huggingface.co/RL8596/pneumoshift-kids-only" rel="noopener">children-only model</a>,
+    <a href="https://huggingface.co/RL8596/pneumoshift-kids-plus-adults" rel="noopener">children + adults model</a>.</p>
+</section>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.1/dist/ort.wasm.min.js" crossorigin="anonymous"></script>
+<script src="app.js"></script>
+</body>
+</html>

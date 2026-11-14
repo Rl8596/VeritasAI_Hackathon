@@ -59,6 +59,7 @@ Pipeline, in order (each script's docstring explains it):
 | App | `python app/app.py` (port 7860) | Gradio demo, loads models from the Hub |
 | Hub | `scripts/hub_models.py push <name>`, `scripts/deploy_space.py` | needs the write token |
 | Notebook | `python scripts/make_notebook.py` | `notebooks/pneumoshift_colab.ipynb` |
+| Browser demo | `python scripts/08_export_web.py`, then `node tests/web/parity.mjs` | `artifacts/<name>/onnx/`, `web/models/`, `tests/web/reference.json` |
 
 Training one model takes about 1 hour on 4 CPU cores and a few minutes on a GPU. Library code is in `src/pneumoshift/`.
 Model: ResNet-18 pretrained on ImageNet (`timm/resnet18.tv_in1k` from the Hub), fine-tuned, one output.
@@ -89,6 +90,21 @@ Never tested or looked at yet. Do not claim these work until you have checked:
 - **The notebook has never been run in Colab.** Quick mode (`--rsna-limit 6000`, 3 epochs) is untested in every script.
 - **The app was tested with one image on a desktop screen.** Phone layout untested. Known flaws: some captions are cut off, the heatmaps sit below the fold.
 - **The Hugging Face Space is not online.** The upload was refused: Gradio Spaces on the free tier now need a PRO subscription.
+
+### Browser demo (`web/`, added Sat 14 Nov, afternoon)
+
+A second version of the demo that needs no server: a static page, both models run in the visitor's browser
+with ONNX Runtime Web. It exists because the Gradio Space was refused (see above). Same words and checks as `app/app.py`.
+
+- `scripts/08_export_web.py` exports each model to ONNX (logit, embedding and heatmap in one run), checks it against
+  PyTorch, and writes the reference file for the browser test. `push` uploads the files to `onnx/` in each model repo,
+  `space RL8596/pneumoshift` uploads `web/` as a static Space. Both uploads need the write token.
+- `web/app.js` repeats the Python preprocessing (including Pillow's resize) in JavaScript. `tests/web/parity.mjs`
+  opens the page in headless Chromium and compares it with Python on 15 pictures: the model input is identical byte
+  for byte, logits differ by less than 0.00001, decisions and warnings are the same. Run it after any change to `web/`.
+- The page loads the models from the Hub and falls back to `web/models/` (not in git). `?models=local` skips the Hub.
+- Checked on screenshots: desktop, tablet, phone, dark mode. Not checked: Safari and Firefox, a real phone.
+- If `app/examples/` changes, rerun the export script: it copies the examples to `web/examples/`.
 
 ## 4. Results so far (children-only model, held-out test patients)
 

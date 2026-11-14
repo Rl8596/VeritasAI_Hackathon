@@ -1,0 +1,197 @@
+{
+  "note": "Example pictures for the demo app, written by scripts/export_examples.py. X-rays are drawn at random (seed 2026) from held-out test images that no model was trained on; they are not hand-picked.",
+  "seed": 2026,
+  "includes_rsna": true,
+  "examples": [
+    {
+      "file": "child_normal_1.png",
+      "true_label": "normal",
+      "label": 0,
+      "group": "children",
+      "age": null,
+      "age_note": "1 to 5 years",
+      "caption": "Child, normal",
+      "source": "Kermany et al. 2018, official test set: children aged 1 to 5, Guangzhou Women and Children's Medical Center, China. Licence CC BY 4.0.",
+      "details": {
+        "dataset": "kermany",
+        "original_file": "IM-0009-0001.jpeg",
+        "subtype": "normal",
+        "split": "test"
+      }
+    },
+    {
+      "file": "child_normal_2.png",
+      "true_label": "normal",
+      "label": 0,
+      "group": "children",
+      "age": null,
+      "age_note": "1 to 5 years",
+      "caption": "Child, normal",
+      "source": "Kermany et al. 2018, official test set: children aged 1 to 5, Guangzhou Women and Children's Medical Center, China. Licence CC BY 4.0.",
+      "details": {
+        "dataset": "kermany",
+        "original_file": "IM-0063-0001.jpeg",
+        "subtype": "normal",
+        "split": "test"
+      }
+    },
+    {
+      "file": "child_normal_3.png",
+      "true_label": "normal",
+      "label": 0,
+      "group": "children",
+      "age": null,
+      "age_note": "1 to 5 years",
+      "caption": "Child, normal",
+      "source": "Kermany et al. 2018, official test set: children aged 1 to 5, Guangzhou Women and Children's Medical Center, China. Licence CC BY 4.0.",
+      "details": {
+        "dataset": "kermany",
+        "original_file": "NORMAL2-IM-0338-0001.jpeg",
+        "subtype": "normal",
+        "split": "test"
+      }
+    },
+    {
+      "file": "child_pneumonia_1.png",
+      "true_label": "pneumonia",
+      "label": 1,
+      "group": "children",
+      "age": null,
+      "age_note": "1 to 5 years",
+      "caption": "Child, pneumonia",
+      "source": "Kermany et al. 2018, official test set: children aged 1 to 5, Guangzhou Women and Children's Medical Center, China. Licence CC BY 4.0.",
+      "details": {
+        "dataset": "kermany",
+        "original_file": "person11_virus_38.jpeg",
+        "subtype": "virus",
+        "split": "test"
+      }
+    },
+    {
+      "file": "child_pneumonia_2.png",
+      "true_label": "pneumonia",
+      "label": 1,
+      "group": "children",
+      "age": null,
+      "age_note": "1 to 5 years",
+      "caption": "Child, pneumonia",
+      "source": "Kermany et al. 2018, official test set: children aged 1 to 5, Guangzhou Women and Children's Medical Center, China. Licence CC BY 4.0.",
+      "details": {
+        "dataset": "kermany",
+        "original_file": "person1631_virus_2826.jpeg",
+        "subtype": "virus",
+        "split": "test"
+      }
+    },
+    {
+      "file": "child_pneumonia_3.png",
+      "true_label": "pneumonia",
+      "label": 1,
+      "group": "children",
+      "age": null,
+      "age_note": "1 to 5 years",
+      "caption": "Child, pneumonia",
+      "source": "Kermany et al. 2018, official test set: children aged 1 to 5, Guangzhou Women and Children's Medical Center, China. Licence CC BY 4.0.",
+      "details": {
+        "dataset": "kermany",
+        "original_file": "person1657_virus_2864.jpeg",
+        "subtype": "virus",
+        "split": "test"
+      }
+    },
+    {
+      "file": "adult_normal_1.png",
+      "true_label": "normal",
+      "label": 0,
+      "group": "adults",
+      "age": 56,
+      "age_note": null,
+      "caption": "Adult (56), normal",
+      "source": "RSNA Pneumonia Detection Challenge 2018 (chest X-rays from the NIH Clinical Center, USA), our test split.",
+      "details": {
+        "dataset": "rsna",
+        "patient_id": "cdaa07d4-4234-4cd2-b9bf-abbf5aed1bb4",
+        "sex": "M",
+        "view": "AP",
+        "split": "test"
+      }
+    },
+    {
+      "file": "adult_normal_2.png",
+      "true_label": "normal",
+      "label": 0,
+      "group": "adults",
+      "age": 46,
+      "age_note": null,
+      "caption": "Adult (46), normal",
+      "source": "RSNA Pneumonia Detection Challenge 2018 (chest X-rays from the NIH Clinical Center, USA), our test split.",
+      "details": {
+        "dataset": "rsna",
+        "patient_id": "d7b62687-ce89-4c08-936e-fac5b3ee4b01",
+        "sex": "M",
+        "view": "AP",
+        "split": "test"
+      }
+    },
+    {
+      "file": "adult_lung_opacity_1.png",
+      "true_label": "lung opacity",
+      "label": 1,
+      "group": "adults",
+      "age": 65,
+      "age_note": null,
+      "caption": "Adult (65), lung opacity",
+      "source": "RSNA Pneumonia Detection Challenge 2018 (chest X-rays from the NIH Clinical Center, USA), our test split.",
+      "details": {
+        "dataset": "rsna",
+        "patient_id": "b4857f8b-e6af-44da-84d3-ba3608ca7cb2",
+        "sex": "M",
+        "view": "PA",
+        "split": "test"
+      }
+    },
+    {
+      "file": "adult_lung_opacity_2.png",
+      "true_label": "lung opacity",
+      "label": 1,
+      "group": "adults",
+      "age": 34,
+      "age_note": null,
+      "caption": "Adult (34), lung opacity",
+      "source": "RSNA Pneumonia Detection Challenge 2018 (chest X-rays from the NIH Clinical Center, USA), our test split.",
+      "details": {
+        "dataset": "rsna",
+        "patient_id": "dc995045-8ec6-4cef-ba20-350c66732a9b",
+        "sex": "F",
+        "view": "AP",
+        "split": "test"
+      }
+    },
+    {
+      "file": "not_an_xray_drawing.png",
+      "true_label": "not an X-ray",
+      "label": null,
+      "group": null,
+      "age": null,
+      "age_note": null,
+      "caption": "Not an X-ray (a drawing)",
+      "source": "Generated by scripts/export_examples.py. Not an X-ray.",
+      "details": {
+        "dataset": "generated"
+      }
+    },
+    {
+      "file": "not_an_xray_document.png",
+      "true_label": "not an X-ray",
+      "label": null,
+      "group": null,
+      "age": null,
+      "age_note": null,
+      "caption": "Not an X-ray (a letter)",
+      "source": "Generated by scripts/export_examples.py. Not an X-ray.",
+      "details": {
+        "dataset": "generated"
+      }
+    }
+  ]
+}

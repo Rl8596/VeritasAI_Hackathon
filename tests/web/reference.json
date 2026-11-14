@@ -1,0 +1,579 @@
+{
+ "note": "What the Python code path (src/pneumoshift/inference.py) returns for each test picture. Written by scripts/08_export_web.py, compared with the browser by tests/web/parity.mjs.",
+ "models": {
+  "kids_only": {
+   "examples/child_normal_1.png": {
+    "logit": -6.094072341918945,
+    "probability": 0.0026061203978091007,
+    "flagged": false,
+    "ood_score": 29.05555640668317,
+    "ood_percentile": 90.97859327217125,
+    "ood_level": "ok",
+    "input_sha256": "e26610605927e08615a88b6c0e7b03a9fa87b784c904528f2eeb7eb2c661ff7e",
+    "cam_hottest_yx": [
+     144,
+     208
+    ],
+    "cam_mean": 0.06157056242227554,
+    "heatmap_mean_rgb": [
+     154.96721540178572,
+     151.96167490433675,
+     151.34321189413265
+    ]
+   },
+   "examples/child_normal_2.png": {
+    "logit": -6.080471038818359,
+    "probability": 0.0026408518631966817,
+    "flagged": false,
+    "ood_score": 26.744345128231995,
+    "ood_percentile": 84.09785932721712,
+    "ood_level": "ok",
+    "input_sha256": "1995643548036451b80fb0b6f09d465b92f4ea7b183ef94b504aa06c5ae6c369",
+    "cam_hottest_yx": [
+     208,
+     208
+    ],
+    "cam_mean": 0.06859306246042252,
+    "heatmap_mean_rgb": [
+     131.2449577487245,
+     128.92034040178572,
+     127.1793287627551
+    ]
+   },
+   "examples/child_normal_3.png": {
+    "logit": 3.6062116622924805,
+    "probability": 0.9712332946494494,
+    "flagged": false,
+    "ood_score": 28.17472818874133,
+    "ood_percentile": 88.83792048929664,
+    "ood_level": "ok",
+    "input_sha256": "b385ee4ee111d94d11bb47d2f4ccac85e15ab4790616461c0f10c46f803a9f64",
+    "cam_hottest_yx": [
+     175,
+     176
+    ],
+    "cam_mean": 0.3582145571708679,
+    "heatmap_mean_rgb": [
+     135.36850286989795,
+     122.20850605867346,
+     111.48646763392857
+    ]
+   },
+   "examples/child_pneumonia_1.png": {
+    "logit": 7.1458940505981445,
+    "probability": 0.9990647577825822,
+    "flagged": true,
+    "ood_score": 21.96097619965038,
+    "ood_percentile": 59.174311926605505,
+    "ood_level": "ok",
+    "input_sha256": "be5f38563126072d0dcea9d10404ec869f994c280fc663f93de4efe6c3892fe1",
+    "cam_hottest_yx": [
+     79,
+     0
+    ],
+    "cam_mean": 0.6309874653816223,
+    "heatmap_mean_rgb": [
+     156.64734135841837,
+     129.25073740433675,
+     100.38544323979592
+    ]
+   },
+   "examples/child_pneumonia_2.png": {
+    "logit": 6.379239082336426,
+    "probability": 0.9980257311771408,
+    "flagged": true,
+    "ood_score": 18.419031132168296,
+    "ood_percentile": 26.91131498470948,
+    "ood_level": "ok",
+    "input_sha256": "93626a849601152f820a156ae1bcc244bb6b52410b550c9182f334ea3109fea2",
+    "cam_hottest_yx": [
+     144,
+     176
+    ],
+    "cam_mean": 0.4781428277492523,
+    "heatmap_mean_rgb": [
+     166.02389588647958,
+     141.71703603316325,
+     132.87234933035714
+    ]
+   },
+   "examples/child_pneumonia_3.png": {
+    "logit": 7.19105339050293,
+    "probability": 0.9991050442298625,
+    "flagged": true,
+    "ood_score": 18.051432670944735,
+    "ood_percentile": 22.93577981651376,
+    "ood_level": "ok",
+    "input_sha256": "fe0adb1c927b275bde00ce63130ff22e651a206f45fc7c6008e4d0b3070752a7",
+    "cam_hottest_yx": [
+     111,
+     112
+    ],
+    "cam_mean": 0.6019054055213928,
+    "heatmap_mean_rgb": [
+     179.84187659438774,
+     155.21629862882654,
+     132.55707908163265
+    ]
+   },
+   "examples/adult_normal_1.png": {
+    "logit": 1.3506853580474854,
+    "probability": 0.7888739336521845,
+    "flagged": false,
+    "ood_score": 36.309192779220936,
+    "ood_percentile": 99.38837920489297,
+    "ood_level": "very unusual",
+    "input_sha256": "49465da798088a8882384ff3233f5dc0fdb576dd889ed0e083b2aea81cc5b8ef",
+    "cam_hottest_yx": [
+     208,
+     143
+    ],
+    "cam_mean": 0.31309568881988525,
+    "heatmap_mean_rgb": [
+     129.30331234056123,
+     113.64393335459184,
+     110.66755022321429
+    ]
+   },
+   "examples/adult_normal_2.png": {
+    "logit": 2.289245367050171,
+    "probability": 0.9032705146024205,
+    "flagged": false,
+    "ood_score": 36.40154289040327,
+    "ood_percentile": 99.38837920489297,
+    "ood_level": "very unusual",
+    "input_sha256": "5c9204ab2f9e65bccbc70fef05d9ebed48f41ea0e41609f430ca5ee2014eacbb",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.3794986307621002,
+    "heatmap_mean_rgb": [
+     134.11547353316325,
+     112.37067522321429,
+     112.23417570153062
+    ]
+   },
+   "examples/adult_lung_opacity_1.png": {
+    "logit": 1.7885797023773193,
+    "probability": 0.8513840413122835,
+    "flagged": false,
+    "ood_score": 34.49511210837426,
+    "ood_percentile": 98.92966360856269,
+    "ood_level": "unusual",
+    "input_sha256": "d80f313797bcec6c8e94b0db9f70c1cd2bc4315f6c5d7ef1cc49d6e4b183b717",
+    "cam_hottest_yx": [
+     208,
+     143
+    ],
+    "cam_mean": 0.2887992858886719,
+    "heatmap_mean_rgb": [
+     139.49507732780611,
+     125.90072943239795,
+     124.27762276785714
+    ]
+   },
+   "examples/adult_lung_opacity_2.png": {
+    "logit": 6.031464576721191,
+    "probability": 0.9972301360287751,
+    "flagged": true,
+    "ood_score": 37.41048574826236,
+    "ood_percentile": 99.69418960244649,
+    "ood_level": "very unusual",
+    "input_sha256": "819ffa34099966e393d8f1c60f023a1cc0cc32d8f02fd23a4335a3269cef6304",
+    "cam_hottest_yx": [
+     144,
+     144
+    ],
+    "cam_mean": 0.4894269108772278,
+    "heatmap_mean_rgb": [
+     129.17344945790816,
+     106.87320631377551,
+     95.7491230867347
+    ]
+   },
+   "examples/not_an_xray_drawing.png": {
+    "logit": 0.6453804969787598,
+    "probability": 0.652452064956737,
+    "flagged": false,
+    "ood_score": 92.11900267595783,
+    "ood_percentile": 100.0,
+    "ood_level": "very unusual",
+    "input_sha256": "71134693a37bc47264a6768d6f51d5e5f8f5d214c89bd4b3f328e0ce13e78e7f",
+    "cam_hottest_yx": [
+     208,
+     143
+    ],
+    "cam_mean": 0.3431522846221924,
+    "heatmap_mean_rgb": [
+     158.7370057397959,
+     141.4481823979592,
+     134.65379862882654
+    ]
+   },
+   "examples/not_an_xray_document.png": {
+    "logit": 7.747403144836426,
+    "probability": 0.9994798066908791,
+    "flagged": true,
+    "ood_score": 76.39556647119537,
+    "ood_percentile": 100.0,
+    "ood_level": "very unusual",
+    "input_sha256": "3fc107c96c2daf94e0d2f91e38ae215aebaba31b5dc371e5fee1f3835cf51b92",
+    "cam_hottest_yx": [
+     175,
+     112
+    ],
+    "cam_mean": 0.7580695748329163,
+    "heatmap_mean_rgb": [
+     215.66342474489795,
+     183.00583944515307,
+     142.33611686862244
+    ]
+   },
+   "pictures/resize_large_1500x1100.png": {
+    "logit": 3.595834732055664,
+    "probability": 0.9709490008761643,
+    "flagged": false,
+    "ood_score": 30.47034787662978,
+    "ood_percentile": 94.03669724770643,
+    "ood_level": "ok",
+    "input_sha256": "0f327a2435a7282fb66b9c63889f8fb184f4c8cc7e20332dd64581b0211e308d",
+    "cam_hottest_yx": [
+     208,
+     143
+    ],
+    "cam_mean": 0.4125042259693146,
+    "heatmap_mean_rgb": [
+     152.72893415178572,
+     133.11485570790816,
+     124.23463408801021
+    ]
+   },
+   "pictures/resize_small_180x140.png": {
+    "logit": 2.992149829864502,
+    "probability": 0.948830050198328,
+    "flagged": false,
+    "ood_score": 33.95495264989545,
+    "ood_percentile": 98.47094801223241,
+    "ood_level": "unusual",
+    "input_sha256": "4e2b1e2c6e34f8f42d4454185a4f57b0e4134fedeee100581ddf6b7f5fe17dfb",
+    "cam_hottest_yx": [
+     208,
+     112
+    ],
+    "cam_mean": 0.37841564416885376,
+    "heatmap_mean_rgb": [
+     150.8044882015306,
+     131.47012515943877,
+     125.0889668367347
+    ]
+   },
+   "pictures/resize_colour_701x903.png": {
+    "logit": 2.8068368434906006,
+    "probability": 0.939302093983376,
+    "flagged": false,
+    "ood_score": 33.51313897750135,
+    "ood_percentile": 98.31804281345566,
+    "ood_level": "unusual",
+    "input_sha256": "510353bd2ec412f25fb1bc0a888b2abd548465ede0a5b65437841afd13780a84",
+    "cam_hottest_yx": [
+     208,
+     112
+    ],
+    "cam_mean": 0.32334861159324646,
+    "heatmap_mean_rgb": [
+     120.85301737882654,
+     105.13321109693878,
+     104.97751913265306
+    ]
+   }
+  },
+  "kids_plus_adults": {
+   "examples/child_normal_1.png": {
+    "logit": -3.946549654006958,
+    "probability": 0.022204786669366403,
+    "flagged": false,
+    "ood_score": 26.66749239511866,
+    "ood_percentile": 92.98354548276933,
+    "ood_level": "ok",
+    "input_sha256": "e26610605927e08615a88b6c0e7b03a9fa87b784c904528f2eeb7eb2c661ff7e",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     153.8342833227041,
+     153.8342833227041,
+     153.8342833227041
+    ]
+   },
+   "examples/child_normal_2.png": {
+    "logit": -5.59904670715332,
+    "probability": 0.004633298164279855,
+    "flagged": false,
+    "ood_score": 23.94240760034963,
+    "ood_percentile": 82.33467867122012,
+    "ood_level": "ok",
+    "input_sha256": "1995643548036451b80fb0b6f09d465b92f4ea7b183ef94b504aa06c5ae6c369",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     128.16731106505102,
+     128.16731106505102,
+     128.16731106505102
+    ]
+   },
+   "examples/child_normal_3.png": {
+    "logit": 5.116513729095459,
+    "probability": 0.9926600950149901,
+    "flagged": true,
+    "ood_score": 25.389637681858826,
+    "ood_percentile": 89.28904067059919,
+    "ood_level": "ok",
+    "input_sha256": "b385ee4ee111d94d11bb47d2f4ccac85e15ab4790616461c0f10c46f803a9f64",
+    "cam_hottest_yx": [
+     112,
+     112
+    ],
+    "cam_mean": 0.33681178092956543,
+    "heatmap_mean_rgb": [
+     133.2380819515306,
+     115.65971779336735,
+     114.5526347257653
+    ]
+   },
+   "examples/child_pneumonia_1.png": {
+    "logit": 6.263605117797852,
+    "probability": 0.9975450626393967,
+    "flagged": true,
+    "ood_score": 25.679548145743183,
+    "ood_percentile": 90.22042843837318,
+    "ood_level": "ok",
+    "input_sha256": "be5f38563126072d0dcea9d10404ec869f994c280fc663f93de4efe6c3892fe1",
+    "cam_hottest_yx": [
+     144,
+     112
+    ],
+    "cam_mean": 0.32770857214927673,
+    "heatmap_mean_rgb": [
+     132.0391621492347,
+     115.58085538903062,
+     113.9756855867347
+    ]
+   },
+   "examples/child_pneumonia_2.png": {
+    "logit": 7.021552562713623,
+    "probability": 0.9988117870828054,
+    "flagged": true,
+    "ood_score": 23.9756324638969,
+    "ood_percentile": 82.48990996584911,
+    "ood_level": "ok",
+    "input_sha256": "93626a849601152f820a156ae1bcc244bb6b52410b550c9182f334ea3109fea2",
+    "cam_hottest_yx": [
+     143,
+     112
+    ],
+    "cam_mean": 0.3686883747577667,
+    "heatmap_mean_rgb": [
+     160.35495057397958,
+     141.9170918367347,
+     138.8123405612245
+    ]
+   },
+   "examples/child_pneumonia_3.png": {
+    "logit": 6.717597484588623,
+    "probability": 0.9984102756613255,
+    "flagged": true,
+    "ood_score": 22.26139356556083,
+    "ood_percentile": 71.22011797578392,
+    "ood_level": "ok",
+    "input_sha256": "fe0adb1c927b275bde00ce63130ff22e651a206f45fc7c6008e4d0b3070752a7",
+    "cam_hottest_yx": [
+     112,
+     80
+    ],
+    "cam_mean": 0.3034322261810303,
+    "heatmap_mean_rgb": [
+     162.68331473214286,
+     147.38735650510205,
+     146.1864237882653
+    ]
+   },
+   "examples/adult_normal_1.png": {
+    "logit": -4.469931125640869,
+    "probability": 0.013560397202750225,
+    "flagged": false,
+    "ood_score": 22.847849455308157,
+    "ood_percentile": 75.50450170754424,
+    "ood_level": "ok",
+    "input_sha256": "49465da798088a8882384ff3233f5dc0fdb576dd889ed0e083b2aea81cc5b8ef",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     123.13259327168367,
+     123.13259327168367,
+     123.13259327168367
+    ]
+   },
+   "examples/adult_normal_2.png": {
+    "logit": -2.977118968963623,
+    "probability": 0.054410745132849575,
+    "flagged": false,
+    "ood_score": 25.845048413042306,
+    "ood_percentile": 90.68612232226016,
+    "ood_level": "ok",
+    "input_sha256": "5c9204ab2f9e65bccbc70fef05d9ebed48f41ea0e41609f430ca5ee2014eacbb",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     119.97975127551021,
+     119.97975127551021,
+     119.97975127551021
+    ]
+   },
+   "examples/adult_lung_opacity_1.png": {
+    "logit": -2.17470645904541,
+    "probability": 0.11049626900217749,
+    "flagged": false,
+    "ood_score": 17.410146367907352,
+    "ood_percentile": 26.761875194039117,
+    "ood_level": "ok",
+    "input_sha256": "d80f313797bcec6c8e94b0db9f70c1cd2bc4315f6c5d7ef1cc49d6e4b183b717",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     137.60110411352042,
+     137.60110411352042,
+     137.60110411352042
+    ]
+   },
+   "examples/adult_lung_opacity_2.png": {
+    "logit": 1.0964677333831787,
+    "probability": 0.7410786404116817,
+    "flagged": true,
+    "ood_score": 16.138951289886435,
+    "ood_percentile": 16.982303632412293,
+    "ood_level": "ok",
+    "input_sha256": "819ffa34099966e393d8f1c60f023a1cc0cc32d8f02fd23a4335a3269cef6304",
+    "cam_hottest_yx": [
+     111,
+     79
+    ],
+    "cam_mean": 0.33079957962036133,
+    "heatmap_mean_rgb": [
+     119.39989237882654,
+     102.3079759247449,
+     101.29043765943878
+    ]
+   },
+   "examples/not_an_xray_drawing.png": {
+    "logit": -1.342411756515503,
+    "probability": 0.21628332408680323,
+    "flagged": true,
+    "ood_score": 49.24588512927452,
+    "ood_percentile": 100.0,
+    "ood_level": "very unusual",
+    "input_sha256": "71134693a37bc47264a6768d6f51d5e5f8f5d214c89bd4b3f328e0ce13e78e7f",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     148.46831154336735,
+     148.46831154336735,
+     148.46831154336735
+    ]
+   },
+   "examples/not_an_xray_document.png": {
+    "logit": -0.9607148766517639,
+    "probability": 0.284675422748661,
+    "flagged": true,
+    "ood_score": 143.80679632197186,
+    "ood_percentile": 100.0,
+    "ood_level": "very unusual",
+    "input_sha256": "3fc107c96c2daf94e0d2f91e38ae215aebaba31b5dc371e5fee1f3835cf51b92",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     200.7365872130102,
+     200.7365872130102,
+     200.7365872130102
+    ]
+   },
+   "pictures/resize_large_1500x1100.png": {
+    "logit": -1.5261949300765991,
+    "probability": 0.1878993097356226,
+    "flagged": true,
+    "ood_score": 24.90772081219743,
+    "ood_percentile": 87.36417261719963,
+    "ood_level": "ok",
+    "input_sha256": "0f327a2435a7282fb66b9c63889f8fb184f4c8cc7e20332dd64581b0211e308d",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     147.26931202168367,
+     147.26931202168367,
+     147.26931202168367
+    ]
+   },
+   "pictures/resize_small_180x140.png": {
+    "logit": -1.1697944402694702,
+    "probability": 0.24565766249474166,
+    "flagged": true,
+    "ood_score": 23.16220995372606,
+    "ood_percentile": 77.9571561626824,
+    "ood_level": "ok",
+    "input_sha256": "4e2b1e2c6e34f8f42d4454185a4f57b0e4134fedeee100581ddf6b7f5fe17dfb",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     146.70912388392858,
+     146.70912388392858,
+     146.70912388392858
+    ]
+   },
+   "pictures/resize_colour_701x903.png": {
+    "logit": -1.9343136548995972,
+    "probability": 0.13527170735184854,
+    "flagged": false,
+    "ood_score": 21.8383848445168,
+    "ood_percentile": 68.42595467246197,
+    "ood_level": "ok",
+    "input_sha256": "510353bd2ec412f25fb1bc0a888b2abd548465ede0a5b65437841afd13780a84",
+    "cam_hottest_yx": [
+     0,
+     0
+    ],
+    "cam_mean": 0.0,
+    "heatmap_mean_rgb": [
+     114.44882015306122,
+     114.44882015306122,
+     114.44882015306122
+    ]
+   }
+  }
+ }
+}

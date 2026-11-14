@@ -9,3 +9,6 @@ __pycache__/
 .DS_Store
 .gradio/
 flagged/
+
+# local copy of the browser models, for testing the page without the Hub
+web/models/
