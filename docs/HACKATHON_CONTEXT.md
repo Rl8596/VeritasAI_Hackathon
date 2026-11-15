@@ -95,3 +95,18 @@ Hacker Guide version of the criteria:
 3. How it works (~30 s): data, model, comparison to the baseline.
 4. Next steps (~15 s): one limitation and what you'd do next.
 Screen recording + voice-over is enough. Write a short script first.
+
+### Write-up template (Hacker Guide, page 12; "You can copy this into your README or the submission form")
+```
+# Project name
+**Track:** Health / Finance / Climate / ...
+**Team:** names
+## The problem          Who has this problem, and why does it matter? (2-3 sentences)
+## What we built        What goes in, what comes out, and how someone would use it.
+## How it works         Data: which dataset, how many examples, how we cleaned it. Model: what we used and why.
+## Results              Our baseline scored X. Our model scored Y on held-out test data. Where it fails, and why we think so.
+## What we'd do next    One or two concrete next steps with more time.
+## Sources              Datasets, pretrained models, tutorials and AI tools used, with links.
+```
+- **AI tools must be listed under Sources, with links.** The README does this (Sources and section 11).
+- Demo video: a screen recording with your voice over it is all you need; no need to spend long on editing.
