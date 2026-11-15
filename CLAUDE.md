@@ -158,6 +158,13 @@ with ONNX Runtime Web. It exists because the Gradio Space was refused (see above
   set `HF_TOKEN=hf_proxyinjected` for the command, the proxy puts the real token in).
 - If `app/examples/` changes, rerun the export script: it copies the examples to `web/examples/`.
 
+- **New look since Sat 14 Nov, evening (first session, at the team's request):** dark "reading room console" design:
+  IBM Plex typeface served from `web/fonts/` (SIL Open Font License), corner marks and labels on the pictures, the score
+  as a gauge with the cut-off marked, a strip of facts per model read from its config (`specHtml` in `web/app.js`), a
+  colour scale under the heatmap. Words, checks and results are unchanged and the browser test passes. It was tested
+  on the staging Space `RL8596/pneumoshift-staging` first, then uploaded to the live Space with `--live`.
+  The Gradio app in `app/` keeps the old look. Pull `main` before you continue: it now contains this change.
+
 ### Second generation of models, "v2" (started Sat 14 Nov, 16:00 UTC)
 
 The team wants a stronger repaired model and has a Windows PC with an RTX 3080 at home. Read `docs/V2_PROTOCOL.md`

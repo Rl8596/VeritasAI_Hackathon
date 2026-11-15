@@ -40,3 +40,4 @@ model repositories on the Hugging Face Hub and then kept by your browser.
 - Adult X-rays used for training and testing: RSNA Pneumonia Detection Challenge (2018).
 - Backbone: ResNet-18 pretrained on ImageNet (`timm/resnet18.tv_in1k`).
 - Runtime: ONNX Runtime Web (MIT licence), loaded from jsDelivr.
+- Typeface: IBM Plex Sans and IBM Plex Mono (SIL Open Font License 1.1, `fonts/OFL.txt`).

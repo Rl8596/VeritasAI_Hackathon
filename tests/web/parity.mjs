@@ -26,7 +26,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const WEB = resolve(HERE, '..', '..', 'web');
 const LIMIT = { logit: 1e-3, probability: 1e-4, oodScore: 1e-2, oodPercentile: 1e-9, camMean: 1e-4, heatmapMeanRGB: 0.05 };
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
-  '.png': 'image/png', '.onnx': 'application/octet-stream', '.bin': 'application/octet-stream' };
+  '.png': 'image/png', '.woff2': 'font/woff2', '.onnx': 'application/octet-stream', '.bin': 'application/octet-stream' };
 
 const shotsAt = process.argv.indexOf('--screenshots');
 const shots = shotsAt > 0 ? resolve(process.argv[shotsAt + 1]) : null;
