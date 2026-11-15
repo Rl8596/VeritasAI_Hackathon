@@ -68,3 +68,35 @@ papers could not be opened from this session (arxiv.org is not reachable from it
 - Wollek A, et al. Higher chest X-ray resolution improves classification performance. arXiv:2306.06051, 2023.
 - Sabottke CF, Spieler BM. The effect of image resolution on deep learning in radiography. Radiology:
   Artificial Intelligence, 2020. https://pmc.ncbi.nlm.nih.gov/articles/PMC8017385
+
+## Dated notes (added after the check; nothing above was changed)
+
+**Sun 15 Nov 2026** (the exact time is the commit time of these notes). Written after an independent review of
+this check.
+
+1. *The time in the first line is wrong.* It says 12:00 UTC. Git shows the real times (UTC): rules and script
+   committed at 11:45:03 (`cc68199`), validation numbers at 11:45:42 (`98e93bd`), test numbers computed at 11:45
+   and committed at 11:47:11 (`d9bd387`). The order stated above is true. The rules were fixed about one minute
+   before the numbers were computed, by the same session, and after all single test results were known. That is
+   why this check is exploratory.
+2. *The plan's time limits were kept.* `docs/V2_PROTOCOL.md` says that nothing new is trained after 15 Nov 10:00
+   UTC and that no new number enters the write-up after 12:00 UTC. Nothing was trained here, and the numbers
+   entered the write-up at 11:47 UTC. Later edits changed wording only.
+3. *Two small differences between this file and the script.* The script also reports `ensemble_7` minus
+   `ensemble_3`, which point 5 does not list. Point B of the protocol was not computed for the averaged models,
+   only points A and C.
+4. *"Refuses a second test run" means:* unless it is given a written reason (`--again "reason"`). That was not
+   used: `results/exploratory/ensemble.json` stores `computed_again_because: null`.
+5. *The wording of `results/exploratory/ensemble.md` was made clearer.* Its first version ended with "Result: the
+   averaged model is better (exploratory)". That could be read as a second verdict. The file was written again
+   from the stored numbers (`python scripts/13_ensemble_check.py render`, which computes nothing). No number
+   changed; the git history of the file shows it.
+6. *What this check changed, and what it did not.* It added this file, the script and three result files. It
+   added text to `README.md`, `CLAUDE.md` and `docs/VIDEO_SCRIPT.md`, and one dated note to
+   `docs/V2_PROTOCOL.md`. The two published models, the live demo and all earlier results are untouched (checked
+   on 15 Nov against git and against the tag `v1-before-retraining` on the Hub). No model was created or
+   uploaded: an averaged model exists only as these tables.
+7. *How to undo it.* List the commits of this check with
+   `git log --oneline -- docs/V2_ADDENDUM_ENSEMBLE.md results/exploratory/ensemble.json results/exploratory/ensemble_validation.json results/exploratory/ensemble.md`
+   and pass them to `git revert`, newest first. That removes the check from the repository and the write-up and
+   touches nothing else. A revert adds commits and deletes no history, so it can itself be undone.

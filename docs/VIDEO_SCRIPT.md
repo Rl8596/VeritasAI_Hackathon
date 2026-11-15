@@ -5,8 +5,12 @@ about 1,400 pixels wide, so both model cards are visible. Open the page once bef
 are already downloaded. Speak slowly: the text below is about 270 words, which fits 2 minutes.
 
 The numbers of the second generation of models (README section 6) are in since 14 Nov: 0.88 with all adult
-X-rays against 0.87 with 6,000, not a shown improvement. An extra check on 15 Nov (three training runs averaged:
-0.886, exploratory) is in README section 6. It is left out of the script on purpose, to stay within 2 minutes.
+X-rays against 0.87 with 6,000, not a shown improvement.
+An extra check on 15 Nov is in README section 6: three networks answering together reach 0.886 (exploratory). It
+is left out of the voice-over on purpose, to stay within 2 minutes. It did not change the demo, the two published
+models or the verdict. At 1:15, show only the top three rows of the results table, so that the row of the extra
+check is not on screen. If someone asks about it in the live round: "That is an extra check. It is exploratory
+and not in the demo."
 
 | Time | On screen | Say |
 |---|---|---|

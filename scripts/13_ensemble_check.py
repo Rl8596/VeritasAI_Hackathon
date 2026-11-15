@@ -2,6 +2,7 @@
 
     python scripts/13_ensemble_check.py val     # validation X-rays only
     python scripts/13_ensemble_check.py test    # test X-rays, once
+    python scripts/13_ensemble_check.py render  # write the .md table again from the stored .json (computes nothing)
 
 Rules: docs/V2_ADDENDUM_ENSEMBLE.md, written and committed before this script was run. No training happens
 here: the script only averages the stored scores of finished v2 runs (results/v2/<name>/logits.npz).
@@ -13,6 +14,8 @@ seed, same order of draws). As a check, this script recomputes the report's prim
 it does not get the same numbers.
 
 Outputs: results/exploratory/ensemble_validation.json (val), results/exploratory/ensemble.json and .md (test).
+"render" was added later the same day, when the wording of the .md file was made clearer (see the dated notes
+in the addendum). It reads ensemble.json and touches no X-ray and no score.
 """
 import argparse
 import importlib.util
@@ -69,11 +72,60 @@ def cell(v, c, d=3):
     return f"{v:.{d}f} ({c[0]:.{d}f} to {c[1]:.{d}f})"
 
 
+def markdown(report: dict) -> str:
+    """The table file, from the stored report only. Changing words here never changes a number."""
+    res, paired = report["models"], report["paired_auroc_differences"]
+    names = list(res)
+    a0 = res[names[0]]["rules"]["A"]["adults"]
+    n_t, n_pos = a0["tp"] + a0["fp"] + a0["tn"] + a0["fn"], a0["tp"] + a0["fn"]
+    met = report["main_comparison"]["better"]
+    L = ["# Averaging the networks we already trained (written by scripts/13_ensemble_check.py)", "",
+         "**Exploratory.** Rules: docs/V2_ADDENDUM_ENSEMBLE.md, committed before any of these numbers was computed. Added after the test",
+         "results of the single models were seen, so this does not replace the verdict of the protocol's primary comparison.",
+         "No training: the scores of finished runs are averaged. 'Lung opacity' is a radiologist's finding, not a confirmed pneumonia.",
+         "The demo and the two published models do not use an averaged model. Nothing that existed before was changed.",
+         "Point A = the threshold that catches 95% of the cases on adult validation X-rays (screening). Point C = the threshold that",
+         "clears 95% of the non-cases there (strict). sens = share of cases caught, spec = share of non-cases cleared.", "",
+         f"## Adults, lung opacity vs everything else (n = {n_t:,}, {100 * n_pos / n_t:.1f}% with lung opacity)", "",
+         "| Model | Networks | AUROC | inside standing (PA) | inside bedside (AP) | A: sens / spec | A: right answers | C: sens / spec |", "|---|---|---|---|---|---|---|---|"]
+    for n in names:
+        r, a = res[n], res[n]["auroc"]
+        pr = lambda rule: f"{r['rules'][rule]['adults']['sensitivity']:.2f} / {r['rules'][rule]['adults']['specificity']:.2f}"  # noqa: E731
+        L.append(f"| {n} | {len(r['members'] or [n])} | {cell(a['adults']['value'], a['adults']['ci'])} | {a['adults_PA']['value']:.3f} | "
+                 f"{a['adults_AP']['value']:.3f} | {pr('A')} | {r['rules']['A']['adults']['accuracy']:.3f} | {pr('C')} |")
+    L += ["", "## Paired differences in adult AUROC (same patient resamples as results/v2_report.md)", "",
+          "| Comparison | Adults | inside PA | inside AP |", "|---|---|---|---|"]
+    for k, p in paired.items():
+        c = lambda g: f"{p[g]['difference']:+.3f} ({p[g]['ci'][0]:+.3f} to {p[g]['ci'][1]:+.3f})"  # noqa: E731
+        L.append(f"| {k} | {c('adults')} | {c('adults_PA')} | {c('adults_AP')} |")
+    L += ["", f"The addendum's rule applied to {MAIN} minus {PUBLISHED}: {report['main_comparison']['rule']}. "
+          f"**Result: {'both conditions are met' if met else 'the conditions are not met'}. This is exploratory and not a second verdict. "
+          "It sets three networks against one. The verdict of the protocol stays: no improvement is shown.**",
+          f"The comparison fixed in advance is the last row of the table above ({SINGLE} minus {PUBLISHED}).", "",
+          "## Points A and C with intervals, standing X-rays, children, further checks", "",
+          "| Model | A: sensitivity | A: specificity | C: sensitivity | C: specificity | PA at A: sens / spec | Children: AUROC | Children at A: sens / spec | "
+          "Calibration error, adults | Bedside vs standing among Normal adults |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for n in names:
+        r = res[n]
+        ra, rc, pa, ch = r["rules"]["A"]["adults"], r["rules"]["C"]["adults"], r["rules"]["A"]["adults_PA"], r["children"]
+        L.append(f"| {n} | {cell(ra['sensitivity'], ra['sensitivity_ci'], 2)} | {cell(ra['specificity'], ra['specificity_ci'], 2)} | "
+                 f"{cell(rc['sensitivity'], rc['sensitivity_ci'], 2)} | {cell(rc['specificity'], rc['specificity_ci'], 2)} | "
+                 f"{pa['sensitivity']:.2f} / {pa['specificity']:.2f} | {ch['auroc']:.3f} | {ch['at_point_A']['sensitivity']:.2f} / {ch['at_point_A']['specificity']:.2f} | "
+                 f"{r['calibration_error_adults']:.3f} | {r['view_shortcut_auroc_among_normal_adults']:.2f} |")
+    return "\n".join(L) + "\n"
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("what", choices=["val", "test"])
+    ap.add_argument("what", choices=["val", "test", "render"])
     ap.add_argument("--again", default=None, metavar="REASON", help="compute the test numbers a second time; the reason is stored")
     args = ap.parse_args()
+
+    if args.what == "render":                               # words only: every number comes from the stored file
+        text = markdown(json.loads((OUT / "ensemble.json").read_text()))
+        (OUT / "ensemble.md").write_text(text)
+        print(text)
+        sys.exit(0)
 
     if not R.committed(ADDENDUM):
         sys.exit("docs/V2_ADDENDUM_ENSEMBLE.md is not committed. The rules must be in git before any number is computed.")
@@ -180,35 +232,6 @@ if __name__ == "__main__":
         check="the report's primary comparison was recomputed here and is identical",
         computed_at_utc=time.strftime("%Y-%m-%d %H:%M", time.gmtime()), computed_again_because=args.again)
     (OUT / "ensemble.json").write_text(json.dumps(report, indent=1))
-
-    n_t, n_pos = int(test.sum()), int(yr[test].sum())
-    L = ["# Averaging the networks we already trained (written by scripts/13_ensemble_check.py)", "",
-         "**Exploratory.** Rules: docs/V2_ADDENDUM_ENSEMBLE.md, committed before any of these numbers was computed. Added after the test",
-         "results of the single models were seen, so this does not replace the verdict of the protocol's primary comparison.",
-         "No training: the scores of finished runs are averaged. 'Lung opacity' is a radiologist's finding, not a confirmed pneumonia.", "",
-         f"## Adults, lung opacity vs everything else (n = {n_t:,}, {100 * n_pos / n_t:.1f}% with lung opacity)", "",
-         "| Model | Networks | AUROC | inside standing (PA) | inside bedside (AP) | A: sens / spec | A: right answers | C: sens / spec |", "|---|---|---|---|---|---|---|---|"]
-    for n in names:
-        r, a = res[n], res[n]["auroc"]
-        pr = lambda rule: f"{r['rules'][rule]['adults']['sensitivity']:.2f} / {r['rules'][rule]['adults']['specificity']:.2f}"  # noqa: E731
-        L.append(f"| {n} | {len(r['members'] or [n])} | {cell(a['adults']['value'], a['adults']['ci'])} | {a['adults_PA']['value']:.3f} | "
-                 f"{a['adults_AP']['value']:.3f} | {pr('A')} | {r['rules']['A']['adults']['accuracy']:.3f} | {pr('C')} |")
-    L += ["", "## Paired differences in adult AUROC (same patient resamples as results/v2_report.md)", "",
-          "| Comparison | Adults | inside PA | inside AP |", "|---|---|---|---|"]
-    for k, p in paired.items():
-        c = lambda g: f"{p[g]['difference']:+.3f} ({p[g]['ci'][0]:+.3f} to {p[g]['ci'][1]:+.3f})"  # noqa: E731
-        L.append(f"| {k} | {c('adults')} | {c('adults_PA')} | {c('adults_AP')} |")
-    L += ["", f"Rule of the protocol applied to {MAIN} minus {PUBLISHED}: {report['main_comparison']['rule']}. "
-          f"**Result: {'the averaged model is better (exploratory).' if better else 'no improvement is shown.'}**", "",
-          "## Points A and C with intervals, standing X-rays, children, further checks", "",
-          "| Model | A: sensitivity | A: specificity | C: sensitivity | C: specificity | PA at A: sens / spec | Children: AUROC | Children at A: sens / spec | "
-          "Calibration error, adults | Bedside vs standing among Normal adults |", "|---|---|---|---|---|---|---|---|---|---|"]
-    for n in names:
-        r = res[n]
-        ra, rc, pa, ch = r["rules"]["A"]["adults"], r["rules"]["C"]["adults"], r["rules"]["A"]["adults_PA"], r["children"]
-        L.append(f"| {n} | {cell(ra['sensitivity'], ra['sensitivity_ci'], 2)} | {cell(ra['specificity'], ra['specificity_ci'], 2)} | "
-                 f"{cell(rc['sensitivity'], rc['sensitivity_ci'], 2)} | {cell(rc['specificity'], rc['specificity_ci'], 2)} | "
-                 f"{pa['sensitivity']:.2f} / {pa['specificity']:.2f} | {ch['auroc']:.3f} | {ch['at_point_A']['sensitivity']:.2f} / {ch['at_point_A']['specificity']:.2f} | "
-                 f"{r['calibration_error_adults']:.3f} | {r['view_shortcut_auroc_among_normal_adults']:.2f} |")
-    (OUT / "ensemble.md").write_text("\n".join(L) + "\n")
-    print("\n".join(L))
+    text = markdown(json.loads(json.dumps(report)))
+    (OUT / "ensemble.md").write_text(text)
+    print(text)

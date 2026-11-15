@@ -3,6 +3,9 @@
 **Exploratory.** Rules: docs/V2_ADDENDUM_ENSEMBLE.md, committed before any of these numbers was computed. Added after the test
 results of the single models were seen, so this does not replace the verdict of the protocol's primary comparison.
 No training: the scores of finished runs are averaged. 'Lung opacity' is a radiologist's finding, not a confirmed pneumonia.
+The demo and the two published models do not use an averaged model. Nothing that existed before was changed.
+Point A = the threshold that catches 95% of the cases on adult validation X-rays (screening). Point C = the threshold that
+clears 95% of the non-cases there (strict). sens = share of cases caught, spec = share of non-cases cleared.
 
 ## Adults, lung opacity vs everything else (n = 7,694, 22.4% with lung opacity)
 
@@ -24,7 +27,8 @@ No training: the scores of finished runs are averaged. 'Lung opacity' is a radio
 | ensemble_7 minus ensemble_3 | +0.003 (+0.002 to +0.004) | +0.004 (+0.001 to +0.007) | +0.003 (+0.001 to +0.005) |
 | v2_kids_plus_all minus kids_plus_adults | +0.006 (-0.000 to +0.011) | +0.011 (-0.000 to +0.023) | +0.012 (+0.001 to +0.022) |
 
-Rule of the protocol applied to ensemble_3 minus kids_plus_adults: called better only if the overall interval lies above zero and the difference is positive inside both views. **Result: the averaged model is better (exploratory).**
+The addendum's rule applied to ensemble_3 minus kids_plus_adults: called better only if the overall interval lies above zero and the difference is positive inside both views. **Result: both conditions are met. This is exploratory and not a second verdict. It sets three networks against one. The verdict of the protocol stays: no improvement is shown.**
+The comparison fixed in advance is the last row of the table above (v2_kids_plus_all minus kids_plus_adults).
 
 ## Points A and C with intervals, standing X-rays, children, further checks
 

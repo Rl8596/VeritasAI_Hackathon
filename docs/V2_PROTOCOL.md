@@ -142,3 +142,11 @@ and of this file. No test result of any v2 model had been computed.
    same adult validation score as 6,000 (0.874 and 0.875): a public network pretrained on chest X-rays of another
    hospital (`scripts/11_xray_pretrained_check.py`). Its rows are labelled exploratory wherever they appear and are
    not part of the comparison above.
+
+**Sun 15 Nov 2026** (the exact time is the commit time of this note). Nothing above was changed.
+
+8. *A second exploratory check was added on Sun 15 Nov, 11:45 UTC,* after all test results above were known: the
+   average of the three `v2_kids_plus_all` runs (`docs/V2_ADDENDUM_ENSEMBLE.md`, `scripts/13_ensemble_check.py`).
+   Nothing was trained. It used the test X-rays a second time. Its numbers entered the write-up before the 12:00
+   UTC limit above; later edits changed wording only. It is labelled exploratory wherever it appears and does not
+   change the primary comparison or its verdict.

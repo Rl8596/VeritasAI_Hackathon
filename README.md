@@ -47,11 +47,13 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 | Children-only model (the tutorial) | **0.975** | 0.824 |
 | Children + 6,000 adults | 0.962 | **0.874** |
 | Children + all 15,142 adults (second generation, section 6) | 0.973 | 0.880 (not a shown improvement, see point 4) |
-| *Extra check, exploratory:* three training runs of the row above, averaged (section 6) | 0.976 | 0.886 |
 | *Baseline:* raw pixels + logistic regression, trained on children | 0.847 | 0.727 |
 | *Baseline:* untrained-for-X-rays ImageNet network + logistic regression, trained on children | 0.953 | 0.752 |
 | *Baseline:* the same ImageNet network + logistic regression, trained on adults | | 0.848 |
 | *Baseline:* looks at no picture, only at "bedside or standing X-ray" | | 0.706 |
+| *Extra check, exploratory, not in the demo:* three networks of the 15,142 recipe answer together (section 6) | 0.976 | 0.886 (does not change the verdict, see point 4) |
+
+The demo runs the first two rows. These two published models are unchanged. All other rows are tests only.
 
 ### What we learned
 
@@ -69,9 +71,13 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
    adult X-rays the score is 0.880: a difference of +0.006 (95% interval -0.000 to +0.011), which by our own rule
    is not a shown improvement. A simple baseline gets most of the way: a network that was never fine-tuned, plus a
    simple classifier trained on the adult X-rays, reaches 0.848. Our fine-tuning adds 0.025 to that
-   (95% interval 0.019 to 0.033). An extra check on the last day, exploratory because the test results were
-   already known: the average of three training runs of that recipe scores 0.886, which is +0.012 over the
-   6,000-adult model (interval +0.007 to +0.017).
+   (95% interval 0.019 to 0.033).
+   **Extra check, not part of the plan.** On the last day we let three networks of that recipe answer together:
+   for each X-ray we took the mean of their three scores. Together they score 0.886. That is +0.012 over the
+   6,000-adult model (interval +0.007 to +0.017). Half of it is the averaging itself. The other half is the
+   +0.006 from above, which is not a shown improvement. This check is exploratory: we had already seen the test
+   results when we ran it, and it sets three networks against one. So it is a look, not a proof. The verdict
+   above stays. Nothing else changed: the two published models, the demo and all earlier results are as before.
 5. **The heatmaps do not show where the disease is.** We tested them against radiologists' boxes: the hottest point
    lies inside a box for 25% (children-only) and 52% (children + adults) of X-rays. Always pointing at the most
    common spot, without looking at the picture, scores 57%.
@@ -86,6 +92,8 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
   (the children-only model: 87%).
 - No model, old or new, beats "always no" in accuracy at the 95%-sensitivity screening threshold.
 - Two and a half times more adult X-rays (15,142 instead of 6,000) did not give a clearly better model (section 6).
+  The extra check with three networks answering together (exploratory, section 6) does not change this: it sets
+  three networks against one.
 - A network pretrained on another hospital's chest X-rays, used without fine-tuning, was no better than the
   ImageNet one (an extra check, section 6).
 - A Gradio demo on Hugging Face was refused, so we rebuilt the demo to run in the browser.
@@ -254,24 +262,37 @@ What else the runs show. These points describe the results; only the comparison 
   regression on its features, trained on our adult X-rays, it scores 0.848: the same as the ImageNet baseline
   (difference -0.001, interval -0.008 to +0.006). We did not fine-tune it, so this says nothing about fine-tuning
   such a network.
-- **A second extra check, on the last day: averaging three training runs.** The plan had trained the headline
-  recipe three times with different random seeds. Averaging the answers of the three networks (an "ensemble", a
-  common step in chest X-ray work [22, 23]) needs no new training. We wrote the rules down before computing
-  anything ([docs/V2_ADDENDUM_ENSEMBLE.md](docs/V2_ADDENDUM_ENSEMBLE.md)): the three members by name, a plain
-  mean, the same comparison rule as before. Result: 0.886 (0.874 to 0.898). That is +0.012 over the published
-  model (+0.007 to +0.017) and positive inside both views (standing +0.023, bedside +0.017), so by the rule it
-  counts as better. Half of the gain is the averaging itself: +0.006 over one run of the same recipe (+0.004 to
-  +0.008). At the screening threshold it catches 97% of the cases and clears 54% of the others (published model:
-  96% and 50%). That is about 32 fewer false alarms per 1,000 adults, but the intervals of the two models overlap
-  (44% to 65% against 43% to 59%). It is right for 63.8% of adults, still below "always no". Averaging all seven
-  networks that were trained with all adult X-rays gives 0.889. **Read this with care:** we ran this check after
-  we had seen the test results of the single models, so it is exploratory and does not change the verdict above.
-  The price is three networks instead of one, so three times the download and the computing time. The demo does
-  not use it. Full table: [results/exploratory/ensemble.md](results/exploratory/ensemble.md).
+- **A second extra check, on the last day (exploratory): three networks answer together.** **Read this with
+  care.** We ran this check after we had seen the test results of all single models. It is a second look at the
+  test X-rays, not a proof, and it does not change the verdict above. Nothing else changed either: the two
+  published models, the demo and all earlier results are as before. The demo does not use the averaged model.
+  - *What we did.* The plan had trained the headline recipe three times with different random seeds. For each
+    X-ray we took the mean of the three networks' scores (an "ensemble", a common step in chest X-ray work
+    [22, 23]). This needs no new training. We committed the rules before we computed any number of the averaged
+    model ([docs/V2_ADDENDUM_ENSEMBLE.md](docs/V2_ADDENDUM_ENSEMBLE.md)): the three members by name, a plain
+    mean, the same comparison rule as before.
+  - *Result.* 0.886 (0.874 to 0.898). This is not the mean of the three runs' own results, which is 0.881 (repair
+    curve above). It is +0.012 over the published model (+0.007 to +0.017) and positive inside both views
+    (standing +0.023, bedside +0.017).
+  - *Why this is not a confirmation.* In the planned comparison such a result would have counted as better. Here
+    it does not, for three reasons. We already knew that each of the three runs alone scored above the published
+    model (0.880 to 0.882 against 0.874). Averaging networks usually raises the score a little. And it sets three
+    networks against one. Half of the gain is the averaging itself: +0.006 over the headline run (+0.004 to
+    +0.008), which was the lowest of the three runs. The other half is the +0.006 of the planned comparison,
+    which is not a shown improvement. We did not average three runs with 6,000 adult X-rays, so this check does
+    not show that more adult X-rays help.
+  - *At the thresholds.* At the screening threshold it catches 97% of the cases and clears 54% of the others
+    (published model: 96% and 50%). That is about 32 fewer false alarms per 1,000 adults, but the intervals of
+    the two models overlap (44% to 65% against 43% to 59%). It is right for 63.8% of adults, still below "always
+    no". At the strict threshold it is about the same as one run, and its calibration error is a little higher
+    than the headline run's. Averaging all seven networks that were trained with all adult X-rays gives 0.889.
+  - *The price.* Three networks instead of one, so three times the download and the computing time.
+    Full table: [results/exploratory/ensemble.md](results/exploratory/ensemble.md).
 
 **What this means for the clinic.** About 6,000 labelled local X-rays bring nearly all of the gain. Beyond that,
 more X-rays of the same kind add about 0.01. The gap that remains is not closed by more data of the same kind.
-Training the recipe three times and averaging adds about 0.006 more, for three times the computing cost.
+An extra check (exploratory, see the last point above) suggests that three networks answering together add about
+0.006 more. That costs three times the computing time. Our demo does not do this.
 
 ### 7. Checks on the data
 
