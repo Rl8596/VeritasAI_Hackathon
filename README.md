@@ -11,6 +11,13 @@ Track: AI + Health. Models: [children-only](https://huggingface.co/RL8596/pneumo
 
 ## One-page summary
 
+### Why we built this
+
+One of us lost a grandmother whose pneumonia was misdiagnosed, and has a mother who works in a hospital. We wanted
+to build something that helps doctors catch pneumonia sooner, and the AI + Health track fit that exactly. We also
+wanted to know honestly how far such a tool can be trusted, so we tested it on patients it had never seen and
+wrote down where it fails.
+
 ### The problem and the user
 
 A small clinic takes a chest X-ray, but no radiologist is there to read it. In Malawi there are 3 radiologists for
