@@ -351,8 +351,10 @@ Training one model takes about an hour on a CPU and a few minutes on a GPU.
 
 <!-- TEAM: check the hackathon rules on AI assistance and adapt this paragraph before submitting. -->
 We used an AI coding assistant (Claude, by Anthropic) throughout: to write and review most of the code, to run
-the experiments, and to draft this text. We chose the question, the user and the direction, checked the results,
-and are responsible for every statement here.
+the experiments, and to draft this text. Our mission was not only to build something, but to learn a lot along
+the way. So we made sure that we understand every part of the project: what each step does, why it is there, and
+what the numbers mean. We chose the question, the user and the direction, checked the results, and are
+responsible for every statement here.
 
 ### 12. Sources
 
