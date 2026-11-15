@@ -5,10 +5,8 @@
 **Track:** AI + Health  
 **Team:** names are in the submission form  
 **Try it:** https://huggingface.co/spaces/RL8596/pneumoshift (runs in your browser, nothing is uploaded)  
+**Video (2 minutes):** https://youtu.be/YyU2-6qKkkM  
 **Models:** [children-only](https://huggingface.co/RL8596/pneumoshift-kids-only), [children + adults](https://huggingface.co/RL8596/pneumoshift-kids-plus-adults)
-
-<!-- TEAM: when the video is uploaded, add this line under "Try it" and end it with two spaces:
-**Video (2 minutes):** the link -->
 
 This project is a prototype and is not medical advice.  
 Research demo. Not a medical device. Not for diagnosis.
