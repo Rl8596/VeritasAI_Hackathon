@@ -17,7 +17,8 @@ Research demo. Not a medical device. Not for diagnosis.
 
 ## The problem
 
-A small clinic takes a chest X-ray, but no radiologist is there to read it. In Malawi, a survey published in 2022
+A small clinic takes a chest X-ray, but no radiologist is there to read it, so the clinic's own doctor has to.
+In Malawi, a survey published in 2022
 counted 3 radiologists for 19.7 million people [15]. A tool that sorts X-rays into "look at this one first" could save hours for the patients
 who need them most.
 
