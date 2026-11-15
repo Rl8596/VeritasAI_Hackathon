@@ -110,3 +110,4 @@ Screen recording + voice-over is enough. Write a short script first.
 ```
 - **AI tools must be listed under Sources, with links.** The README does this (Sources and section 11).
 - Demo video: a screen recording with your voice over it is all you need; no need to spend long on editing.
+- **Rule on AI assistance (told by the team from the guide, 15 Nov):** AI tools are allowed as long as both team members understand what was built. They must be listed under Sources.

@@ -66,7 +66,7 @@ background command that ends when the condition is met.
 - Never ask for a token in chat. Uploading to `RL8596` needs that account's write token, entered through the secure credential form (host `huggingface.co`). Downloading needs no token.
 - No pull request and no push to `main` unless the team asks. Commit and push your work often.
 - Judging round 1 is blind: no names or school in the repo. Names go into the submission form only.
-- Check the hackathon rules on AI assistance and tell the team to disclose it as the rules require. This file may be deleted before submission if they wish.
+- Rule on AI assistance (checked by the team, 15 Nov): AI tools are allowed as long as both team members understand what was built, and they must be listed under Sources. The README does both (Sources and section 11). Do not remove or weaken that disclosure. This file may be deleted before submission if they wish.
 
 ## 1. The project in one sentence
 
