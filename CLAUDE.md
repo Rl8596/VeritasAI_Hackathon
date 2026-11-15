@@ -1,78 +1,40 @@
-# PneumoShift: handoff for the next Claude session
+# PneumoShift: notes for a Claude session
 
-You are taking over a hackathon project from another Claude session. This file is everything you need.
-Read it fully, then `docs/HACKATHON_CONTEXT.md` (rules, judging) and skim `docs/RESEARCH_NOTES.md` (sources, citations).
+Read this file, then `docs/HACKATHON_CONTEXT.md` (rules, judging). `docs/RESEARCH_NOTES.md` holds the sources.
 
-Written Sat 14 Nov 2026, 11:50 UTC. **Deadline: Sun 15 Nov 2026, 11:59 PM ET (= Mon 04:59 UTC).**
+**Deadline: Sun 15 Nov 2026, 11:59 PM ET (= Mon 16 Nov, 04:59 UTC).** Round 1 is judged blind from the repo, the
+demo link and a 2-minute video. A live final with questions may follow.
 
-## START HERE: state on Sat 14 Nov 2026, 19:30 UTC (20:30 Swiss time)
+## State on Sun 15 Nov 2026, 21:30 UTC
 
-A new Claude session (possibly on the second team member's account) continues from here. `main` and
-`claude/friendly-wright-kfzg9j` are identical and hold everything. The team writes English in chat now. Usage is
-nearly exhausted on the first account: work frugally, no multi-agent runs unless the team asks.
-
-**Nothing is running any more.** The home PC finished all 22 runs of `docs/V2_PROTOCOL.md` at 19:08 UTC, none
-failed. Their results are in `results/v2/`. The test results were computed ONCE (`results/v2_report.md` and
-`.json`). `scripts/10_v2_report.py test` refuses a second run, and that is intended. Do not train anything else.
-
-**The result:** the headline model `v2_kids_plus_all` scores 0.880 on adults, the published `kids_plus_adults`
-0.874. Difference +0.006 (95% interval -0.000 to +0.011): by the rule fixed in advance, no improvement is shown.
-This is written into README section 6, summary point 4 and the video script. Do not soften or dramatise it.
-
-**Extra check on Sun 15 Nov, 11:45 UTC (exploratory).** The team asked for the most promising improvement that is
-still honest. The home PC was unreachable, so nothing that needs training was possible. Done instead: the average
-of the three seeds of `v2_kids_plus_all` ("ensemble"), from stored scores, no training. Rules in
-`docs/V2_ADDENDUM_ENSEMBLE.md` (committed first), script `scripts/13_ensemble_check.py`, result
-`results/exploratory/ensemble.md`: 0.886 on adults, +0.012 over the published model (interval +0.007 to +0.017),
-+0.006 over one run (+0.004 to +0.008). Computed once; the script refuses a second run unless it is given a
-written reason (not used). It is in README section 6,
-labelled exploratory, because the single models' test results were known before. It never replaces the verdict
-above. Sources 23 to 25 in the README were found by web search; arxiv.org cannot be opened from the cloud session,
-so their author lists are short. The video script does not mention this check (2-minute limit).
-An independent review on 15 Nov confirmed: the two published models, the live demo and all earlier results are
-untouched, no averaged model was created or uploaded, and the check can be removed with `git revert` (see the
-dated notes in `docs/V2_ADDENDUM_ENSEMBLE.md`). The wording was tightened after that review; no number changed.
-**The plan's time limits (`docs/V2_PROTOCOL.md`) have passed: nothing new is trained after 15 Nov 10:00 UTC and no
-new number enters the write-up after 12:00 UTC.** From here on: wording, checks of existing numbers, and the
-team's own tasks only.
-
-**Review on Sun 15 Nov, 17:00 to 18:15 UTC (done, no finding changed).** Every number in `README.md` (summary
-and sections 1 to 7) and in `web/index.html` was checked against `results/*.json`, `results/v2_report.md` and
-`results/exploratory/ensemble.md`.
-
-- Five last digits in the first table of README section 3 had been cut off instead of rounded (for example 86.7%
-  for 0.8675). Corrected there and in section 4 of this file.
-- "1,281 X-rays of minors" was wrong in one detail: 1,276 minors and 5 X-rays with an impossible age.
-- The leak count "5,493 of 8,006" is not stored in any result file. It comes from the first session's first
-  split, which was not kept. As a check: the exam-level fallback in `src/pneumoshift/data.py` gives 5,452 of 8,007
-  today. The README keeps the original count and adds "about two thirds". If a judge asks, say "about two thirds".
-- The README now shows four existing figures (sections 3 and 5) and, under "Results", a one-sentence takeaway
-  and one example that both models get wrong (the demo example "Adult (65), lung opacity"). No new result was
-  computed. At 20:30 UTC this was fitted into the template version of the write-up from the other session.
-- `scripts/06_heatmap_check.py --mistakes-only` redraws the two figures of each model's mistakes (no empty row,
-  "lung opacity" for adults) and leaves `results/heatmap_check.json` untouched. Still open: the title of
-  `heatmap_adult_examples.png` says "pneumonia" where "lung opacity" is meant (not shown in the README).
-- `docs/VIDEO_SCRIPT.md` had about 330 spoken words, too many for 2 minutes. It now has about 285, and a short
-  list of questions for the live round.
-
-**Do next:**
-
-1. Remind the team of their own tasks (section 9) and the personal e-mail address in the first git commit (blind
-   judging; rewriting history is their decision).
-2. When the video exists: put its link into the first lines of `README.md` (a comment marks the place).
-
-Scheduled check-ins (`send_later`, triggers) fail in this setup with "access denied". To be woken later, start a
-background command that ends when the condition is met.
-
-**Unfinished, optional:**
-
-- *Exploratory check* (`scripts/11_xray_pretrained_check.py`): DONE, in git (`results/exploratory/`), reported in README section 6.
-- *The browser demo was never reviewed by anyone but its author.* It passes its automated comparison with Python on
-  15 pictures in Chromium. Safari, Firefox and a real phone are untested. A multi-agent review was started and
-  stopped to save usage.
-- *Weights of the new models exist only on the PC.* To publish the headline model a person must log in on the PC
-  (`.venv/Scripts/hf auth login`) and the PC session must run `python scripts/09_gpu_batch.py upload v2_kids_plus_all`.
-  Not needed for the submission: the demo keeps the two published models.
+- **The project is finished.** Nothing is running. Do not train anything, and put no new number into the write-up
+  (`docs/V2_PROTOCOL.md`: no training after 15 Nov 10:00 UTC, no new number after 12:00 UTC). What remains is
+  wording, checks of existing numbers, and the team's own tasks (section 9).
+- **The verdict of the planned comparison:** the headline model `v2_kids_plus_all` scores 0.880 on adults, the
+  published `kids_plus_adults` 0.874. Difference +0.006 (95% interval -0.000 to +0.011): by the rule fixed in
+  advance, no improvement is shown. Do not soften or dramatise it. `scripts/10_v2_report.py test` refuses a second
+  run, and that is intended.
+- **The extra check** (three networks answering together, 0.886; rules in `docs/V2_ADDENDUM_ENSEMBLE.md`, result in
+  `results/exploratory/ensemble.md`) is exploratory. It never replaces the verdict, it is not in the demo, and the
+  video script leaves it out. `scripts/13_ensemble_check.py` refuses a second run unless it gets a written reason.
+- **`README.md` is the write-up.** Its first part follows the organisers' template; "More results" and "Details"
+  hold the rest. On 15 Nov every number was checked against `results/`. Sources 4, 5, 7, 11, 14, 15 and 25 were
+  checked in PubMed, and 9, 10, 23 and 24 on the publisher's page or the arXiv listing as found by web search
+  (doi.org and arxiv.org cannot be opened from the cloud session). The other sources were not opened again.
+  The count of the leak in the first split (5,493 of 8,006) is stored in no result file, because that split was
+  not kept. If a judge asks, say "about two thirds".
+- **Pictures in the README:** four figures from `results/figures/`, plus a clip and a screenshot of the demo in
+  `docs/media/`, made by `node tests/web/record_demo.mjs <folder>` (needs `web/models/`, Playwright and ffmpeg).
+  `scripts/06_heatmap_check.py --mistakes-only` redraws the two figures of each model's mistakes without touching
+  `results/heatmap_check.json`.
+- **Open:** the 2-minute video and its link in the first lines of the README (a comment marks the place). The demo
+  is untested on Safari, Firefox and a real phone. The notebook was never run in Colab, and the README says so.
+  The title of `results/figures/heatmap_adult_examples.png` says "pneumonia" where "lung opacity" is meant (not
+  shown in the README). The first git commit carries a personal e-mail address (blind judging; changing it is the
+  team's decision). The weights of the second-generation models exist only on the home PC; the demo does not need
+  them.
+- Scheduled check-ins (`send_later`, triggers) fail in this setup with "access denied". To be woken later, start a
+  background command that ends when the condition is met.
 
 ## 0. Rules from the team (follow them)
 
@@ -136,8 +98,8 @@ Threshold rule, fixed before testing: 95% sensitivity on validation data. Never 
 
 ## 3. State at handoff
 
-The newest work is always on the branch `claude/loving-hawking-jtiwb3` (later results are pushed there automatically).
-If a file named here is missing in your checkout: `git fetch origin claude/loving-hawking-jtiwb3` and merge it.
+The newest work is on `main`. Work from `main`, and do not merge the older branches
+(`claude/loving-hawking-jtiwb3`, `pc/v2-runs`) into it.
 
 Done and in git: data pipeline, library, children-only model, audit, baselines, shift analysis of the children-only model,
 demo app, Colab notebook, scripts 06 and 07.

@@ -24,8 +24,9 @@ One of us lost a grandmother whose pneumonia was misdiagnosed, and has a mother 
 why we chose this problem, and why the AI + Health track fit us exactly.
 
 The usual way to build such a tool is a well-known tutorial: train a network on a public dataset of chest X-rays
-and report over 90% accuracy. That dataset holds **only children aged 1 to 5 from one hospital in China** [1].
-Yet in 2021 more than twice as many people aged 70 and over died of lung infections as children under 5 [14].
+and report over 90% accuracy. That dataset holds **only children aged 1 to 5 from one hospital in China** [1, 2].
+Pneumonia is the largest infectious cause of death in children [13]. But in 2021 more than twice as many people
+aged 70 and over died of lung infections as children under 5 [14].
 
 **Our question: what happens when the tutorial model meets adults from another hospital, and can the tool notice it?**
 Three papers in 2026 already showed that such a model gets worse on adults [9, 10, 11]. We repeat that result and
@@ -33,6 +34,13 @@ do not claim it. What we add, to our knowledge, is the part a clinic needs: *how
 and what it takes to repair it.
 
 ## What we built
+
+![Screen recording of the demo: an adult chest X-ray is chosen and both models answer](docs/media/demo.gif)
+
+*The demo in 15 seconds. We choose the chest X-ray of a healthy 46-year-old from the adult test X-rays, which
+neither model saw in training. The children-only model gives it a score of 90% and warns that the X-ray is unlike
+the ones it learned from. The second model says 5%: no sign of pneumonia. The same clip as a sharper video:
+[demo.mp4](docs/media/demo.mp4).*
 
 - **What goes in:** a chest X-ray (PNG or JPEG) and, if known, the patient's age group.
 - **What comes out:** for two models side by side, a flag ("review this one first" or not), a score, a heatmap of
@@ -58,6 +66,9 @@ the middle 224. We compared all 32,540 pictures with each other: none is shared 
 The adult dataset's "patientId" turned out to be an exam number, so our first, random split put the same people
 in training and test (5,493 of 8,006 test exams, about two thirds). We split by the real patient number instead.
 
+The adult X-rays come in three kinds: normal, lung opacity, and no lung opacity but not normal ("sick with
+something else"). Lung opacity is what a radiologist marked on the picture. It is not a confirmed pneumonia [5].
+
 **Model.** ResNet-18 [18], a standard image network, pretrained on everyday photos (ImageNet) and loaded from the
 Hugging Face Hub (`timm/resnet18.tv_in1k`). We fine-tuned it to give one score per X-ray. Why this network: it is
 what the tutorials use, it trains in minutes, and at 45 MB it is small enough to run in a browser. We trained it
@@ -68,9 +79,15 @@ is Grad-CAM [17].
 
 ## Results
 
-**The main takeaway:** a model that looks excellent on the tutorial's children (0.975) is, used as built on adults
-from another hospital, right less often than answering "no" every time. A built-in warning notices the new
+**The main takeaway:** the tutorial model scores 0.975 on its own test children. On adults from another hospital
+it is right for 74.7% of X-rays, fewer than the 77.6% of answering "no" every time. Our warning notices the new
 hospital. Adult X-rays repair only part of the damage.
+
+![Bar chart: the children-only model on children and on adults](results/figures/shift_kids_only_headline.png)
+
+*Figure 1. The children-only model on its own test children and on adults from the other hospital (lung opacity
+against everyone else), at the same cut-off. For adults, "pneumonia cases" means lung opacity and "healthy"
+means everyone without one.*
 
 All numbers come from test patients the models never saw: 624 children and 7,694 adults.
 AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 is perfect.
@@ -78,14 +95,16 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 
 | | Children, same hospital | Adults, other hospital |
 |---|---|---|
-| *Baseline:* raw pixels + logistic regression | 0.847 | 0.727 |
-| *Baseline:* ImageNet network without fine-tuning + logistic regression | 0.953 | 0.752 |
+| *Baseline:* raw pixels + logistic regression, trained on children | 0.847 | 0.727 |
+| *Baseline:* ImageNet network without fine-tuning + logistic regression, trained on children | 0.953 | 0.752 |
+| *Baseline:* the same network + logistic regression, trained on adults | | 0.848 |
 | **Our children-only model (the tutorial)** | **0.975** | 0.824 |
 | **Our children + 6,000 adults model** | 0.962 | **0.874** |
 
-Our best baseline scored 0.953 on children and 0.752 on adults. Our models scored 0.975 on children and up to
-0.874 on adults, on held-out test data. Every baseline and every further model is in the table under
-"All results" below.
+Trained on the same children, our best baseline scored 0.953 on children and 0.752 on adults. Our children-only
+model scored 0.975 and 0.824. For our second model the fair baseline is the one trained on adult X-rays: it
+scored 0.848 and our model 0.874, which is 0.025 more (95% interval 0.019 to 0.033). All of this is on held-out
+test data. Further models and baselines are in the table under "All results" below.
 
 **Where it fails, and why we think so**
 
@@ -107,12 +126,17 @@ Our best baseline scored 0.953 on children and 0.752 on adults. Our models score
 - **More adult data stopped helping.** All 15,142 adult X-rays instead of 6,000 gave 0.880 against 0.874. By the
   rule we wrote down before training, that is not a shown improvement (section 6).
 
-**One X-ray that both models get wrong.** In the demo, choose the example "Adult (65), lung opacity". It is a
-standing X-ray on which a radiologist marked a lung opacity. Neither model flags it: both scores stay below the
-cut-off. The children-only model at least shows its warning. The second model shows none, because to it this
-X-ray looks ordinary: the warning notices an unfamiliar hospital, not a wrong answer. It is a typical miss: at
-their cut-offs both models miss more cases on standing X-rays than on bedside ones. Figure 3 in section 3 shows
-each kind of mistake.
+**One X-ray that both models get wrong**
+
+![The demo with the example "Adult (65), lung opacity": both models are marked as missed](docs/media/example_adult_65.png)
+
+*The demo example "Adult (65), lung opacity": a standing X-ray on which a radiologist marked a lung opacity.*
+
+Neither model flags it. The scores are 85% and 11%, both below the cut-offs. The children-only model at least
+shows its warnings. The second model shows none, because to it this X-ray looks ordinary: the warning notices an
+unfamiliar hospital, not a wrong answer. Why it happens, we think: standing X-rays get lower scores than bedside
+ones, and one cut-off has to serve both. At their cut-offs both models miss more cases on standing X-rays than on
+bedside ones. Figure 3 in section 3 shows more mistakes of each kind.
 
 ## What we'd do next
 
@@ -136,12 +160,14 @@ The full list of sources is in section 12. The main ones:
 - **Software:** PyTorch, timm, scikit-learn, ONNX Runtime Web, Hugging Face Hub [20].
 - **Tutorials:** our question starts from the common pneumonia tutorials built on [1], for example the Keras
   example https://keras.io/examples/vision/xray_classification_with_tpus/. We did not copy code from a tutorial.
-- **AI tools:** Claude Code, an AI coding assistant by Anthropic, https://claude.com/claude-code.
+- **AI tools:** Claude Code, an AI coding assistant by Anthropic [26], https://claude.com/claude-code.
   How we used it is in section 11.
 
 ---
 
 ## More results
+
+The write-up ends above. From here on comes the detail behind it, for readers who want to check us.
 
 ### All results
 
@@ -152,44 +178,28 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 |---|---|---|
 | Children-only model (the tutorial) | **0.975** | 0.824 |
 | Children + 6,000 adults | 0.962 | **0.874** |
-| Children + all 15,142 adults (second generation, section 6) | 0.973 | 0.880 (not a shown improvement, see point 4) |
+| Children + all 15,142 adults (second generation, section 6) | 0.973 | 0.880 (not a shown improvement, see below) |
 | *Baseline:* raw pixels + logistic regression, trained on children | 0.847 | 0.727 |
 | *Baseline:* ImageNet network, not fine-tuned, + logistic regression, trained on children | 0.953 | 0.752 |
 | *Baseline:* the same ImageNet network + logistic regression, trained on adults | | 0.848 |
 | *Baseline:* looks at no picture, only at "bedside or standing X-ray" | | 0.706 |
-| *Extra check, exploratory, not in the demo:* three networks of the 15,142 recipe answer together (section 6) | 0.976 | 0.886 (does not change the verdict, see point 4) |
+| *Extra check, exploratory, not in the demo:* three networks of the 15,142 recipe answer together (section 6) | 0.976 | 0.886 (does not change the verdict, see below) |
 
-The demo runs the first two rows. These two published models are unchanged. All other rows are tests only.
+The demo runs the first two rows. All other rows are tests only.
 
-### What we learned
+### More adult data: what it did and what it did not
 
-1. **The headline number hides the failure.** The children-only model still ranks adults fairly well (0.824). But
-   used as built, with its threshold, it is right for 74.7% of adults, while "nobody has pneumonia" is right for
-   77.6% and catches no one. Accuracy is the wrong yardstick when 78% of patients are negative, so we report
-   sensitivity (cases caught) and specificity (non-cases cleared) everywhere.
-2. **The failure has a shape.** 94% of the false alarms are adults who are sick with *something else*. And one
-   threshold does not fit both kinds of X-ray: the children-only model catches 93% of cases on bedside X-rays but
-   only 28% on standing X-rays, which are the ones a small clinic takes.
-3. **The warning notices the wrong hospital, not the wrong answer.** It fires for 7% of the children's test X-rays
-   and 81% of the adults'. But it cannot tell which adult answers are wrong.
-4. **Adult data repairs part of it, then more of it stops helping.** 6,000 adult X-rays lift the adult score from
-   0.824 to 0.874. We then trained 22 more models under a plan written down in advance (section 6). With all 15,142
-   adult X-rays the score is 0.880: a difference of +0.006 (95% interval -0.000 to +0.011), which by our own rule
-   is not a shown improvement. A simple baseline gets most of the way: a network that was never fine-tuned, plus a
-   simple classifier trained on the adult X-rays, reaches 0.848. Our fine-tuning adds 0.025 to that
-   (95% interval 0.019 to 0.033).
-   **Extra check, not part of the plan.** On the last day we let three networks of that recipe answer together:
-   for each X-ray we took the mean of their three scores. Together they score 0.886. That is +0.012 over the
-   6,000-adult model (interval +0.007 to +0.017). Half of it is the averaging itself. The other half is the
-   +0.006 from above, which is not a shown improvement. This check is exploratory: we had already seen the test
-   results when we ran it, and it sets three networks against one. So it is a look, not a proof. The verdict
-   above stays. Nothing else changed: the two published models, the demo and all earlier results are as before.
-5. **The heatmaps do not show where the disease is.** We tested them against radiologists' boxes: the hottest point
-   lies inside a box for 25% (children-only) and 52% (children + adults) of X-rays. Always pointing at the most
-   common spot, without looking at the picture, scores 57%.
-6. **We found a leak in the usual way of splitting the adult data, in our own first attempt.** The dataset's
-   "patientId" is an exam number. A random split put the same people in training and test (5,493 of 8,006 test
-   exams in that first split, about two thirds). We split by the real patient number instead.
+6,000 adult X-rays lift the adult score from 0.824 to 0.874. We then trained 22 more models under a plan written
+down in advance (section 6). With all 15,142 adult X-rays the score is 0.880: a difference of +0.006 (95% interval
+-0.000 to +0.011), which by our own rule is not a shown improvement. A simple baseline gets most of the way: a
+network that was never fine-tuned, plus a simple classifier trained on the adult X-rays, reaches 0.848. The
+fine-tuning of our second model adds 0.025 to that (95% interval 0.019 to 0.033).
+
+**Extra check, not part of the plan.** On the last day we let three networks of that recipe answer together: for
+each X-ray we took the mean of their three scores. Together they score 0.886. That is +0.012 over the 6,000-adult
+model (interval +0.007 to +0.017). Half of it is the averaging itself. The other half is the +0.006 from above,
+which is not a shown improvement. This check is exploratory: we had already seen the test results when we ran
+it, and it sets three networks against one. It cannot count as proof, and the verdict above stays.
 
 ### What did not work
 
@@ -208,10 +218,11 @@ The demo runs the first two rows. These two published models are unchanged. All 
 
 Two hospitals, public data, one training run per published model. "Lung opacity" on the adult X-rays is a
 radiologist's finding on the picture, not a confirmed pneumonia [5]. No authority has checked this tool.
-All pictures are reduced to 224 pixels. Studies disagree on how much sharper pictures help [24, 25], and we did
+The models see pictures of 224 by 224 pixels. Studies disagree on how much sharper pictures help [24, 25], and we did
 not test it.
 The second generation of models (section 6) adds more adult data, three random seeds and a comparison plan fixed
-in advance ([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)). The demo still runs the two published models.
+in advance ([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)). The demo runs the two published models, not the
+second generation.
 
 ---
 
@@ -236,11 +247,12 @@ in advance ([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)). The demo still runs the
 ### 2. Models and the threshold rule
 
 - ResNet-18 pretrained on ImageNet (`timm/resnet18.tv_in1k` from the Hugging Face Hub), fine-tuned whole, one output.
-  Images are made grey, cropped to a square and reduced to 224 pixels. Light augmentation, no left-right flips
-  (the heart is on one side).
+  Pictures are made grey, cut to a square and reduced to 256 pixels, and the model sees the middle 224. Light
+  augmentation, no left-right flips (the heart is on one side).
 - **Threshold rule, fixed before testing:** the highest threshold that still catches 95% of the pneumonia cases
   in the validation X-rays. A screening tool should miss few cases, and pays for that with false alarms.
-- The score is not the chance that the patient has pneumonia. On adults the children-only model's scores are far
+- Each model's scores are rescaled with one number chosen on validation data (temperature scaling [19]). Even so,
+  the score is not the chance that the patient has pneumonia. On adults the children-only model's scores are far
   off (calibration error 0.40; 0 would be perfect), the second model's are close (0.03).
 
 ### 3. How the children-only model fails on adults
@@ -253,11 +265,7 @@ Test patients only. Threshold 0.985, chosen on children's validation X-rays.
 | Adults, lung opacity vs normal | 4,242 | 0.953 | 78.1% | 96.0% | 88.8% | 59.4% |
 | Adults, lung opacity vs everyone else | 7,694 | 0.824 | 78.1% | 73.8% | 74.7% | 77.6% |
 
-![Bar chart: the children-only model on children and on adults](results/figures/shift_kids_only_headline.png)
-
-*Figure 1. The children-only model on its own test children and on adults from the other hospital (lung opacity
-against everyone else), at the same threshold. For adults, "pneumonia cases" means lung opacity and "healthy"
-means everyone without one.*
+Figure 1, under "Results" above, shows the first and the third row as bars.
 
 - **By diagnosis:** it flags 4% of normal adults, 42% of adults who are sick with something else, 78% of adults
   with lung opacity.
@@ -329,7 +337,7 @@ map of the disease.
 
 ### 6. Second generation of models: does more adult data help?
 
-The team asked for a stronger repaired model. Before training anything we wrote down what would be trained, which
+We wanted a stronger repaired model. Before training anything we wrote down what would be trained, which
 model would be the headline, how it would be compared, and what "good" means:
 [docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md). In short:
 
@@ -395,8 +403,7 @@ What else the runs show. These points describe the results; only the comparison 
   such a network.
 - **A second extra check, on the last day (exploratory): three networks answer together.** **Read this with
   care.** We ran this check after we had seen the test results of all single models. It is a second look at the
-  test X-rays, not a proof, and it does not change the verdict above. Nothing else changed either: the two
-  published models, the demo and all earlier results are as before. The demo does not use the averaged model.
+  test X-rays, not a proof, and it does not change the verdict above. The demo does not use the averaged model.
   - *What we did.* The plan had trained the headline recipe three times with different random seeds. For each
     X-ray we took the mean of the three networks' scores (an "ensemble", a common step in chest X-ray work
     [22, 23]). This needs no new training. We committed the rules before we computed any number of the averaged
@@ -430,10 +437,13 @@ An extra check (exploratory, see the last point above) suggests that three netwo
 - No image is shared between training and test, or between the two datasets. 32 exact duplicates sit inside
   single splits of the children's data.
 - **Shortcuts in the children's data:** the image size alone predicts the label (AUROC 0.879), the brightness
-  alone 0.871. A model can look good there for the wrong reasons.
+  alone 0.871. A model can look good there for the wrong reasons [12].
 - A simple classifier tells the two hospitals apart with AUROC 0.998, and still 0.951 for children of the same age.
 - On the children's data, validation looks better than test (even raw pixels reach 0.99 on validation and 0.847
   on test), so the official test set differs from the training pool.
+- **A leak in our own first split of the adult data.** The dataset's "patientId" is an exam number. A random
+  split put the same people in training and test (5,493 of 8,006 test exams in that first split, about two
+  thirds). We split by the real patient number instead.
 
 ### 8. The demo
 
@@ -458,7 +468,8 @@ python scripts/hub_models.py pull     # the published models and their per-image
 | Heatmap test | `python scripts/06_heatmap_check.py --models kids_only kids_plus_adults` |
 | Final comparison | `python scripts/10_v2_report.py test --v1-only` |
 | Demo | open `web/index.html` through a local web server, or `python app/app.py` |
-| Notebook | `notebooks/pneumoshift_colab.ipynb` runs the pipeline in Colab |
+| Demo clip in this README | `node tests/web/record_demo.mjs docs/media` |
+| Notebook | `notebooks/pneumoshift_colab.ipynb` holds the same steps for Colab. We did not get to test it there. |
 
 Training one model takes about an hour on a CPU and a few minutes on a GPU.
 
@@ -475,9 +486,9 @@ Training one model takes about an hour on a CPU and a few minutes on a GPU.
 
 We used an AI coding assistant (Claude, by Anthropic) throughout: to write and review most of the code, to run
 the experiments, and to draft this text. Our mission was not only to build something, but to learn a lot along
-the way. So both of us made sure that we understand every part of the project: what each step does, why it is there, and
-what the numbers mean. We chose the question, the user and the direction, checked the results, and are
-responsible for every statement here.
+the way. So both of us made sure that we understand every part of the project: what each step does, why it is
+there, and what the numbers mean. We chose the question, the user and the direction, checked the results, and
+are responsible for every statement here.
 
 ### 12. Sources
 
@@ -489,10 +500,10 @@ Datasets
 Papers on the datasets
 4. Kermany DS, Goldbaum M, Cai W, et al. Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning. Cell. 2018;172(5):1122-1131.e9. doi:10.1016/j.cell.2018.02.010
 5. Shih G, Wu CC, Halabi SS, et al. Augmenting the National Institutes of Health Chest Radiograph Dataset with Expert Annotations of Possible Pneumonia. Radiology: Artificial Intelligence. 2019;1(1):e180041. doi:10.1148/ryai.2019180041
-6. Wang X, Peng Y, Lu L, Lu Z, Bagheri M, Summers RM. ChestX-ray8: Hospital-scale Chest X-ray Database and Benchmarks. IEEE CVPR. 2017:3462-3471. doi:10.1109/CVPR.2017.369
+6. Wang X, Peng Y, Lu L, Lu Z, Bagheri M, Summers RM. ChestX-ray8: Hospital-scale Chest X-ray Database and Benchmarks on Weakly-Supervised Classification and Localization of Common Thorax Diseases. IEEE CVPR. 2017:3462-3471. doi:10.1109/CVPR.2017.369
 
 Generalisation and shortcuts
-7. Zech JR, Badgeley MA, Liu M, et al. Variable generalization performance of a deep learning model to detect pneumonia in chest radiographs. PLOS Medicine. 2018;15(11):e1002683. doi:10.1371/journal.pmed.1002683
+7. Zech JR, Badgeley MA, Liu M, et al. Variable generalization performance of a deep learning model to detect pneumonia in chest radiographs: A cross-sectional study. PLOS Medicine. 2018;15(11):e1002683. doi:10.1371/journal.pmed.1002683
 8. Roberts M, Driggs D, Thorpe M, et al. Common pitfalls and recommendations for using machine learning to detect and prognosticate for COVID-19 using chest radiographs and CT scans. Nature Machine Intelligence. 2021;3(3):199-217. doi:10.1038/s42256-021-00307-0
 9. Javier-Tarapaqui J, Vega-Huerta H, Guerra-Grados L, et al. Deep Learning Architecture Comparison for Pneumonia Detection in Pediatric Chest X-Rays: Ensemble Learning and Cross-Population External Evaluation. Applied Sciences. 2026;16(21):11063. doi:10.3390/app162111063
 10. Gómez-Vela F, López-Fernandez A, Divina F, García-Torres M. Performance-interpretability trade-offs and generalization in deep learning for pneumonia detection: A benchmarking study. Applied Intelligence. 2026;56(14):414. doi:10.1007/s10489-026-07398-5
@@ -500,8 +511,8 @@ Generalisation and shortcuts
 12. Geirhos R, Jacobsen J-H, Michaelis C, et al. Shortcut learning in deep neural networks. Nature Machine Intelligence. 2020;2(11):665-673. doi:10.1038/s42256-020-00257-z
 
 Impact
-13. World Health Organization. Pneumonia in children (fact sheet). 11 November 2022.
-14. GBD 2021 Lower Respiratory Infections and Antimicrobial Resistance Collaborators. Global, regional, and national incidence and mortality burden of non-COVID-19 lower respiratory infections and aetiologies, 1990-2021. Lancet Infectious Diseases. 2024;24(9):974-1002. doi:10.1016/S1473-3099(24)00176-2
+13. World Health Organization. Pneumonia in children (fact sheet). 11 November 2022. https://www.who.int/news-room/fact-sheets/detail/pneumonia
+14. GBD 2021 Lower Respiratory Infections and Antimicrobial Resistance Collaborators. Global, regional, and national incidence and mortality burden of non-COVID-19 lower respiratory infections and aetiologies, 1990-2021: a systematic analysis from the Global Burden of Disease Study 2021. Lancet Infectious Diseases. 2024;24(9):974-1002. doi:10.1016/S1473-3099(24)00176-2
 15. Kawooya MG, Kisembo HN, Remedios D, et al. An Africa point of view on quality and safety in imaging. Insights into Imaging. 2022;13:58. doi:10.1186/s13244-022-01203-w
 
 Methods and software
@@ -512,7 +523,7 @@ Methods and software
 20. ONNX Runtime Web (Microsoft, MIT licence); PyTorch; scikit-learn; Hugging Face Hub.
 21. Cohen JP, Viviano JD, Bertin P, et al. TorchXRayVision: A library of chest X-ray datasets and models. MIDL 2022. Weights used: `densenet121-res224-chex`.
 22. Irvin J, Rajpurkar P, Ko M, et al. CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison. AAAI 2019.
-23. SynthEnsemble: A Fusion of CNN, Vision Transformer, and Hybrid Models for Multi-Label Chest X-Ray Classification. arXiv:2311.07750, 2023.
-24. Wollek A, et al. Higher Chest X-ray Resolution Improves Classification Performance. arXiv:2306.06051, 2023.
-25. Sabottke CF, Spieler BM. The Effect of Image Resolution on Deep Learning in Radiography. Radiology: Artificial Intelligence. 2020. https://pmc.ncbi.nlm.nih.gov/articles/PMC8017385
+23. Ashraf SMN, Mamun MA, Abdullah HM, Alam MGR. SynthEnsemble: A Fusion of CNN, Vision Transformer, and Hybrid Models for Multi-Label Chest X-Ray Classification. International Conference on Computer and Information Technology (ICCIT). 2023. doi:10.1109/ICCIT60459.2023.10441433 (arXiv:2311.07750)
+24. Wollek A, Hyska S, Sabel B, Ingrisch M, Lasser T. Higher Chest X-ray Resolution Improves Classification Performance. arXiv:2306.06051, 2023.
+25. Sabottke CF, Spieler BM. The Effect of Image Resolution on Deep Learning in Radiography. Radiology: Artificial Intelligence. 2020;2(1):e190015. doi:10.1148/ryai.2019190015
 26. Claude Code (Anthropic), an AI coding assistant. https://claude.com/claude-code. How we used it: section 11.
