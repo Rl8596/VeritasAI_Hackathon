@@ -47,6 +47,7 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 | Children-only model (the tutorial) | **0.975** | 0.824 |
 | Children + 6,000 adults | 0.962 | **0.874** |
 | Children + all 15,142 adults (second generation, section 6) | 0.973 | 0.880 (not a shown improvement, see point 4) |
+| *Extra check, exploratory:* three training runs of the row above, averaged (section 6) | 0.976 | 0.886 |
 | *Baseline:* raw pixels + logistic regression, trained on children | 0.847 | 0.727 |
 | *Baseline:* untrained-for-X-rays ImageNet network + logistic regression, trained on children | 0.953 | 0.752 |
 | *Baseline:* the same ImageNet network + logistic regression, trained on adults | | 0.848 |
@@ -68,7 +69,9 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
    adult X-rays the score is 0.880: a difference of +0.006 (95% interval -0.000 to +0.011), which by our own rule
    is not a shown improvement. A simple baseline gets most of the way: a network that was never fine-tuned, plus a
    simple classifier trained on the adult X-rays, reaches 0.848. Our fine-tuning adds 0.025 to that
-   (95% interval 0.019 to 0.033).
+   (95% interval 0.019 to 0.033). An extra check on the last day, exploratory because the test results were
+   already known: the average of three training runs of that recipe scores 0.886, which is +0.012 over the
+   6,000-adult model (interval +0.007 to +0.017).
 5. **The heatmaps do not show where the disease is.** We tested them against radiologists' boxes: the hottest point
    lies inside a box for 25% (children-only) and 52% (children + adults) of X-rays. Always pointing at the most
    common spot, without looking at the picture, scores 57%.
@@ -91,6 +94,8 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 
 Two hospitals, public data, one training run per published model. "Lung opacity" on the adult X-rays is a
 radiologist's finding on the picture, not a confirmed pneumonia [5]. No authority has checked this tool.
+All pictures are reduced to 224 pixels. Studies disagree on how much sharper pictures help [24, 25], and we did
+not test it.
 The second generation of models (section 6) adds more adult data, three random seeds and a comparison plan fixed
 in advance ([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)). The demo still runs the two published models.
 
@@ -249,9 +254,24 @@ What else the runs show. These points describe the results; only the comparison 
   regression on its features, trained on our adult X-rays, it scores 0.848: the same as the ImageNet baseline
   (difference -0.001, interval -0.008 to +0.006). We did not fine-tune it, so this says nothing about fine-tuning
   such a network.
+- **A second extra check, on the last day: averaging three training runs.** The plan had trained the headline
+  recipe three times with different random seeds. Averaging the answers of the three networks (an "ensemble", a
+  common step in chest X-ray work [22, 23]) needs no new training. We wrote the rules down before computing
+  anything ([docs/V2_ADDENDUM_ENSEMBLE.md](docs/V2_ADDENDUM_ENSEMBLE.md)): the three members by name, a plain
+  mean, the same comparison rule as before. Result: 0.886 (0.874 to 0.898). That is +0.012 over the published
+  model (+0.007 to +0.017) and positive inside both views (standing +0.023, bedside +0.017), so by the rule it
+  counts as better. Half of the gain is the averaging itself: +0.006 over one run of the same recipe (+0.004 to
+  +0.008). At the screening threshold it catches 97% of the cases and clears 54% of the others (published model:
+  96% and 50%). That is about 32 fewer false alarms per 1,000 adults, but the intervals of the two models overlap
+  (44% to 65% against 43% to 59%). It is right for 63.8% of adults, still below "always no". Averaging all seven
+  networks that were trained with all adult X-rays gives 0.889. **Read this with care:** we ran this check after
+  we had seen the test results of the single models, so it is exploratory and does not change the verdict above.
+  The price is three networks instead of one, so three times the download and the computing time. The demo does
+  not use it. Full table: [results/exploratory/ensemble.md](results/exploratory/ensemble.md).
 
 **What this means for the clinic.** About 6,000 labelled local X-rays bring nearly all of the gain. Beyond that,
 more X-rays of the same kind add about 0.01. The gap that remains is not closed by more data of the same kind.
+Training the recipe three times and averaging adds about 0.006 more, for three times the computing cost.
 
 ### 7. Checks on the data
 
@@ -339,3 +359,6 @@ Methods and software
 20. ONNX Runtime Web (Microsoft, MIT licence); PyTorch; scikit-learn; Hugging Face Hub.
 21. Cohen JP, Viviano JD, Bertin P, et al. TorchXRayVision: A library of chest X-ray datasets and models. MIDL 2022. Weights used: `densenet121-res224-chex`.
 22. Irvin J, Rajpurkar P, Ko M, et al. CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison. AAAI 2019.
+23. SynthEnsemble: A Fusion of CNN, Vision Transformer, and Hybrid Models for Multi-Label Chest X-Ray Classification. arXiv:2311.07750, 2023.
+24. Wollek A, et al. Higher Chest X-ray Resolution Improves Classification Performance. arXiv:2306.06051, 2023.
+25. Sabottke CF, Spieler BM. The Effect of Image Resolution on Deep Learning in Radiography. Radiology: Artificial Intelligence. 2020. https://pmc.ncbi.nlm.nih.gov/articles/PMC8017385

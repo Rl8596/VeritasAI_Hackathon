@@ -5,7 +5,8 @@ about 1,400 pixels wide, so both model cards are visible. Open the page once bef
 are already downloaded. Speak slowly: the text below is about 270 words, which fits 2 minutes.
 
 The numbers of the second generation of models (README section 6) are in since 14 Nov: 0.88 with all adult
-X-rays against 0.87 with 6,000, not a shown improvement.
+X-rays against 0.87 with 6,000, not a shown improvement. An extra check on 15 Nov (three training runs averaged:
+0.886, exploratory) is in README section 6. It is left out of the script on purpose, to stay within 2 minutes.
 
 | Time | On screen | Say |
 |---|---|---|

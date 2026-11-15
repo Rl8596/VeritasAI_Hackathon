@@ -19,6 +19,16 @@ failed. Their results are in `results/v2/`. The test results were computed ONCE 
 0.874. Difference +0.006 (95% interval -0.000 to +0.011): by the rule fixed in advance, no improvement is shown.
 This is written into README section 6, summary point 4 and the video script. Do not soften or dramatise it.
 
+**Extra check on Sun 15 Nov, 12:30 UTC (exploratory).** The team asked for the most promising improvement that is
+still honest. The home PC was unreachable, so nothing that needs training was possible. Done instead: the average
+of the three seeds of `v2_kids_plus_all` ("ensemble"), from stored scores, no training. Rules in
+`docs/V2_ADDENDUM_ENSEMBLE.md` (committed first), script `scripts/13_ensemble_check.py`, result
+`results/exploratory/ensemble.md`: 0.886 on adults, +0.012 over the published model (interval +0.007 to +0.017),
++0.006 over one run (+0.004 to +0.008). Computed once; the script refuses a second run. It is in README section 6,
+labelled exploratory, because the single models' test results were known before. It never replaces the verdict
+above. Sources 23 to 25 in the README were found by web search; arxiv.org cannot be opened from the cloud session,
+so their author lists are short. The video script does not mention this check (2-minute limit).
+
 **Do next, in this order:**
 
 1. Check every number in `README.md` (summary and sections 1 to 5) and in `web/index.html` against
