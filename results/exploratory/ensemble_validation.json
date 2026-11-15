@@ -1,0 +1,45 @@
+{
+ "note": "Validation X-rays only. Written before any test number of an averaged model is computed. The members are fixed by name in docs/V2_ADDENDUM_ENSEMBLE.md; nothing is chosen from this table.",
+ "rows": {
+  "kids_plus_adults": {
+   "adult_val_auroc": 0.8740861655226295,
+   "adult_val_auroc_PA": 0.8287271851093307,
+   "adult_val_auroc_AP": 0.8299638240946603,
+   "children_val_auroc": 0.9992773858514599,
+   "members": null
+  },
+  "v2_kids_plus_all": {
+   "adult_val_auroc": 0.8744105418829177,
+   "adult_val_auroc_PA": 0.8356725498463948,
+   "adult_val_auroc_AP": 0.8287296981572898,
+   "children_val_auroc": 0.999473349010386,
+   "members": null
+  },
+  "ensemble_3": {
+   "adult_val_auroc": 0.8801054397566828,
+   "adult_val_auroc_PA": 0.846702005903259,
+   "adult_val_auroc_AP": 0.833697604602379,
+   "children_val_auroc": 0.9996325690770135,
+   "members": [
+    "v2_kids_plus_all",
+    "v2_kids_plus_all_s2027",
+    "v2_kids_plus_all_s2028"
+   ]
+  },
+  "ensemble_7": {
+   "adult_val_auroc": 0.8850478193537586,
+   "adult_val_auroc_PA": 0.8553701584241913,
+   "adult_val_auroc_AP": 0.8383577646305158,
+   "children_val_auroc": 0.9989956888105036,
+   "members": [
+    "v2_kids_plus_all",
+    "v2_kids_plus_all_s2027",
+    "v2_kids_plus_all_s2028",
+    "v2_adults_all",
+    "v2_adults_all_s2027",
+    "v2_adults_all_s2028",
+    "v2_kids_plus_all_r50"
+   ]
+  }
+ }
+}
