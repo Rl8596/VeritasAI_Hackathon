@@ -10,14 +10,15 @@
 <!-- TEAM: when the video is uploaded, add this line under "Try it" and end it with two spaces:
 **Video (2 minutes):** the link -->
 
+This project is a prototype and is not medical advice.  
 Research demo. Not a medical device. Not for diagnosis.
 
 ---
 
 ## The problem
 
-A small clinic takes a chest X-ray, but no radiologist is there to read it. In Malawi there are 3 radiologists for
-19.7 million people [15]. A tool that sorts X-rays into "look at this one first" could save hours for the patients
+A small clinic takes a chest X-ray, but no radiologist is there to read it. In Malawi, a survey published in 2022
+counted 3 radiologists for 19.7 million people [15]. A tool that sorts X-rays into "look at this one first" could save hours for the patients
 who need them most.
 
 One of us lost a grandmother whose pneumonia was misdiagnosed, and has a mother who works in a hospital. That is
@@ -50,6 +51,18 @@ the ones it learned from. The second model says 5%: no sign of pneumonia. The sa
   a phone and choose the X-ray. Both models run inside the browser, so the picture never leaves the device and
   nothing has to be installed. A flagged X-ray goes to the top of the doctor's pile. A warning means: do not rely
   on this result.
+
+## What we added
+
+We started from the suggested project 4.1.1, pneumonia screening from chest X-rays, and added three things of our
+own:
+
+- **Our own setting:** a clinic without a radiologist, where the tool sorts which X-ray a doctor sees first.
+- **Our own data:** a second public dataset, 26,684 chest X-rays of adults from another hospital [3]. The tutorial
+  dataset holds only children.
+- **Our own question:** what happens when the tutorial model meets those adults, and can the tool notice it? We
+  measured how it fails, built a warning for X-rays unlike the training data, and tested what that warning can and
+  cannot do.
 
 ## How it works
 
@@ -90,7 +103,8 @@ against everyone else), at the same cut-off. For adults, "pneumonia cases" means
 means everyone without one. The bars do not show the share of right answers named above: that is 93.8% for the
 children and 74.7% for the adults.*
 
-All numbers come from test patients the models never saw: 624 children and 7,694 adults.
+All numbers come from test X-rays of patients the models never saw: 624 X-rays of children and 7,694 X-rays of
+adults.
 AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 is perfect.
 "Adults" means: lung opacity against everyone else, including adults who are sick with something else.
 
@@ -162,7 +176,7 @@ The full list of sources is in section 12. The main ones:
 - **Tutorials:** our question starts from the common pneumonia tutorials built on [1], for example the Keras
   example https://keras.io/examples/vision/xray_classification_with_tpus/. We did not copy code from a tutorial.
 - **AI tools:** Claude Code, an AI coding assistant by Anthropic [26], https://claude.com/claude-code.
-  How we used it is in section 11.
+  How we used it is in section 11. The demo video was edited by Claude.
 
 ---
 
