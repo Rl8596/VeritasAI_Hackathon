@@ -87,7 +87,8 @@ hospital. Adult X-rays repair only part of the damage.
 
 *Figure 1. The children-only model on its own test children and on adults from the other hospital (lung opacity
 against everyone else), at the same cut-off. For adults, "pneumonia cases" means lung opacity and "healthy"
-means everyone without one.*
+means everyone without one. The bars do not show the share of right answers named above: that is 93.8% for the
+children and 74.7% for the adults.*
 
 All numbers come from test patients the models never saw: 624 children and 7,694 adults.
 AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 is perfect.
@@ -218,8 +219,8 @@ it, and it sets three networks against one. It cannot count as proof, and the ve
 
 Two hospitals, public data, one training run per published model. "Lung opacity" on the adult X-rays is a
 radiologist's finding on the picture, not a confirmed pneumonia [5]. No authority has checked this tool.
-The models see pictures of 224 by 224 pixels. Studies disagree on how much sharper pictures help [24, 25], and we did
-not test it.
+The models see pictures of 224 by 224 pixels. Studies disagree on how much sharper pictures help [24, 25], and we
+did not test it.
 The second generation of models (section 6) adds more adult data, three random seeds and a comparison plan fixed
 in advance ([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)). The demo runs the two published models, not the
 second generation.

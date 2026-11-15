@@ -5,7 +5,7 @@ Read this file, then `docs/HACKATHON_CONTEXT.md` (rules, judging). `docs/RESEARC
 **Deadline: Sun 15 Nov 2026, 11:59 PM ET (= Mon 16 Nov, 04:59 UTC).** Round 1 is judged blind from the repo, the
 demo link and a 2-minute video. A live final with questions may follow.
 
-## State on Sun 15 Nov 2026, 21:30 UTC
+## State on Sun 15 Nov 2026, 21:00 UTC
 
 - **The project is finished.** Nothing is running. Do not train anything, and put no new number into the write-up
   (`docs/V2_PROTOCOL.md`: no training after 15 Nov 10:00 UTC, no new number after 12:00 UTC). What remains is
