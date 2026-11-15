@@ -7,6 +7,9 @@
 **Try it:** https://huggingface.co/spaces/RL8596/pneumoshift (runs in your browser, nothing is uploaded)  
 **Models:** [children-only](https://huggingface.co/RL8596/pneumoshift-kids-only), [children + adults](https://huggingface.co/RL8596/pneumoshift-kids-plus-adults)
 
+<!-- TEAM: when the video is uploaded, add this line under "Try it" and end it with two spaces:
+**Video (2 minutes):** the link -->
+
 Research demo. Not a medical device. Not for diagnosis.
 
 ---
@@ -53,7 +56,7 @@ and what it takes to repair it.
 How we cleaned it: every picture is turned grey, cut to a square and reduced to 256 pixels, and the model sees
 the middle 224. We compared all 32,540 pictures with each other: none is shared between training and test data.
 The adult dataset's "patientId" turned out to be an exam number, so our first, random split put the same people
-in training and test (5,493 of 8,006 test exams). We split by the real patient number instead.
+in training and test (5,493 of 8,006 test exams, about two thirds). We split by the real patient number instead.
 
 **Model.** ResNet-18 [18], a standard image network, pretrained on everyday photos (ImageNet) and loaded from the
 Hugging Face Hub (`timm/resnet18.tv_in1k`). We fine-tuned it to give one score per X-ray. Why this network: it is
@@ -64,6 +67,10 @@ measures how far an X-ray lies from the training X-rays in the network's own des
 is Grad-CAM [17].
 
 ## Results
+
+**The main takeaway:** a model that looks excellent on the tutorial's children (0.975) is, used as built on adults
+from another hospital, right less often than answering "no" every time. A built-in warning notices the new
+hospital. Adult X-rays repair only part of the damage.
 
 All numbers come from test patients the models never saw: 624 children and 7,694 adults.
 AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 is perfect.
@@ -99,6 +106,13 @@ Our best baseline scored 0.953 on children and 0.752 on adults. Our models score
   (children-only) and 52% (children + adults) of X-rays. Always pointing at the most common spot scores 57%.
 - **More adult data stopped helping.** All 15,142 adult X-rays instead of 6,000 gave 0.880 against 0.874. By the
   rule we wrote down before training, that is not a shown improvement (section 6).
+
+**One X-ray that both models get wrong.** In the demo, choose the example "Adult (65), lung opacity". It is a
+standing X-ray on which a radiologist marked a lung opacity. Neither model flags it: both scores stay below the
+cut-off. The children-only model at least shows its warning. The second model shows none, because to it this
+X-ray looks ordinary: the warning notices an unfamiliar hospital, not a wrong answer. It is a typical miss: at
+their cut-offs both models miss more cases on standing X-rays than on bedside ones. Figure 3 in section 3 shows
+each kind of mistake.
 
 ## What we'd do next
 
@@ -140,7 +154,7 @@ AUROC measures how well a model ranks sick above healthy: 0.5 is guessing, 1.0 i
 | Children + 6,000 adults | 0.962 | **0.874** |
 | Children + all 15,142 adults (second generation, section 6) | 0.973 | 0.880 (not a shown improvement, see point 4) |
 | *Baseline:* raw pixels + logistic regression, trained on children | 0.847 | 0.727 |
-| *Baseline:* untrained-for-X-rays ImageNet network + logistic regression, trained on children | 0.953 | 0.752 |
+| *Baseline:* ImageNet network, not fine-tuned, + logistic regression, trained on children | 0.953 | 0.752 |
 | *Baseline:* the same ImageNet network + logistic regression, trained on adults | | 0.848 |
 | *Baseline:* looks at no picture, only at "bedside or standing X-ray" | | 0.706 |
 | *Extra check, exploratory, not in the demo:* three networks of the 15,142 recipe answer together (section 6) | 0.976 | 0.886 (does not change the verdict, see point 4) |
@@ -175,7 +189,7 @@ The demo runs the first two rows. These two published models are unchanged. All 
    common spot, without looking at the picture, scores 57%.
 6. **We found a leak in the usual way of splitting the adult data, in our own first attempt.** The dataset's
    "patientId" is an exam number. A random split put the same people in training and test (5,493 of 8,006 test
-   exams). We split by the real patient number instead.
+   exams in that first split, about two thirds). We split by the real patient number instead.
 
 ### What did not work
 
@@ -214,8 +228,8 @@ in advance ([docs/V2_PROTOCOL.md](docs/V2_PROTOCOL.md)). The demo still runs the
 
 - **Validation data** is used for every choice (which training round to keep, the threshold). **Test data** is
   only scored. Nothing was tuned on test data.
-- The adult dataset contains 1,281 X-rays of minors. They are filtered out by the age in the file header and used
-  for one check only (section 4).
+- The adult dataset also holds 1,276 X-rays of minors and 5 with an impossible age in the file header. These
+  1,281 are left out of all adult results. The minors are used for one check only (section 4).
 - We examined a third dataset ("Epic Chittagong" on the Hub) as independent test data and rejected it: it contains
   copies of the children's images.
 
@@ -235,15 +249,26 @@ Test patients only. Threshold 0.985, chosen on children's validation X-rays.
 
 | Test group | X-rays | AUROC | Cases caught | Non-cases cleared | Right answers | "Always the same answer" |
 |---|---|---|---|---|---|---|
-| Children 1 to 5, same hospital | 624 | 0.975 | 97.9% | 86.7% | 93.7% | 62.5% |
-| Adults, lung opacity vs normal | 4,242 | 0.953 | 78.1% | 96.0% | 88.7% | 59.3% |
-| Adults, lung opacity vs everyone else | 7,694 | 0.824 | 78.1% | 73.7% | 74.7% | 77.6% |
+| Children 1 to 5, same hospital | 624 | 0.975 | 97.9% | 86.8% | 93.8% | 62.5% |
+| Adults, lung opacity vs normal | 4,242 | 0.953 | 78.1% | 96.0% | 88.8% | 59.4% |
+| Adults, lung opacity vs everyone else | 7,694 | 0.824 | 78.1% | 73.8% | 74.7% | 77.6% |
+
+![Bar chart: the children-only model on children and on adults](results/figures/shift_kids_only_headline.png)
+
+*Figure 1. The children-only model on its own test children and on adults from the other hospital (lung opacity
+against everyone else), at the same threshold. For adults, "pneumonia cases" means lung opacity and "healthy"
+means everyone without one.*
 
 - **By diagnosis:** it flags 4% of normal adults, 42% of adults who are sick with something else, 78% of adults
   with lung opacity.
 - **By X-ray view:** standing (PA): 28% of cases caught, 95% of non-cases cleared. Bedside (AP): 93% caught, 36%
   cleared. Sicker patients are X-rayed in bed, so the view alone predicts the label (0.706).
 - **By age and sex:** small differences (AUROC 0.841 at 18 to 39, 0.802 at 60 and over; women 0.818, men 0.829).
+
+![Dot chart: ranking score of the children-only model by age, sex and X-ray view](results/figures/shift_kids_only_subgroups.png)
+
+*Figure 2. Ranking score (AUROC) of the children-only model inside each group of the other hospital's test
+X-rays. The lines are 95% intervals. The group aged 1 to 5 holds only 21 X-rays.*
 
 The second model (children + 6,000 adults, threshold 0.157 chosen on children's and adult validation X-rays together):
 
@@ -255,6 +280,16 @@ The second model (children + 6,000 adults, threshold 0.157 chosen on children's 
 
 It still flags 57% of adults who are sick with something else. Telling lung opacity from other lung disease is the
 hard part, and more adult data did not solve it.
+
+**Examples the model gets wrong.**
+
+![Twelve test X-rays that the children + adults model gets wrong, with heatmaps](results/figures/heatmap_failures_kids_plus_adults.png)
+
+*Figure 3. The most confident mistakes of the children + adults model on test X-rays. Top: healthy children it
+flags. Middle: adults with a lung opacity it misses; all four are standing X-rays (PA). Bottom: adults without a
+lung opacity it flags; all four are bedside X-rays (AP). It misses no child with pneumonia in the test set, so
+there is no such row. The same picture for the children-only model:
+[heatmap_failures_kids_only.png](results/figures/heatmap_failures_kids_only.png).*
 
 **A fairer comparison of the two models.** Each model above sits at a different point: the first catches 78% of
 adult cases, the second 91%. With the threshold chosen on adult validation X-rays, so that both catch about 95%:
@@ -284,6 +319,10 @@ On 1,500 adult test X-rays with boxes drawn by radiologists, we asked: does the 
 | Random point | Image centre | Always the most common spot | Children-only model | Children + adults model |
 |---|---|---|---|---|
 | 15% | 10% | 57% | 25% | 52% |
+
+![Bar chart: how often the hottest point of the heatmap lies inside a radiologist's box](results/figures/heatmap_pointing_test.png)
+
+*Figure 4. The heatmap test. Grey bars are reference points that need no model.*
 
 The heatmap has a 7 by 7 grid, so it is coarse. The demo says that it shows what influenced the model and is not a
 map of the disease.

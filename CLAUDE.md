@@ -36,12 +36,30 @@ dated notes in `docs/V2_ADDENDUM_ENSEMBLE.md`). The wording was tightened after 
 new number enters the write-up after 12:00 UTC.** From here on: wording, checks of existing numbers, and the
 team's own tasks only.
 
-**Do next, in this order:**
+**Review on Sun 15 Nov, 17:00 to 18:15 UTC (done, no finding changed).** Every number in `README.md` (summary
+and sections 1 to 7) and in `web/index.html` was checked against `results/*.json`, `results/v2_report.md` and
+`results/exploratory/ensemble.md`.
 
-1. Check every number in `README.md` (summary and sections 1 to 5) and in `web/index.html` against
-   `results/*.json` once. Section 6 was written from `results/v2_report.md` on 14 Nov.
-2. Remind the team of their own tasks (section 9), the AI-assistance paragraph (README section 11) and the personal
-   e-mail address in the first git commit (blind judging; rewriting history is their decision).
+- Five last digits in the first table of README section 3 had been cut off instead of rounded (for example 86.7%
+  for 0.8675). Corrected there and in section 4 of this file.
+- "1,281 X-rays of minors" was wrong in one detail: 1,276 minors and 5 X-rays with an impossible age.
+- The leak count "5,493 of 8,006" is not stored in any result file. It comes from the first session's first
+  split, which was not kept. As a check: the exam-level fallback in `src/pneumoshift/data.py` gives 5,452 of 8,007
+  today. The README keeps the original count and adds "about two thirds". If a judge asks, say "about two thirds".
+- The README now shows four existing figures (sections 3 and 5) and, under "Results", a one-sentence takeaway
+  and one example that both models get wrong (the demo example "Adult (65), lung opacity"). No new result was
+  computed. At 20:30 UTC this was fitted into the template version of the write-up from the other session.
+- `scripts/06_heatmap_check.py --mistakes-only` redraws the two figures of each model's mistakes (no empty row,
+  "lung opacity" for adults) and leaves `results/heatmap_check.json` untouched. Still open: the title of
+  `heatmap_adult_examples.png` says "pneumonia" where "lung opacity" is meant (not shown in the README).
+- `docs/VIDEO_SCRIPT.md` had about 330 spoken words, too many for 2 minutes. It now has about 285, and a short
+  list of questions for the live round.
+
+**Do next:**
+
+1. Remind the team of their own tasks (section 9) and the personal e-mail address in the first git commit (blind
+   judging; rewriting history is their decision).
+2. When the video exists: put its link into the first lines of `README.md` (a comment marks the place).
 
 Scheduled check-ins (`send_later`, triggers) fail in this setup with "access denied". To be woken later, start a
 background command that ends when the condition is met.
@@ -201,8 +219,8 @@ first: it was committed before any v2 model was trained and fixes the recipe, th
 - New finding from the rehearsal, already in the README: a frozen ImageNet network + logistic regression trained on
   the adult X-rays reaches 0.848 on adults. That is the fair baseline for any adult-trained model.
 - Multi-agent reviews are expensive: one plan review used most of a 5-hour usage allowance. Ask before starting one.
-- Open: the `06` heatmap figures still have small flaws (an empty row when a model has no misses; "pneumonia" in a
-  title where "lung opacity" is meant). One early commit in the git history carries a personal e-mail address:
+- The two flaws of the `06` mistakes figures were fixed on 15 Nov (see "Review" above). Left: "pneumonia" in the
+  title of `heatmap_adult_examples.png`. One early commit in the git history carries a personal e-mail address:
   tell the team before the repo is made public (blind judging).
 
 ## 4. Results so far (children-only model, held-out test patients)
@@ -211,9 +229,9 @@ Threshold 0.985, temperature-scaled scores.
 
 | Test group | n | AUROC | Sensitivity | Specificity | Accuracy | "Always the majority class" |
 |---|---|---|---|---|---|---|
-| Children 1 to 5, training hospital | 624 | 0.975 | 0.979 | 0.867 | 0.937 | 0.625 |
-| Adults, lung opacity vs normal | 4,242 | 0.953 | 0.781 | 0.960 | 0.887 | 0.593 |
-| Adults, lung opacity vs everything else | 7,694 | 0.824 | 0.781 | 0.737 | **0.747** | **0.776** |
+| Children 1 to 5, training hospital | 624 | 0.975 | 0.979 | 0.868 | 0.938 | 0.625 |
+| Adults, lung opacity vs normal | 4,242 | 0.953 | 0.781 | 0.960 | 0.888 | 0.594 |
+| Adults, lung opacity vs everything else | 7,694 | 0.824 | 0.781 | 0.738 | **0.747** | **0.776** |
 
 Simple baselines, AUROC in the same three groups: raw 32x32 pixels + logistic regression 0.847 / 0.835 / 0.727;
 frozen ImageNet ResNet-18 + logistic regression 0.953 / 0.876 / 0.752. The fine-tuned model beats both.
@@ -221,16 +239,16 @@ frozen ImageNet ResNet-18 + logistic regression 0.953 / 0.876 / 0.752. The fine-
 What goes wrong on adults:
 
 - Realistic mix: accuracy 74.7% is below the 77.6% of always answering "no pneumonia".
-- It flags 42.4% of adults who are sick with something else (normal: 3.9%, lung opacity: 78.1%).
+- It flags 42.5% of adults who are sick with something else (normal: 4.0%, lung opacity: 78.1%).
 - One threshold does not fit both views. Standing (PA): sensitivity 0.277, specificity 0.949. Bedside (AP): sensitivity 0.930, specificity 0.362. AUROC inside each view (vs everything else): PA 0.795, AP 0.727.
-- Scores are miscalibrated: ECE 0.136 on children, 0.397 on adults.
+- Scores are miscalibrated: ECE 0.136 on children, 0.398 on adults.
 - By age (vs everything else): 18 to 39 0.841, 40 to 59 0.826, 60+ 0.802. Women 0.818, men 0.829.
 
 The "unlike my training data" warning (Mahalanobis distance on the 512 embedding numbers, limit = 95th percentile of children's validation data):
 
 - Fires for 7.2% of the children's test X-rays and 80.6% of adults (AUROC children vs adults 0.957).
 - It detects the hospital, not the age: it also fires for 97.1% of the other hospital's patients under 18 (n=311).
-- It does not predict which adult answers are wrong (AUROC 0.307). It is a "wrong population" alarm, not an error detector.
+- It does not predict which adult answers are wrong (AUROC 0.308). It is a "wrong population" alarm, not an error detector.
 
 Repair with adult X-rays, last layer only (AUROC adults vs everything else): 0 → 0.821, 100 → 0.781, 1,000 → 0.806, 15,142 → 0.839.
 Retraining only the last layer barely helps. Whole-network results come from step 07.
@@ -243,7 +261,7 @@ Second model, children + 6,000 adult X-rays, whole network retrained (arrived af
 | Adults, lung opacity vs normal | 0.979 | 0.911 | 0.948 | 0.933 | 0.594 |
 | Adults, lung opacity vs everything else | 0.874 | 0.911 | 0.650 | **0.708** | **0.776** |
 
-- Adult data helps ranking (0.824 to 0.874) and sensitivity (0.781 to 0.911), but the children pay: their specificity falls from 0.867 to 0.457.
+- Adult data helps ranking (0.824 to 0.874) and sensitivity (0.781 to 0.911), but the children pay: their specificity falls from 0.868 to 0.457.
 - Still below the constant answer in the realistic mix. Say honestly that a 95%-sensitivity screening threshold trades accuracy for caught cases, so also report sensitivity and specificity, not accuracy alone.
 - It flags 56.8% of adults who are sick with something else (normal 5.2%, lung opacity 91.1%). This confusion is the hard part and adult data did not fix it.
 - The view problem stays: PA sensitivity 0.715, specificity 0.842; AP sensitivity 0.969, specificity 0.307.

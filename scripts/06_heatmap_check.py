@@ -11,6 +11,10 @@ centre, and the one fixed spot where opacities are most common (learned on other
 Part 2, the failure gallery: the most confident mistakes of each model, with heatmaps.
 
 Writes results/heatmap_check.json and figures results/figures/heatmap_*.png.
+
+    python scripts/06_heatmap_check.py --models kids_only kids_plus_adults --mistakes-only
+
+redraws only the two figures of part 2. It skips part 1 and leaves results/heatmap_check.json as it is.
 """
 import argparse
 import json
@@ -55,11 +59,63 @@ def cams_for(model, X, idx, batch=32):
     return np.concatenate(maps)
 
 
+NICE = {"kids_only": "Children-only model", "kids_plus_adults": "Children + adults model", "adults_only": "Adults-only model"}
+
+
+def failure_gallery(models, Xk, mk, Xr, mr) -> dict:
+    """Part 2: the most confident mistakes of each model, one figure per model. -> counts per model and group.
+
+    A row is drawn only if the model made that kind of mistake (the second model misses no child in the test set).
+    On adults a missed case is a missed lung opacity: a radiologist's finding, not a confirmed pneumonia."""
+    import matplotlib.pyplot as plt
+
+    counts = {}
+    for name, (model, cfg) in models.items():
+        T, thr = cfg["temperature"], cfg["threshold"]
+        d = C.ARTIFACTS_DIR / name
+        pk = modeling.sigmoid(np.load(d / "preds_kermany.npz")["logits"], T)
+        pr = modeling.sigmoid(np.load(d / "preds_rsna.npz")["logits"], T)
+        groups = [("Children 1-5", "Missed pneumonia", Xk, mk, pk, (mk.split == "test").values),
+                  ("Adults", "Missed lung opacity", Xr, mr, pr, ((mr.split == "test") & mr.is_adult).values)]
+        counts[name], rows = {}, []
+        for gname, missed_label, X, meta, p, m in groups:
+            y = meta.label.values
+            missed = np.flatnonzero(m & (y == 1) & (p < thr))
+            false_alarm = np.flatnonzero(m & (y == 0) & (p >= thr))
+            counts[name][gname] = dict(n_test=int(m.sum()), missed_pneumonia=int(len(missed)), false_alarms=int(len(false_alarm)))
+            for kind, idx, order in ((missed_label, missed, np.argsort(p[missed])),
+                                     ("False alarm", false_alarm, np.argsort(-p[false_alarm]))):
+                if len(idx):
+                    rows.append((f"{gname}\n{kind}", X, meta, p, idx[order][:4]))
+        fig, axes = plt.subplots(len(rows), 4, figsize=(9.6, 2.55 * len(rows)), squeeze=False)
+        for row, (label, X, meta, p, pick) in enumerate(rows):
+            cams = cams_for(model, X, pick)
+            for j in range(4):
+                ax = axes[row, j]; ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
+                if j < len(pick):
+                    gray = center_crop(np.asarray(X[pick[j]]))
+                    ax.imshow(cam.overlay(gray, cams[j]))
+                    extra = f", age {int(meta.age[pick[j]])}, {meta['view'][pick[j]]}" if "age" in meta else ""
+                    ax.set_title(f"model says {p[pick[j]]:.0%}{extra}", fontsize=9, fontweight="normal", loc="center")
+                else:
+                    ax.axis("off")
+                if j == 0:
+                    ax.set_ylabel(label, fontsize=10, color=plotting.TEXT)
+        fig.suptitle(f"{NICE.get(name, name)}: its most confident mistakes", x=0.01, ha="left", fontweight="bold", fontsize=13)
+        fig.tight_layout()
+        plotting.finish(fig, C.FIGURES_DIR / f"heatmap_failures_{name}.png",
+                        note=f"Held-out test images. Flag threshold {thr:.2f}. Heatmap = what pushed the model's score up. "
+                             "It is not a map of the disease.")
+    return counts
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--models", nargs="+", default=["kids_only"])
     ap.add_argument("--max-images", type=int, default=1500)
     ap.add_argument("--threads", type=int, default=2)
+    ap.add_argument("--mistakes-only", action="store_true",
+                    help="redraw only the figures of part 2; skip part 1 and do not rewrite results/heatmap_check.json")
     args = ap.parse_args()
     torch.set_num_threads(args.threads)
     import matplotlib.pyplot as plt
@@ -72,6 +128,9 @@ if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
     models = {m: modeling.load_checkpoint(C.ARTIFACTS_DIR / m, device) for m in args.models if (C.ARTIFACTS_DIR / m).exists()}
     res = {}
+    if args.mistakes_only:
+        print(json.dumps(failure_gallery(models, Xk, mk, Xr, mr), indent=1))
+        sys.exit(0)
 
     # ---------------- Part 1: pointing test on adult test X-rays with pneumonia ----------------
     sel = mr.idx[(mr.split == "test") & mr.is_adult & (mr.label == 1)].values
@@ -111,8 +170,7 @@ if __name__ == "__main__":
             ("Image centre", pt["reference"]["image_centre"], plotting.NEUTRAL),
             ("Most common spot", pt["reference"]["most_common_spot"], plotting.NEUTRAL)]
     colours = {"kids_only": plotting.CHILDREN, "kids_plus_adults": plotting.THIRD, "adults_only": plotting.ADULTS}
-    nice = {"kids_only": "Children-only model", "kids_plus_adults": "Children + adults model", "adults_only": "Adults-only model"}
-    rows += [(nice.get(n, n), v["hit_rate"], colours.get(n, plotting.THIRD)) for n, v in pt["models"].items()]
+    rows += [(NICE.get(n, n), v["hit_rate"], colours.get(n, plotting.THIRD)) for n, v in pt["models"].items()]
     fig, ax = plt.subplots(figsize=(7.6, 0.5 * len(rows) + 1.4))
     yy = np.arange(len(rows))[::-1]
     ax.barh(yy, [r[1] for r in rows], color=[r[2] for r in rows], height=0.6)
@@ -131,7 +189,7 @@ if __name__ == "__main__":
     for j, i in enumerate(show):
         gray = center_crop(np.asarray(Xr[i]))
         panels = [("X-ray + radiologist boxes", np.repeat(gray[..., None], 3, 2))]
-        panels += [(nice.get(n, n), cam.overlay(gray, all_cams[n][j])) for n in models]
+        panels += [(NICE.get(n, n), cam.overlay(gray, all_cams[n][j])) for n in models]
         for r_, (title, img) in enumerate(panels):
             ax = axes[r_, j]
             ax.imshow(img); ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
@@ -145,42 +203,7 @@ if __name__ == "__main__":
     plotting.finish(fig, C.FIGURES_DIR / "heatmap_adult_examples.png")
 
     # ---------------- Part 2: most confident mistakes ----------------
-    res["failures"] = {}
-    for name, (model, cfg) in models.items():
-        T, thr = cfg["temperature"], cfg["threshold"]
-        d = C.ARTIFACTS_DIR / name
-        pk = modeling.sigmoid(np.load(d / "preds_kermany.npz")["logits"], T)
-        pr = modeling.sigmoid(np.load(d / "preds_rsna.npz")["logits"], T)
-        groups = [("Children 1-5", Xk, mk, pk, (mk.split == "test").values),
-                  ("Adults", Xr, mr, pr, ((mr.split == "test") & mr.is_adult).values)]
-        fig, axes = plt.subplots(4, 4, figsize=(9.6, 10.2))
-        res["failures"][name] = {}
-        row = 0
-        for gname, X, meta, p, m in groups:
-            y = meta.label.values
-            missed = np.flatnonzero(m & (y == 1) & (p < thr))
-            false_alarm = np.flatnonzero(m & (y == 0) & (p >= thr))
-            res["failures"][name][gname] = dict(n_test=int(m.sum()), missed_pneumonia=int(len(missed)), false_alarms=int(len(false_alarm)))
-            for kind, idx, order in (("Missed pneumonia", missed, np.argsort(p[missed])),
-                                     ("False alarm", false_alarm, np.argsort(-p[false_alarm]))):
-                pick = idx[order][:4]
-                cams = cams_for(model, X, pick) if len(pick) else []
-                for j in range(4):
-                    ax = axes[row, j]; ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
-                    if j < len(pick):
-                        gray = center_crop(np.asarray(X[pick[j]]))
-                        ax.imshow(cam.overlay(gray, cams[j]))
-                        extra = f", age {int(meta.age[pick[j]])}, {meta['view'][pick[j]]}" if "age" in meta else ""
-                        ax.set_title(f"model says {p[pick[j]]:.0%}{extra}", fontsize=9, fontweight="normal", loc="center")
-                    else:
-                        ax.axis("off")
-                    if j == 0:
-                        ax.set_ylabel(f"{gname}\n{kind}", fontsize=10, color=plotting.TEXT)
-                row += 1
-        fig.suptitle(f"{nice.get(name, name)}: its most confident mistakes", x=0.01, ha="left", fontweight="bold", fontsize=13)
-        fig.tight_layout()
-        plotting.finish(fig, C.FIGURES_DIR / f"heatmap_failures_{name}.png",
-                        note=f"Held-out test images. Flag threshold {thr:.2f}. Heatmap = where the model found evidence for pneumonia.")
+    res["failures"] = failure_gallery(models, Xk, mk, Xr, mr)
 
     (C.RESULTS_DIR / "heatmap_check.json").write_text(json.dumps(res, indent=2))
     print(json.dumps(res, indent=1))
