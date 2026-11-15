@@ -40,7 +40,6 @@ import os
 if not os.path.exists("pneumoshift"):
     !git clone -q {REPO} pneumoshift
 %cd pneumoshift
-!test -d scripts || git checkout -q claude/loving-hawking-jtiwb3
 !pip install -q timm safetensors huggingface_hub pydicom pylibjpeg pylibjpeg-libjpeg scikit-learn pyarrow
 
 import torch

@@ -4,7 +4,7 @@
     python scripts/10_v2_report.py test              # test results of every model, computed here once
     python scripts/10_v2_report.py test --v1-only    # rehearsal with the two published models and the baselines
 
-Runs in the cloud session, never on the training machine. It needs no GPU and no network weights: it works
+Runs on the analysis machine, never on the training machine. It needs no GPU and no network weights: it works
 from each model's stored score for every X-ray (results/v2/<name>/logits.npz for v2 models, the Hub files of
 the published models at the tag v1-before-retraining) and from the prepared data tables.
 

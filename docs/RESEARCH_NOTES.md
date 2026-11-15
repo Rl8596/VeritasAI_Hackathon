@@ -4,7 +4,7 @@ Desk research for the Veritas AI hackathon project (track AI + Health). All web 
 
 How to read the tags:
 
-- **[V]** verified in this session by opening the primary source (URL underneath).
+- **[V]** verified on 14 November 2026 by opening the primary source (URL underneath).
 - **[OWN]** our own measurement from public metadata; reproducible, method described. Cite as "our analysis", not as a literature fact.
 - **[UNVERIFIED]** from memory or from a search snippet only. Do not put it in the write-up before checking. All of these are collected again in section 7.
 
@@ -214,7 +214,7 @@ Three caveats:
 
 - **[V]** RSNA's own two-page dataset description lists "Non-commercial purpose" under "Data use agreement/licensing". This contradicts the "commercial or non-commercial" wording of the terms page. Our use is non-commercial, so it does not affect us.
   - https://www.rsna.org/-/media/Files/RSNA/Education/AI%20resources%20and%20training/AI%20image%20challenge/RSNA-2018-Pneumonia-Detection-Challenge-Dataset-Description.ashx?la=en&hash=8331DDFA52AA5EE9C3C99B5983BB680D7BD2ABBF
-- **[UNVERIFIED]** If we download from Kaggle, the Kaggle competition rules (section 7, "Competition Data") also apply to that copy. The rules page could not be opened from this session (captcha). A Hugging Face mirror labels the Kaggle zip "subject-to-competition-rules". Either read that section before re-uploading anything, or download from RSNA's own links, which are covered by the terms quoted above.
+- **[UNVERIFIED]** If we download from Kaggle, the Kaggle competition rules (section 7, "Competition Data") also apply to that copy. The rules page could not be opened (captcha). A Hugging Face mirror labels the Kaggle zip "subject-to-competition-rules". Either read that section before re-uploading anything, or download from RSNA's own links, which are covered by the terms quoted above.
 - RSNA's own download of the challenge images is 3.98 GB of DICOM files: https://s3.amazonaws.com/east1.public.rsna.org/AI/2018/pneumonia-challenge-dataset-adjudicated-kaggle_2018.zip
 
 ---
@@ -240,7 +240,7 @@ And in the recommendations: "including paediatric images in the COVID-19 context
 
 - Abstract and numbers: https://api.crossref.org/works/10.1038/s42256-021-00307-0
 - Quote: https://arxiv.org/abs/2008.06388
-- Journal page: https://www.nature.com/articles/s42256-021-00307-0 (returned "too many requests" in this session; the count reads 16/61 in the arXiv text and the journal version reviews 62 papers, so check the fraction on the journal page before quoting it)
+- Journal page: https://www.nature.com/articles/s42256-021-00307-0 (returned "too many requests" when we tried; the count reads 16/61 in the arXiv text and the journal version reviews 62 papers, so check the fraction on the journal page before quoting it)
 
 **DeGrave, Janizek and Lee 2021, Nature Machine Intelligence. [V] for the abstract of the preprint.**
 "recent deep learning systems to detect COVID-19 from chest radiographs rely on confounding factors rather than medical pathology, creating an alarming situation in which the systems appear accurate, but fail when tested in new hospitals." The exact AUC drop was not re-checked (section 7).
@@ -451,7 +451,7 @@ Two more signs that it is the default:
 
 ## 7. Not verified / uncertain
 
-Sources that could not be opened from this session: cell.com, nature.com (rate limit), mdpi.com, link.springer.com, papers.ssrn.com, data.unicef.org, the Kaggle web pages (the public Kaggle API did work), and github.com outside the Cohen raw files.
+Sources that could not be opened: cell.com, nature.com (rate limit), mdpi.com, link.springer.com, papers.ssrn.com, data.unicef.org, the Kaggle web pages (the public Kaggle API did work), and github.com outside the Cohen raw files.
 
 1. **Numbers in the Kermany paper itself.** From memory, the paper reports 5,232 training images (3,883 pneumonia, of which 2,538 bacterial and 1,345 viral; 1,349 normal) and 624 test images (234 normal, 390 pneumonia) "from 624 patients", and about 92.8% accuracy for pneumonia versus normal. The totals agree with the file counts in section 1.3, but the wording and the accuracy were not re-read.
 2. **Roberts et al. fraction.** "16/61" is the arXiv version 4 text. The journal version reviews 62 papers; check whether it prints 16/62.
