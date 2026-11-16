@@ -8,7 +8,7 @@
 **Video (2 minutes):** https://youtu.be/YyU2-6qKkkM  
 **Models:** [children-only](https://huggingface.co/RL8596/pneumoshift-kids-only), [children + adults](https://huggingface.co/RL8596/pneumoshift-kids-plus-adults)
 
-This project is a prototype and is not medical advice.  
+  
 Research demo. Not a medical device. Not for diagnosis.
 
 ---
